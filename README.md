@@ -1,7 +1,5 @@
 # DocuDash
 
-# DocuDash
-
 DocuDash is an e-Document and e-Approval web application designed for individuals and organizations who want to streamline their document management and approval processes. With DocuDash, users can easily create, edit, and share documents, as well as track their approval status in real-time. 
 
 
