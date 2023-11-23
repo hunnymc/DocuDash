@@ -1,13 +1,13 @@
-package DocuDash.DocuDashAPI;
+package doc.backendapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DocuDashApiApplicationTests {
+class BackendApiApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
