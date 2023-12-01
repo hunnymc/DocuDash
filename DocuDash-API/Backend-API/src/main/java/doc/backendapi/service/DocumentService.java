@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 public class DocumentService {
@@ -59,7 +58,6 @@ public class DocumentService {
     public void deleteDocument(int id) {
         documentRepository.deleteById(id);
     }
-
 
     public Document getDocumentById(int id) {
         return documentRepository.findById(id).orElse(null);

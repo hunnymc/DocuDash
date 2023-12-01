@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+    docudash-db:
+        image: mysql
+        container_name: docudash-db
+        ports:
+            - 3003:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: edoc1234
+        restart: on-failure
+        volumes:
+            - ./mysql:/docker-entrypoint-initdb.d
+
+    docudash-backend:
+        image: backendimg
+        container_name: docudash-backend
+        build:
+            context: ./DocuDash-API/Backend-API
+        depends_on:
+            - docudash-db
+        links:
+            - docudash-db:mysql
+        ports:
+            - 3002:8080
+        restart: on-failure
+
+    docudash-view:
+        image: frontendimg
+        container_name: docudash-view
+        build:
+            context: ./DocuDash-View
+        depends_on:
+            - docudash-db
+            - docudash-backend
+        ports:
+            - 3001:80
+        restart: on-failure

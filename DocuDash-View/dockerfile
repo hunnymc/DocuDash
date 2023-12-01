@@ -1,0 +1,26 @@
+# สร้าง image จาก oven/bun และตั้งชื่อ stage ว่า build-stage
+FROM oven/bun as build-stage
+# ตั้ง /app เป็น working directory
+WORKDIR /app
+# คัดลอก package*.json ไปยัง working directory
+COPY package*.json ./
+# ติดตั้ง dependencies ด้วย bun
+RUN bun install
+# คัดลอกไฟล์ทั้งหมดจาก directory ปัจจุบันไปยัง working directory ใน Docker
+COPY . .
+# สร้าง application ด้วย bun
+RUN bun run build
+
+
+# สร้าง stage ใหม่จาก nginx และตั้งชื่อว่า production-stage
+FROM nginx as production-stage
+# สร้าง directory /app ใน Docker
+RUN mkdir /app
+# คัดลอกไฟล์ที่สร้างจาก build-stage ไปยัง /app
+COPY --from=build-stage /app/dist /app
+# ลบ default.conf ที่อยู่ใน /etc/nginx/conf.d/
+RUN rm /etc/nginx/conf.d/default.conf
+# คัดลอก nginx.conf ไปยัง /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+# รัน nginx แบบไม่ใช้ daemon
+CMD ["nginx", "-g", "daemon off;"]
