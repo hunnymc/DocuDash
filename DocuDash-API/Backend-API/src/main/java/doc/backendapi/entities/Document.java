@@ -1,6 +1,8 @@
 package doc.backendapi.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,9 +18,11 @@ public class Document {
     @Column(name = "DocumentID", nullable = false)
     private Integer id;
 
+    @Size(max = 255)
     @Column(name = "Title")
     private String title;
 
+    @Size(max = 255)
     @Column(name = "FilePath")
     private String filePath;
 
@@ -28,22 +32,33 @@ public class Document {
     @Column(name = "DateUpdate")
     private Instant dateUpdate;
 
+    @Size(max = 255)
     @Column(name = "Category")
     private String category;
 
+    @Size(max = 255)
     @Column(name = "SecrecyLevel")
     private String secrecyLevel;
 
+    @Size(max = 255)
     @Column(name = "Urgency")
     private String urgency;
 
+    @Size(max = 255)
     @Column(name = "FromSource")
     private String fromSource;
 
+    @Size(max = 255)
     @Column(name = "Status")
     private String status;
 
-    @Column(name = "UploadBy")
-    private Integer uploadBy;
+    @Size(max = 255)
+    @Column(name = "Description")
+    private String description;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "users_UserID", nullable = false)
+    private User usersUserid;
 
 }

@@ -14,13 +14,13 @@
 </button>
 
 <!--sidebar Dropdown menu -->
-<div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700    hover:delay-300">
-    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+<div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700    ">
+    <ul class="rounded-2xl py-2 text-sm text-gray-700 bg-lime-100  dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
       <li>
-        <a href="#" class="block px-4 py-2 hover:bg-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">สร้างเอกสาร</a>
+        <a href="#" class="block px-4 py-2 font-bold hover:bg-lime-300 bg-lime-400 dark:hover:bg-gray-600 dark:hover:text-white">* สร้างเอกสาร *</a>
       </li>
       <li>
-        <a href="#" class="block px-4 py-2 hover:bg-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">ลงนามเอกสาร</a>
+        <a href="#" class="block px-4 py-2 font-bold hover:bg-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">ลงนามเอกสาร</a>
       </li>
       <!-- <li>
         <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</a>
@@ -104,7 +104,7 @@
                         </div>
                         <br>
                         <hr class="border-slate-400" />
-                        
+                        <a class="px-1 font-bold text-xs text-neutral-400">ทั่วไป</a>
                         <!-- List ใน Drop down -->
                         <!-- <div class="pt-2 pl-4">
                             <ul class="flex flex-col pl-2 text-white border-l border-slate-300">
@@ -172,11 +172,11 @@
                             </svg>
                         </div>
                         <a href="#"
-                            class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800"> เอกสารภายใน </a>
+                            class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800"> เอกสารภายนอก </a>
                     </li>
                     <br>
                     <hr class="border-slate-400" />
-                    
+                    <a class="px-1    font-bold text-xs text-neutral-400">ตามการดำเนินงาน</a>
                     <li class="relative text-white hover:text-white focus-within:text-white">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
                             <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24">
@@ -222,7 +222,20 @@
             <div class="px-6 pt-8">
                 <hr class="border-slate-400" />
             </div>
+            <a class="px-6 pt-4 mt-4   font-bold text-xs text-neutral-400">หมวดหมู่ของผู้ใช้</a>
+            
             <div class="px-6 pt-4 pb-8">
+               
+                <button data-tooltip-target="testtool" data-tooltip-trigger="click" type="button" class="text-white bg-green-700 hover:bg-green-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-1 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    <svg class="-translate-x-3 rtl:rotate-180 w-7 h-7 ms-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect  fill="white"></rect> <path d="M12 6V18" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6 12H18" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>เพิ่มหมวดหมู่
+                
+                </button>
+                <!-- กดทิปส์ -->
+                <div id="testtool" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+             งาน Release หน้าจ้า
+                <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
                 <ul>
                     <li class="relative text-white hover:text-white focus-within:text-white">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">

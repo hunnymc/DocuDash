@@ -2,7 +2,6 @@
 
 DocuDash is an e-Document and e-Approval web application designed for individuals and organizations who want to streamline their document management and approval processes. With DocuDash, users can easily create, edit, and share documents, as well as track their approval status in real-time. 
 
-
 ## Table of Contents
 
 - [About the Project](#about-the-project)
@@ -25,9 +24,11 @@ Here's a blank template to get started:
 
 ### Built With
 
-* [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
-* [Laravel](https://laravel.com)
+* [Spring Boot](https://spring.io/projects/spring-boot)
+* [MySQL](https://www.mysql.com/)
+* [Vue.js](https://vuejs.org/)
+* [Vite](https://vitejs.dev/)
+* [Nginx](https://www.nginx.com/)
 
 ## Getting Started
 
@@ -88,10 +89,4 @@ Project Link: [https://github.com/your_username_/Project-Name](https://github.co
 * [Img Shields](https://shields.io)
 * [Choose an Open Source License](https://choosealicense.com)
 * [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
-* [Smooth Scroll](https://github.com/cferdinandi/smooth-scroll)
-* [Sticky Kit](http://leafo.net/sticky-kit)
-* [JVectorMap](http://jvectormap.com)
 * [Font Awesome](https://fontawesome.com)

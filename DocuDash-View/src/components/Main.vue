@@ -12,8 +12,6 @@
 import Navbar from './Navbar.vue'
 import Sidebar from './Sidebar.vue'
 import Content from './Content.vue'
-
-
 </script>
 
 <style scoped>

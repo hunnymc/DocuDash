@@ -1,14 +1,19 @@
-version: '3'
+version: '3.1'
+
+networks:
+    docudash-network:
 
 services:
     docudash-db:
         image: mysql
         container_name: docudash-db
         ports:
-            - 3003:3306
+            - "10002:3306"
         environment:
             MYSQL_ROOT_PASSWORD: edoc1234
-        restart: on-failure
+#        restart: unless-stopped
+        networks:
+            - docudash-network
         volumes:
             - ./mysql:/docker-entrypoint-initdb.d
 
@@ -17,22 +22,30 @@ services:
         container_name: docudash-backend
         build:
             context: ./DocuDash-API/Backend-API
+        environment:
+            - spring.datasource.url=jdbc:mysql://docudash-db:3306/documentdb?useUnicode=true&characterEncoding=UTF-8
+            - spring.datasource.password=edoc1234
         depends_on:
             - docudash-db
+        networks:
+            - docudash-network
         links:
             - docudash-db:mysql
         ports:
-            - 3002:8080
-        restart: on-failure
+            - "10003:8080"
+        restart: unless-stopped
 
     docudash-view:
         image: frontendimg
         container_name: docudash-view
+        networks:
+            - docudash-network
         build:
             context: ./DocuDash-View
+            dockerfile: Dockerfile
         depends_on:
             - docudash-db
             - docudash-backend
         ports:
-            - 3001:80
-        restart: on-failure
+            - "10001:80"
+        restart: unless-stopped

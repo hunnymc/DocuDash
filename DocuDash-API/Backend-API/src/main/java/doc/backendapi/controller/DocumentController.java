@@ -1,5 +1,6 @@
 package doc.backendapi.controller;
 
+import doc.backendapi.DTO.DocumentDto;
 import doc.backendapi.entities.Document;
 import doc.backendapi.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class DocumentController {
     private DocumentService documentService;
 
     @GetMapping("/")
-    public List<Document> getDocument() {
+    public List<DocumentDto> getDocument() {
         return documentService.getAllDocument();
     }
 
@@ -23,13 +24,14 @@ public class DocumentController {
     public Document getDocumentById(@PathVariable int id) {
         return documentService.getDocumentById(id);
     }
+
     @PostMapping("/")
-    public Document saveDocument(@RequestBody Document document) {
-        return documentService.saveDocument(document);
+    public DocumentDto saveDocument(@RequestBody DocumentDto documentDto) {
+        return documentService.saveDocument(documentDto);
     }
 
     @PatchMapping("/{id}")
-    public Document updateDocument(@PathVariable int id, @RequestBody Document document) {
+    public Document updateDocument(@PathVariable int id, @RequestBody DocumentDto document) {
         return documentService.updateDocument(id, document);
     }
 
