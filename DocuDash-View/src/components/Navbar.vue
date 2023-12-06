@@ -42,7 +42,7 @@
           </div>
         </div>
   
-        <!-- Mobile Menu open: "block", Menu closed: "hidden" -->
+        <!-- Mobile Menu open แฮม-->
         <ul
           :class="showMenu ? 'flex' : 'hidden'"
           class="
@@ -54,7 +54,14 @@
         >
           <li class="text-gray-100 hover:text-indigo-400 cursor-pointer"> 
             หน้าแรก</li>
-          <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">แจ้งเตือน </li>
+          <li data-tooltip-target="testtool1" data-tooltip-trigger="click" class="text-gray-100 hover:text-indigo-400 cursor-pointer">แจ้งเตือน </li>
+
+          <!-- กดทิปส์ -->
+          <div id="testtool1" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+             งาน Release หน้าจ้า
+                <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
           <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">ข้อมูลผู้ใช้งาน</li>
           <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">
           
@@ -91,7 +98,7 @@
     </div>
 </div>
 </li>
-          <!-- <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">Log out</li> -->
+          <!-- <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">ออกจากระบบ</li> -->
         </ul>
         
       </nav>

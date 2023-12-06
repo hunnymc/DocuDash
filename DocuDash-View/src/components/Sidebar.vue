@@ -31,28 +31,7 @@
     </ul>
 </div>
 </div>
-            <!-- โลโก้เว็บเดิม -->
-            <!-- <div class="px-6 pt-8">
-                <div class="flex items-center justify-between">
-                    <a href="#"
-                        class="bg-blue-600 p-1.5 rounded flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"><svg
-                            class="w-5 h-5 text-white stroke-current" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 4.75L19.25 9L12 13.25L4.75 9L12 4.75Z" stroke="currentColor" stroke-width="1.5"
-                                stroke-linecap="round" stroke-linejoin="round"></path>
-                            <path d="M9.25 12L4.75 15L12 19.25L19.25 15L14.6722 12" stroke="currentColor" stroke-width="1.5"
-                                stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg></a>
-                    <button
-                        class="flex items-center justify-center p-0.5 rounded bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500">
-                        <svg class="w-3 h-3 text-white stroke-current" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10.25 6.75L4.75 12L10.25 17.25"></path>
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19.25 12H5"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div> -->
+            
 
             <!-- กล่องเสิช -->
             <!-- <div class="px-6 pt-4">
@@ -90,9 +69,15 @@
                                     stroke-width="1.5" d="M5 8.25H19"></path>
                             </svg>
                         </div>
-                                <a href="#"
+                                <a href="#" data-tooltip-target="testtool2" data-tooltip-trigger="click"
                                     class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">ทะเบียนเอกสารทั้งหมด</a>
                             </div>
+
+                            <!-- กดทิปส์ -->
+          <div id="testtool2" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+             งาน Release หน้าจ้า
+                <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
                             
                             <!-- ลูกศร Drop -->
                             <!-- <button class="absolute right-0 flex items-center p-1" tabindex="-1">
@@ -179,40 +164,15 @@
                     <a class="px-1    font-bold text-xs text-neutral-400">ตามการดำเนินงาน</a>
                     <li class="relative text-white hover:text-white focus-within:text-white">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
-                            <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5"
-                                    d="M5.75 19.2502H6.25C6.80229 19.2502 7.25 18.8025 7.25 18.2502V15.75C7.25 15.1977 6.80229 14.75 6.25 14.75H5.75C5.19772 14.75 4.75 15.1977 4.75 15.75V18.2502C4.75 18.8025 5.19772 19.2502 5.75 19.2502Z">
-                                </path>
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5"
-                                    d="M11.75 19.2502H12.25C12.8023 19.2502 13.25 18.8025 13.25 18.2502V12.75C13.25 12.1977 12.8023 11.75 12.25 11.75H11.75C11.1977 11.75 10.75 12.1977 10.75 12.75V18.2502C10.75 18.8025 11.1977 19.2502 11.75 19.2502Z">
-                                </path>
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5"
-                                    d="M17.75 19.2502H18.25C18.8023 19.2502 19.25 18.8025 19.25 18.2502V5.75C19.25 5.19772 18.8023 4.75 18.25 4.75H17.75C17.1977 4.75 16.75 5.19772 16.75 5.75V18.2502C16.75 18.8025 17.1977 19.2502 17.75 19.2502Z">
-                                </path>
-                            </svg>
+                            <svg class="w-5 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M8.5 21H4C4 17.134 7.13401 14 11 14C11.1681 14 11.3348 14.0059 11.5 14.0176M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7ZM12.5898 21L14.6148 20.595C14.7914 20.5597 14.8797 20.542 14.962 20.5097C15.0351 20.4811 15.1045 20.4439 15.1689 20.399C15.2414 20.3484 15.3051 20.2848 15.4324 20.1574L19.5898 16C20.1421 15.4477 20.1421 14.5523 19.5898 14C19.0376 13.4477 18.1421 13.4477 17.5898 14L13.4324 18.1574C13.3051 18.2848 13.2414 18.3484 13.1908 18.421C13.1459 18.4853 13.1088 18.5548 13.0801 18.6279C13.0478 18.7102 13.0302 18.7985 12.9948 18.975L12.5898 21Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
                         </div>
                         <a href="#"
                             class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">เอกสารรอลงนาม</a>
                     </li>
                     <li class="relative text-white hover:text-white focus-within:text-white">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
-                            <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="7.25" stroke="currentColor" stroke-linecap="round"
-                                    stroke-linejoin="round" stroke-width="1.5"></circle>
-                                <circle cx="12" cy="12" r="3.25" stroke="currentColor" stroke-linecap="round"
-                                    stroke-linejoin="round" stroke-width="1.5"></circle>
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5" d="M7 17L9.5 14.5"></path>
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5" d="M17 17L14.5 14.5"></path>
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5" d="M9.5 9.5L7 7"></path>
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5" d="M14.5 9.5L17 7"></path>
-                            </svg>
+                            <svg class="w-5 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M15 6H9M20 21H19M19 21H5M19 21C19 18.4898 17.7877 16.1341 15.7451 14.675L12 12M5 21H4M5 21C5 18.4898 6.21228 16.1341 8.25493 14.675L12 12M20 3H19M19 3H5M19 3C19 5.51022 17.7877 7.86592 15.7451 9.32495L12 12M5 3H4M5 3C5 5.51022 6.21228 7.86592 8.25493 9.32495L12 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                            
                         </div>
                         <a href="#"
                             class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">เอกสารรอปฎิบัติ</a>
@@ -301,40 +261,7 @@
                     
                 </ul>
             </div>
-            <!-- <div
-        class="pl-6 pr-4 py-4 bg-[#232529] flex items-center justify-between"
-      >
-        <div class="flex items-center">
-          <div
-            class="relative w-8 h-8 rounded-full before:absolute before:w-2 before:h-2 before:bg-green-500 before:rounded-full before:right-0 before:bottom-0 before:ring-1 before:ring-white"
-          >
-            <img
-              class="rounded-full"
-              src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60"
-              alt=""
-            />
-          </div>
-          <div class="flex flex-col pl-3">
-            <div class="text-sm text-gray-50">Jane Doeson</div>
-            <span class="text-xs text-[#acacb0] font-light tracking-tight">
-              janedoeson@gmail.com
-            </span>
-          </div>
-        </div>
-        <button
-          class="text-gray-400 bg-gray-700 rounded focus:outline-none focus:ring-1 focus:ring-gray-500 focus:text-white"
-        >
-          <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24">
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M15.25 10.75L12 14.25L8.75 10.75"
-            ></path>
-          </svg>
-        </button>
-      </div> -->
+           
         </div>
     </div>
 </template>

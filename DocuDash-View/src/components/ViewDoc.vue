@@ -18,7 +18,7 @@
         <p>ท่านสามารถสร้างเอกสารที่ต้องการโดยกรอกรายละเอียดเอกสารต่าง ๆ ลงในแบบฟอร์ม แนบไฟล์เอกสาร และกดยืนยันเพื่อทำการส่ง</p>
         <h3 class="font-semibold text-gray-900 dark:text-white">การเลือกผู้ส่ง</h3>
         <p>ท่านสามารถเลือกผู้คนที่ต้องการจะส่งถึงได้ หากเลือกผิดสามารถทำการลบหรือเพิ่มในภายหลังได้ที่หน้าแรก</p>
-        <!-- <a href="#" class="flex items-center font-medium text-blue-600 dark:text-blue-500 dark:hover:text-blue-600 hover:text-blue-700 hover:underline">Read more <svg class="w-2 h-2 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+        <!-- <a href="#" class="flex items-center font-medium text-blue-600 dark:text-blue-500 dark:hover:text-blue-600 hover:text-blue-700 hover:underline">อ่านเพิ่มเติม <svg class="w-2 h-2 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
   </svg></a> -->
     </div>
@@ -28,7 +28,7 @@
                 <!-- <form action="#"> -->
               <div class="grid gap-4 grid-rows-8 sm:grid-cols-2 sm:gap-6">
               <!-- <div class="sm:col-span-2">
-                  <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Product Name</label>
+                  <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อ</label>
                   <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type product name" required="">
               </div> -->
               <div class="w-full">
@@ -107,8 +107,8 @@
               </div>
               <br>
               <!-- <div>
-                  <label for="item-weight" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">Item Weight (kg)</label>
-                  <input type="number" name="item-weight" id="item-weight" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="12" required="">
+                  <label  class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">สาขา</label>
+                  <input  id="item-weight" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="12" required="">
               </div>  -->
 
               <!-- เลือกผู้ส่ง -->
@@ -145,22 +145,22 @@
          <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
         <div class="flex items-center ps-3">
            
-            <label for="vue-checkbox" class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">นภา ฟ้าสวย</label>
-            <label for="angular-checkbox" class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">งานเอกสาร</label>
+            <label  class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">นภา ฟ้าสวย</label>
+            <label class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">งานเอกสาร</label>
         </div>
     </li>
     <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
         <div class="flex items-center ps-3">
            
-            <label for="react-checkbox" class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">ใบฝ้าย นุ่มมิ่ม</label>
-            <label for="angular-checkbox" class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายขาย</label>
+            <label  class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">ใบฝ้าย นุ่มมิ่ม</label>
+            <label  class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายขาย</label>
         </div>
     </li>
     <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
         <div class="flex items-center ps-3">
             
-            <label for="angular-checkbox" class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">กันยา นาปี</label>
-            <label for="angular-checkbox" class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายผลิต</label>
+            <label  class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">กันยา นาปี</label>
+            <label  class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายผลิต</label>
             </div>
             </li>
              </ul>

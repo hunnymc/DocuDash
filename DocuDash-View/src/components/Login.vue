@@ -6,11 +6,7 @@
       <a
         class="flex items-center mb-6 text-2xl font-bold text-gray-900 dark:text-white"
       >
-        <!-- <img
-          class="w-8 h-8 mr-2"
-          src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
-          alt="logo"
-        /> -->
+        
         DocuDash
       </a>
       <div
@@ -80,7 +76,7 @@
               เข้าสู่ระบบ
             </button>
             <!-- <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-              Don’t have an account yet?
+              ยังไม่มีแอคเคาท์?
               <a
                 href="#"
                 class="font-medium text-primary-600 hover:underline dark:text-primary-500"
