@@ -6,7 +6,7 @@
        
       <!-- <hr class="my-2 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-" /> -->
       <div class="sm:flex sm:items-center sm:justify-between">
-          <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="#" class="hover:underline">CP23KW2</a>. Present.
+          <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"> 2023 <a href="https://github.com/hunnymc/DocuDash" class="hover:underline">CP23KW2</a>. Present.
           </span>
           <div class="flex mt-4 sm:justify-center sm:mt-0">
               

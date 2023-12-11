@@ -1,13 +1,16 @@
 <script setup>
+import { RouterLink } from 'vue-router';
+import { ref } from 'vue';
+
 
 </script>
  
 <template>
     <div class="flex   min-h-screen ">
         <div class="w-64  bg-green-950 ">
-
+    <!-- **** ปุ่มใหญ่จัดการเอกสารเขียวๆ **** -->
             <div class="px-6 pt-8 ">
-<button id="side1" data-dropdown-toggle="dropdown" class="text-white bg-lime-500 hover:bg-lime-600 focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-8 py-2.5 text-center inline-flex items-center " type="button">
+                <button id="side1" data-dropdown-toggle="dropdown" class=" text-white bg-lime-500 hover:bg-lime-600   rounded-lg text-sm px-8 py-2.5 text-center inline-flex items-center " type="button">
     จัดการเอกสาร <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
 </svg>
@@ -17,11 +20,21 @@
 <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700    ">
     <ul class="rounded-2xl py-2 text-sm text-gray-700 bg-lime-100  dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
       <li>
-        <a href="#" class="block px-4 py-2 font-bold hover:bg-lime-300 bg-lime-400 dark:hover:bg-gray-600 dark:hover:text-white">* สร้างเอกสาร *</a>
+        <div>
+             <!-- **** ปุ่มเข้าหน้าสร้าง **** -->
+             <a href="/add" class="flex block px-2 py-2 font-bold hover:bg-lime-300 bg-lime-400 dark:hover:bg-gray-600 dark:hover:text-white">
+            <svg class="h-5 w-5 mr-4"  viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0" fill="none" width="24" height="24"></rect> <g> <path d="M21 14v5c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2h5v2H5v14h14v-5h2z"></path> <path d="M21 7h-4V3h-2v4h-4v2h4v4h2V9h4"></path> </g> </g>
+            </svg>สร้างเอกสาร</a>
+        </div>
       </li>
-      <li>
-        <a href="#" class="block px-4 py-2 font-bold hover:bg-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">ลงนามเอกสาร</a>
-      </li>
+      <!-- <li>
+        <div>
+        <a href="#" class="flex block px-2 py-2 font-bold hover:bg-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
+        <svg class="h-5 w-4 mr-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="create-note-alt"  fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z" style="fill:#231f20"></path><path d="M22,1.94a1,1,0,0,0-.87-.9,9.45,9.45,0,0,0-2.83.17,1,1,0,0,0-.76.72l-.18.72-.83-.33a1,1,0,0,0-1,.13,4.87,4.87,0,0,0-.7.67C13,5.15,13,8.36,13,9.58l-1.72,1.71a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L14.42,11h.36a7.2,7.2,0,0,0,5.41-2.12h0C22.37,6.39,22,2.12,22,1.94Z"></path></g>
+        </svg>ลงนามเอกสาร</a>
+        
+    </div>
+    </li> -->
       <!-- <li>
         <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</a>
       </li>
@@ -31,7 +44,28 @@
     </ul>
 </div>
 </div>
-            
+
+             <!-- <button type="button" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group bg-lime-500 hover:bg-lime-600 dark:text-white dark:hover:bg-gray-700" aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
+                  <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
+                     <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z"/>
+                  </svg>
+                  <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">จัดการเอกสาร</span>
+                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                  </svg>
+            </button>
+            <ul id="dropdown-example" class="hidden py-2 space-y-2">
+                  <li>
+                     <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">AAA</a>
+                  </li>
+                  <li>
+                     <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">BBB</a>
+                  </li>
+                  <li>
+                     <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">CCC</a>
+                  </li>
+            </ul>
+          -->
 
             <!-- กล่องเสิช -->
             <!-- <div class="px-6 pt-4">
@@ -55,7 +89,7 @@
                 <ul class="flex flex-col space-y-2">
                    
                     <li class="">
-                        <div class="relative flex justify-between text-white hover:text-white focus-within:text-white">
+                        <div class="relative flex justify-between text-white hover:text-white focus-within:text-white ">
                             <div class="flex items-center w-full">
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
                             <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24">
@@ -70,7 +104,7 @@
                             </svg>
                         </div>
                                 <a href="#" data-tooltip-target="testtool2" data-tooltip-trigger="click"
-                                    class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">ทะเบียนเอกสารทั้งหมด</a>
+                                    class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800 ">ทะเบียนเอกสารทั้งหมด</a>
                             </div>
 
                             <!-- กดทิปส์ -->
@@ -129,7 +163,7 @@
                                     </svg>
                                 </div>
                         
-                        <a href="#"
+                        <a href="/list" 
                             class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">เอกสารทั้งหมด</a>
                     
                         </li>
@@ -143,9 +177,15 @@
                                     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
                         </div>
-                        <a href="#"
+                        <a href="#" data-tooltip-target="testtool3" data-tooltip-trigger="click"
                             class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">เอกสารภายใน</a>
                     </li>
+
+                     <div id="testtool3" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                         งาน Release หน้าจ้า
+                        <div class="tooltip-arrow" data-popper-arrow></div></div>
+
+
                     <li class="relative text-white hover:text-white focus-within:text-white">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
                             <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24">
@@ -179,6 +219,7 @@
                     </li>
                 </ul>
             </div>
+
             <div class="px-6 pt-8">
                 <hr class="border-slate-400" />
             </div>
@@ -243,21 +284,8 @@
                         <a href="#"
                             class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">ตั้งค่า</a>
                     </li>
-                    <!-- <li class="relative text-white hover:text-white focus-within:text-white">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
-                            <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5"
-                                    d="M17.25 12V10C17.25 7.1005 14.8995 4.75 12 4.75C9.10051 4.75 6.75 7.10051 6.75 10V12L4.75 16.25H19.25L17.25 12Z">
-                                </path>
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5" d="M9 16.75C9 16.75 9 19.25 12 19.25C15 19.25 15 16.75 15 16.75">
-                                </path>
-                            </svg>
-                        </div>
-                        <a href="#"
-                            class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">Notifications</a>
-                    </li> -->
+
+                   
                     
                 </ul>
             </div>

@@ -2,19 +2,16 @@ package doc.backendapi.DTO;
 
 import doc.backendapi.entities.User;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
 /**
  * DTO for {@link User}
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserDto implements Serializable {
+@Getter
+@Setter
+public class UserDto  {
     private Integer id;
     @Size(max = 255)
     private String username;

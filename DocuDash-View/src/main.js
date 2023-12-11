@@ -1,6 +1,9 @@
-import { createApp } from 'vue'
+import {createApp} from 'vue'
+import App from "./App.vue";
+import router from "./router";
 import './style.css'
-import 'animate.css';
-import App from './App.vue'
+import 'animate.css'
 
-createApp(App).mount('#app')
+createApp(App)
+    .use(router)
+    .mount('#app')

@@ -16,36 +16,19 @@ import java.time.Instant;
 @Setter
 public class DocumentDto {
 
-    @NotNull
-    @NotEmpty
-    @NotBlank
+    Integer id;
     String title;
-
     Instant dateAdd;
-
     Instant dateUpdate;
-
-    @NotNull
-    @NotEmpty
-    @NotBlank
     String category;
-
-    @NotNull
-    @NotEmpty
-    @NotBlank
     String secrecyLevel;
-
-    @NotNull
-    @NotEmpty
-    @NotBlank
     String urgency;
-
-    @NotNull
-    @Size
-    @NotEmpty
-    @NotBlank
+    String filePath;
     String fromSource;
-
+    String branchSource;
+    String description;
+    String emailSource;
+    String phoneSource;
     String status;
 
     private UserDto usersUserid;

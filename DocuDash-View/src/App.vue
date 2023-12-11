@@ -1,23 +1,47 @@
 <script setup>
+import { onMounted, ref , defineComponent, onBeforeMount} from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Navbar from "./components/Navbar.vue";
-import Sidebar from "./components/Sidebar.vue";
-import ListTable from "./components/list-table.vue";
-import Footer from "./components/footer.vue";
-import CreateDoc from "./components/CreateDoc.vue";
-import ViewDoc from "./components/ViewDoc.vue";
+import Cookies from "js-cookie";
+import { initFlowbite, initAccordions, 
+    initCarousels, 
+    initCollapses, 
+    initDials, 
+    initDismisses, 
+    initDrawers, 
+    initDropdowns, 
+    initModals, 
+    initPopovers, 
+    initTabs, 
+    initTooltips  } from 'flowbite'
+
+initFlowbite();
+
+onBeforeMount(() => {
+  if (Cookies.get("documents_DocumentID1") == null 
+  || Cookies.get("documents_DocumentID1") == undefined
+  || Cookies.get("documents_DocumentID1") == ""
+  ) {
+    Cookies.set("documents_DocumentID1", '-1');
+  }
+
+  initAccordions();
+    initCarousels();
+    initCollapses();
+    initDials();
+    initDismisses();
+    initDrawers();
+    initDropdowns();
+    initModals();
+    initPopovers();
+    initTabs();
+    initTooltips();
+});
+
 </script>
 
 <template>
-  <Navbar />
-  <div class="flex">
-    <Sidebar />
-    <!-- <ListTable /> -->
-    <!-- <CreateDoc /> -->
-    <ViewDoc />
-  </div>
-  <Footer />
+  <router-view  ref="routerViewRef" />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

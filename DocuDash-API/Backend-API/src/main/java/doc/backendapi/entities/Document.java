@@ -49,6 +49,18 @@ public class Document {
     private String fromSource;
 
     @Size(max = 255)
+    @Column(name = "branchSource")
+    private String branchSource;
+
+    @Size(max = 255)
+    @Column(name = "emailSource")
+    private String emailSource;
+
+    @Size(max = 255)
+    @Column(name = "phoneSource")
+    private String phoneSource;
+
+    @Size(max = 255)
     @Column(name = "Status")
     private String status;
 
