@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/userdoc")
+@RequestMapping("/api/ud")
 public class UserDocController {
 
     @Autowired

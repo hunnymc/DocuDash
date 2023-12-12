@@ -130,14 +130,14 @@ onBeforeMount(() => {
         </li>
 
         <!-- กดทิปส์ -->
-        <div
+        <!-- <div
           id="testtool1"
           role="tooltip"
           class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
         >
           งาน Release หน้าจ้า
           <div class="tooltip-arrow" data-popper-arrow></div>
-        </div>
+        </div> -->
 
         <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">
           ข้อมูลผู้ใช้งาน
@@ -173,7 +173,7 @@ onBeforeMount(() => {
             role="tooltip"
             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 tooltip"
           >
-            ปุ่มนี้ทำมาเพื่อทดสอบการใช้งานเท่านั้นนะจ๊ะ
+            ปุ่มนี้ทำมาเพื่อทดสอบการใช้งานเท่านั้น
             <div class="tooltip-arrow" data-popper-arrow></div>
           </div>
 

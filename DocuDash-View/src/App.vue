@@ -22,7 +22,7 @@ onBeforeMount(() => {
   || Cookies.get("documents_DocumentID1") == undefined
   || Cookies.get("documents_DocumentID1") == ""
   ) {
-    Cookies.set("documents_DocumentID1", '-1');
+    Cookies.set("documents_DocumentID1", '1');
   }
 
   initAccordions();
