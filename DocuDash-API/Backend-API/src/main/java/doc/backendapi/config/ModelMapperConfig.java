@@ -1,4 +1,4 @@
-package doc.backendapi.Config;
+package doc.backendapi.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

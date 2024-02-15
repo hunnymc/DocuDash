@@ -1,9 +1,18 @@
 <script setup>
-import { ref , onMounted, inject } from "vue";
+import { ref , onMounted } from "vue";
+import { onBeforeRouteUpdate } from "vue-router";
 import Navbar from "../components/Navbar.vue";
 import Sidebar from "../components/Sidebar.vue";
-import ListTable from "../components/list-table.vue";
 import Footer from "../components/footer.vue";
+import CreateDoc from "../components/CreateDoc.vue";
+import Chat from "../components/Chat.vue";
+
+let key = ref(0);
+
+const refresh = () => {
+  key.value++;
+};
+
 
 </script>
 
@@ -11,7 +20,7 @@ import Footer from "../components/footer.vue";
   <Navbar />
   <div class="flex">
     <Sidebar />
-    <ListTable/>
+    <Chat />
 
   </div>
   <Footer />

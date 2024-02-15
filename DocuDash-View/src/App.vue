@@ -15,28 +15,25 @@ import { initFlowbite, initAccordions,
     initTabs, 
     initTooltips  } from 'flowbite'
 
-initFlowbite();
+// initFlowbite();
 
-onBeforeMount(() => {
-  if (Cookies.get("documents_DocumentID1") == null 
-  || Cookies.get("documents_DocumentID1") == undefined
-  || Cookies.get("documents_DocumentID1") == ""
-  ) {
-    Cookies.set("documents_DocumentID1", '1');
-  }
+// onMounted(() => {
+//   initAccordions();
+//     initCarousels();
+//     initCollapses();
+//     initDials();
+//     initDismisses();
+//     initDrawers();
+//     initDropdowns();
+//     initModals();
+//     initPopovers();
+//     initTabs();
+//     initTooltips();
+// });
 
-  initAccordions();
-    initCarousels();
-    initCollapses();
-    initDials();
-    initDismisses();
-    initDrawers();
-    initDropdowns();
-    initModals();
-    initPopovers();
-    initTabs();
-    initTooltips();
-});
+onMounted(() => {
+    initFlowbite();
+})
 
 </script>
 

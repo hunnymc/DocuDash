@@ -1,3 +1,91 @@
+<script setup>
+import { ref, onMounted , onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import axios from "axios";
+import Cookies from "js-cookie";
+
+const router = useRouter();
+
+let userEmail = ref("");
+let password = ref("");
+
+async function login() {
+
+  if (userEmail.value === "" && password.value === "") {
+    alert('Please enter your email and password');
+    return null;
+  }
+
+  if (userEmail.value === "") {
+    alert('Please enter your email');
+    return null;
+  }
+
+  if (password.value === "") {
+    alert('Please enter your password');
+    return null;
+  }
+
+    await axios.post(
+      'http://localhost:5002/api/auth/login'
+      // 'http://cp23kw2.sit.kmutt.ac.th:35000/api/auth/login'
+      , {
+      userEmail: userEmail.value,
+      password: password.value,
+    })
+    
+    .then((response) => {
+      if (response.status === 200) {
+        
+        // Store the JWT token
+        Cookies.set('accessToken', response.data.accessToken);
+        Cookies.set('refreshToken', response.data.refreshToken);
+        Cookies.set('role', response.data.role);
+        Cookies.set('email', userEmail.value);
+
+        alert('Login successful');
+
+        // Redirect to the home page
+        router.push('/');
+
+      } else {
+        alert ('Login failed');
+        return null;
+      }
+    })
+    
+    .catch((error) => {
+      if (error.response.status === 401) {
+        alert('Login failed');
+      }
+
+      if (error.response.status === 500) {
+        alert('Server error');
+      }
+
+      if (error.response.status === 404) {
+        alert('Not found');
+      }
+
+      if (error.response.status === 400) {
+        alert('Bad request');
+      }
+    });
+    
+}
+
+function demoLogin() {
+  userEmail.value = "user1@example.com";
+  password.value = "password1";
+  login();
+}
+
+function goToindex() {
+  router.push("/");
+}
+
+</script>
+
 <template>
   <section class="bg-gray-50 dark:bg-gray-900">
     <div
@@ -6,9 +94,10 @@
       <a
         class="flex items-center mb-6 text-2xl font-bold text-gray-900 dark:text-white"
       >
-        
         DocuDash
       </a>
+      <button @click="demoLogin()">Demo login</button>
+      <button @click="goToindex()">LIST</button>
       <div
         class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
       >
@@ -31,6 +120,7 @@
                 id="email"
                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="name@company.com"
+                v-model="userEmail"
               />
             </div>
             <div>
@@ -45,7 +135,8 @@
                 id="password"
                 placeholder="••••••••"
                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              />
+                v-model="password"
+                />
             </div>
             <!-- <div class="flex items-center justify-between">
               <div class="flex items-start">
@@ -69,14 +160,16 @@
                 >ลืมรหัสผ่านหรือไม่ ?</a
               >
             </div> -->
-            <button
-              type="submit"
-              class="w-full text-white bg-green-500 hover:bg-green-700 shadow-lg hover:shadow-green-900 transition delay-150 duration-300 ease-in-out focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+            <div
+              @click="login()"
+              class="w-full text-white bg-green-500 cursor-pointer hover:bg-green-700 shadow-lg hover:shadow-green-900 transition delay-150 duration-300 ease-in-out focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
             >
               เข้าสู่ระบบ
-            </button>
+          </div>
+
+            <!-- <a @click="login()">ปุ่มสำรอง</a> -->
             <!-- <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-              ยังไม่มีแอคเคาท์?
+              ลืมรหัสผ่าน?
               <a
                 href="#"
                 class="font-medium text-primary-600 hover:underline dark:text-primary-500"
@@ -89,7 +182,5 @@
     </div>
   </section>
 </template>
-
-<script setup lang="ts"></script>
 
 <style scoped></style>

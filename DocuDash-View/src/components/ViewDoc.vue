@@ -2,6 +2,7 @@
 import { ref, onMounted , onUnmounted} from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const route = useRoute();
 
@@ -26,13 +27,27 @@ let doc_id = ref();
 
 const ClickFile = () => {
     // const fileUrl = "http://localhost:5001/api/files/" + doc.value.filePath;
-    const fileUrl = "http://cp23kw2.sit.kmutt.ac.th:10003/api/files/" + doc.value.filePath;
-    window.open(fileUrl, '_blank');
+    const fileUrl = 
+    // "http://cp23kw2.sit.kmutt.ac.th:10003/api/files/"
+    "http://localhost:5002/api/files/"
+     + doc.value.filePath;
+    // window.open(fileUrl, '_blank');
+    const token = Cookies.get("accessToken"); // replace 'accessToken' with the actual key used to store the token
+const urlWithToken = `${fileUrl}?token=${token}`;
+window.open(urlWithToken, '_blank');
 };
 
 onMounted(async () => {
     doc_id.value = route.params.id;
-    const response = await axios.get("http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/" + doc_id.value);
+    const response = await axios.get(
+        // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/" 
+        "http://localhost:5002/api/doc/" 
+        + doc_id.value , {
+            headers: {
+                "Authorization": "Bearer " + Cookies.get("accessToken"),
+            },
+        }
+    );
     doc.value = response.data;
 
   const isRefresh = sessionStorage.getItem('isRefresh');

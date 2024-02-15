@@ -3,14 +3,22 @@ import { ref, watch, computed, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import router from "../router";
 import Cookies from "js-cookie";
+import { useLoginUserStore } from "../stores/LoginUserStore";
+
+const loginUserStore = useLoginUserStore();
 
 const showAlert = ref(false);
 
 const getDocID = async () => {
-  // const response = await axios.get("http://localhost:5001/api/doc/newdocid");
   const response = await axios.get(
-    "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/newdocid"
-  );
+    "http://localhost:5002/api/doc/newdocid"
+    // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/newdocid"
+    , {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("accessToken")}`,
+      },
+    });
+
   newdocid.value = response.data;
 };
 
@@ -55,9 +63,11 @@ watch(selectedSentUser, (newVal, oldVal) => {
 
 const newDocdata = ref({
   usersUserid: {
-    id: -1,
+    id: 1,
   },
 });
+
+console.log(newDocdata.value.usersUserid.id);
 
 let file = ref(null);
 
@@ -126,11 +136,14 @@ const CreateDocApi = async () => {
   formData.append("data", JSON.stringify(newDocdata.value));
   try {
     const response = await axios.post(
-      "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/",
+      // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/",
+      "http://localhost:5002/api/doc/",
+
       formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
         },
       }
     );
@@ -141,16 +154,57 @@ const CreateDocApi = async () => {
       response.status === 200 ||
       response.status === 204
     ) {
-      alert("Document created successfully");
+      // alert("Document created successfully");
 
       showAlert.value = true;
       setTimeout(() => {
         showAlert.value = false;
       }, 3000);
 
-      await axios.post("http://cp23kw2.sit.kmutt.ac.th:10003/api/userdoc/", userDocs.value);
+      await axios.post(
+        // "http://cp23kw2.sit.kmutt.ac.th:10003/api/userdoc/"
+        "http://localhost:5002/api/userdoc/",
+        userDocs.value,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("accessToken")}`,
+          },
+        }
+      )
+        .then(function (response) {
+          alert('เพิ่มเอกสารสำเร็จ');
+          router.push("/list");
+        })
 
-      return router.push("/list");
+        .catch(function (AxiosError) {
+          if (AxiosError.response) {
+            switch (AxiosError.response.status) {
+              case 400:
+                alert('คำขอไม่ถูกต้อง');
+                break;
+              case 401:
+                alert('ไม่ได้รับอนุญาต');
+                break;
+              case 403:
+                alert('ถูกปฏิเสธ');
+                break;
+              case 404:
+                alert('ไม่พบข้อมูล');
+                break;
+              case 500:
+                alert('เซิร์ฟเวอร์เกิดข้อผิดพลาด');
+                break;
+              default:
+                alert('เกิดข้อผิดพลาด');
+            }
+          } else if (AxiosError.request) {
+            alert('ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์');
+          } else {
+            alert('เกิดข้อผิดพลาด: ' + AxiosError.message);
+          }
+        });
+
+      // return router.push("/list");
     } else {
       alert(`Error: ${response.status}`);
     }
@@ -162,7 +216,7 @@ const CreateDocApi = async () => {
 onMounted(() => {
   getDocID();
 
-  newDocdata.value.usersUserid.id = Cookies.get("documents_DocumentID1");
+  newDocdata.value.usersUserid.id = Cookies.get("userId");
 
   const isRefresh = sessionStorage.getItem("isRefresh");
   const isRefresh2 = sessionStorage.getItem("isRefresh2");
@@ -184,38 +238,21 @@ onUnmounted(() => {
 <template>
   <div class="shadow-md sm:rounded-lg w-full">
     <section class="bg-gray-200 dark:bg-gray-900">
-      <div
-        class="py-8 px-auto ml-5 mr-auto lg:py-12 w-full max-width: 100% justify-center"
-      >
+      <div class="py-8 px-auto ml-5 mr-auto lg:py-12 w-full max-width: 100% justify-center">
         <h2 class="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
           สร้างเอกสารใหม่
-          <button
-            class="m-1 mb-4 pb-4"
-            data-popover-target="popover-description"
-            data-popover-placement="bottom-end"
-            type="button"
-          >
-            <svg
-              class="w-4 h-4 ms-2 text-gray-400 hover:text-gray-500"
-              aria-hidden="true"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
+          <button class="m-1 mb-4 pb-4" data-popover-target="popover-description" data-popover-placement="bottom-end"
+            type="button">
+            <svg class="w-4 h-4 ms-2 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor"
+              viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd"
                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                clip-rule="evenodd"
-              ></path>
+                clip-rule="evenodd"></path>
             </svg>
             <span class="sr-only">Show information</span>
           </button>
-          <div
-            data-popover
-            id="popover-description"
-            role="tooltip"
-            class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400"
-          >
+          <div data-popover id="popover-description" role="tooltip"
+            class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400">
             <div class="p-3 space-y-2">
               <h3 class="font-semibold text-gray-900 dark:text-white">
                 การสร้างเอกสาร
@@ -249,70 +286,38 @@ onUnmounted(() => {
             </div> -->
             <!-- **** เลขเอกสาร **** -->
             <div class="w-full">
-              <label
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >เลขที่ :</label
-              >
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">เลขที่ :</label>
               <input
                 class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w- p-1 dark:bg-gray-700"
-                disabled
-                :placeholder="newdocid"
-              />
+                disabled :placeholder="newdocid" />
             </div>
             <br />
             <!-- **** ชื่อเรื่อง **** -->
             <div class="w-full">
-              <label
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >เรื่อง :</label
-              >
-              <input
-                type="text"
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">เรื่อง :</label>
+              <input type="text"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5"
-                placeholder="กรุณากรอกชื่อเรื่องของเอกสาร"
-                v-model="newDocdata.title"
-                required=""
-              />
+                placeholder="กรุณากรอกชื่อเรื่องของเอกสาร" v-model="newDocdata.title" required="" />
             </div>
             <!-- **** กรอกส่งจากใคร **** -->
             <div class="w-full">
-              <label
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >จาก</label
-              >
-              <input
-                type="text"
-                id="brand"
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">จาก</label>
+              <input type="text" id="brand"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5"
-                placeholder="กรุณากรอกชื่อผู้ส่ง"
-                v-model="newDocdata.fromSource"
-                required=""
-              />
+                placeholder="กรุณากรอกชื่อผู้ส่ง" v-model="newDocdata.fromSource" required="" />
             </div>
             <!-- **** กรอกรายละเอียด **** -->
             <div class="w-full">
-              <label
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >รายละเอียด</label
-              >
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">รายละเอียด</label>
               <input
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5"
-                placeholder="กรอกรายละเอียดภายในเอกสารเบื้องต้น"
-                v-model="newDocdata.description"
-              />
+                placeholder="กรอกรายละเอียดภายในเอกสารเบื้องต้น" v-model="newDocdata.description" />
             </div>
             <!-- **** กรอกแผนก **** -->
             <div>
-              <label
-                for="category"
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >แผนก</label
-              >
-              <select
-                id="category"
-                v-model="newDocdata.branchSource"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700"
-              >
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">แผนก</label>
+              <select id="category" v-model="newDocdata.branchSource"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700">
                 <option selected="">เลือกแผนกของผู้ส่ง</option>
                 <option value="ฝ่ายเอกสาร">ฝ่ายเอกสาร</option>
                 <option value="ฝ่ายการตลาด">ฝ่ายการตลาด</option>
@@ -327,42 +332,23 @@ onUnmounted(() => {
             </div>
             <!-- **** โทรศัพท์ **** -->
             <div class="w-full">
-              <label
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >โทรศัพท์</label
-              >
-              <input
-                type="number"
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">โทรศัพท์</label>
+              <input type="number"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5"
-                placeholder="08X-XXX-XXXX"
-                v-model="newDocdata.phoneSource"
-              />
+                placeholder="08X-XXX-XXXX" v-model="newDocdata.phoneSource" />
             </div>
             <!-- **** อีเมล **** -->
             <div class="w-full">
-              <label
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >อีเมล</label
-              >
-              <input
-                type="email"
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">อีเมล</label>
+              <input type="email"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5"
-                placeholder="Example@xmail.com"
-                v-model="newDocdata.emailSource"
-              />
+                placeholder="Example@xmail.com" v-model="newDocdata.emailSource" />
             </div>
             <!-- หมวดหมู่ -->
             <div>
-              <label
-                for="category"
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >หมวดหมู่</label
-              >
-              <select
-                id="category"
-                v-model="newDocdata.category"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700"
-              >
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">หมวดหมู่</label>
+              <select id="category" v-model="newDocdata.category"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700">
                 <option selected="">เลือกหมวดหมู่เอกสาร</option>
                 <option value="เอกสารภายนอก">เอกสารภายนอก</option>
                 <option value="เอกสารภายใน">เอกสารภายใน</option>
@@ -371,16 +357,10 @@ onUnmounted(() => {
 
             <!-- **** ความเร่งด่วน **** -->
             <div>
-              <label
-                for="category"
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >ความเร่งด่วน</label
-              >
-              <select
-                id="category"
-                v-model="newDocdata.urgency"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700"
-              >
+              <label for="category"
+                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">ความเร่งด่วน</label>
+              <select id="category" v-model="newDocdata.urgency"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700">
                 <option selected="">เลือกความเร่งด่วนของเอกสาร</option>
                 <option value="ปกติ">ปกติ</option>
                 <option value="ด่วน">ด่วน</option>
@@ -390,16 +370,9 @@ onUnmounted(() => {
 
             <!-- **** ชั้นความลับ **** -->
             <div>
-              <label
-                for="category"
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >ชั้นความลับ</label
-              >
-              <select
-                id="category"
-                v-model="newDocdata.secrecyLevel"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700"
-              >
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">ชั้นความลับ</label>
+              <select id="category" v-model="newDocdata.secrecyLevel"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700">
                 <option selected="">เลือกชั้นความลับของเอกสาร</option>
                 <option value="ปกติ">ปกติ</option>
                 <option value="ปกปิด">ปกปิด</option>
@@ -416,81 +389,37 @@ onUnmounted(() => {
 
             <!-- เลือกผู้ส่ง -->
             <div class="w-full">
-              <label
-                for="category"
-                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                >เลือกผู้ส่ง</label
-              >
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">เลือกผู้ส่ง</label>
               <ul
-                class="w-5/6 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              >
-                <li
-                  class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-                >
+                class="w-5/6 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
                   <div class="flex items-center ps-3">
-                    <input
-                      id="vue-checkbox"
-                      type="checkbox"
-                      value="1"
-                      v-model="selectedSentUser"
-                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                    />
-                    <label
-                      for="vue-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300"
-                      >นภา ฟ้าสวย</label
-                    >
-                    <label
-                      for="angular-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300"
-                      >งานเอกสาร</label
-                    >
+                    <input id="vue-checkbox" type="checkbox" value="1" v-model="selectedSentUser"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                    <label for="vue-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">นภา ฟ้าสวย</label>
+                    <label for="angular-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">งานเอกสาร</label>
                   </div>
                 </li>
-                <li
-                  class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-                >
+                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
                   <div class="flex items-center ps-3">
-                    <input
-                      id="react-checkbox"
-                      type="checkbox"
-                      value="2"
-                      v-model="selectedSentUser"
-                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                    />
-                    <label
-                      for="react-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300"
-                      >ใบฝ้าย นุ่มมิ่ม</label
-                    >
-                    <label
-                      for="angular-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300"
-                      >ฝ่ายขาย</label
-                    >
+                    <input id="react-checkbox" type="checkbox" value="2" v-model="selectedSentUser"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                    <label for="react-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">ใบฝ้าย นุ่มมิ่ม</label>
+                    <label for="angular-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายขาย</label>
                   </div>
                 </li>
-                <li
-                  class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-                >
+                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
                   <div class="flex items-center ps-3">
-                    <input
-                      id="angular-checkbox"
-                      type="checkbox"
-                      value="3"
-                      v-model="selectedSentUser"
-                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                    />
-                    <label
-                      for="angular-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300"
-                      >กันยา นาปี</label
-                    >
-                    <label
-                      for="angular-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300"
-                      >ฝ่ายผลิต</label
-                    >
+                    <input id="angular-checkbox" type="checkbox" value="3" v-model="selectedSentUser"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                    <label for="angular-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">กันยา นาปี</label>
+                    <label for="angular-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายผลิต</label>
                   </div>
                 </li>
               </ul>
@@ -538,27 +467,13 @@ onUnmounted(() => {
             <br />
             <!-- กล่องวางไฟล์ -->
             <div class="flex items-center w-full">
-              <label
-                for="dropzone-file"
-                class="flex flex-col items-center justify-center w-5/6 h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-              >
-                <div
-                  class="flex flex-col items-center justify-center pt-5 pb-6"
-                >
-                  <svg
-                    class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 16"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                    />
+              <label for="dropzone-file"
+                class="flex flex-col items-center justify-center w-5/6 h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
                   </svg>
                   <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
                     <span class="font-semibold">คลิ๊กเพื่ออัพโหลดเอกสาร</span>
@@ -568,24 +483,15 @@ onUnmounted(() => {
                     SVG, PNG, JPG, or Docx (MAX 10 MB)
                   </p>
                 </div>
-                <input
-                  id="dropzone-file"
-                  type="file"
-                  class="hidden"
-                  @change="handleFileUpload"
-                />
+                <input id="dropzone-file" type="file" class="hidden" @change="handleFileUpload" />
               </label>
             </div>
 
             <!-- ที่แสดงไฟล์ -->
             <div class="w-full">
               <div class="rounded-lg shadow-md w-5/6">
-                <table
-                  class="rounded-lg w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
-                >
-                  <thead
-                    class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-                  >
+                <table class="rounded-lg w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                       <th scope="col" class="px-6 py-3">ชื่อไฟล์</th>
 
@@ -594,49 +500,30 @@ onUnmounted(() => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr
-                      v-if="file"
-                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                    >
-                      <td
-                        class="px-6 py-4 font-semibold text-gray-900 dark:text-white"
-                      >
+                    <tr v-if="file"
+                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                      <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                         {{ file ? file.name : "" }}
                       </td>
-                      <td
-                        class="px-6 py-4 font-semibold text-gray-900 dark:text-white"
-                      >
+                      <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                         {{ file ? (file.size / 1000000).toFixed(2) : "" }} MB
                       </td>
                       <td class="py-4">
-                        <a
-                          href="#"
-                          class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                          @click.prevent="deleteFile"
-                          >ลบ</a
-                        >
+                        <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline"
+                          @click.prevent="deleteFile">ลบ</a>
                       </td>
                     </tr>
 
-                    <tr
-                      v-else
-                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                    >
-                      <td
-                        class="px-6 py-4 font-semibold text-gray-900 dark:text-white"
-                      >
+                    <tr v-else
+                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                      <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                         ไม่มีไฟล์
                       </td>
-                      <td
-                        class="px-6 py-4 font-semibold text-gray-900 dark:text-white"
-                      >
+                      <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                         -
                       </td>
                       <td class="py-4">
-                        <a
-                          href="#"
-                          class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                        ></a>
+                        <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline"></a>
                       </td>
                     </tr>
                   </tbody>
@@ -658,11 +545,8 @@ onUnmounted(() => {
             class="flex-col justify-center hover:bg-green-800 items-center px-16 py-4 mt-4 sm:mt-6 text-sm font-bold text-white text-center bg-green-600 rounded-lg focus:ring-4 focus:ring-primary-200">
             ยืนยัน
           </button> -->
-          <a
-            type="submit"
-            @click="CreateDocApi"
-            class="cursor-pointer flex-col justify-center hover:bg-green-800 items-center px-16 py-4 mt-4 sm:mt-6 text-sm font-bold text-white text-center bg-green-600 rounded-lg focus:ring-4 focus:ring-primary-200"
-          >
+          <a type="submit" @click="CreateDocApi"
+            class="cursor-pointer flex-col justify-center hover:bg-green-800 items-center px-16 py-4 mt-4 sm:mt-6 text-sm font-bold text-white text-center bg-green-600 rounded-lg focus:ring-4 focus:ring-primary-200">
             ยืนยัน
           </a>
         </form>

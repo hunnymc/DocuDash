@@ -15,4 +15,5 @@ public interface DocumentRepository extends JpaRepository<Document, Integer> {
 
     @Query("SELECT COALESCE(MAX(d.id), 0) + 1 FROM Document d")
     int getNewDocId();
+
 }

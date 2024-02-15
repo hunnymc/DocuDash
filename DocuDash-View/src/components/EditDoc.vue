@@ -3,6 +3,7 @@ import { ref , watch , computed , onMounted , watchEffect , onUnmounted } from "
 import { useRoute } from 'vue-router';
 import axios from "axios";
 import router from "../router";
+import Cookies from "js-cookie";
 
 const route = useRoute();
 
@@ -29,7 +30,15 @@ let newdocid = ref(0);
 
 const ClickFile = () => {
     // const fileUrl = "http://localhost:5001/api/files/" + doc.value.filePath;
-    const fileUrl = "http://cp23kw2.sit.kmutt.ac.th:10003/api/files/" + newDocdata.value.filePath;
+    const fileUrl = 
+    // "http://cp23kw2.sit.kmutt.ac.th:10003/api/files/" 
+    "http://localhost:5002/api/files/" 
+    + newDocdata.value.filePath + 
+    {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("accessToken")}`
+      }
+    };
     window.open(fileUrl, '_blank');
 };
 
@@ -109,21 +118,54 @@ const handleFileUpload = (event) => {
 };
 
 const CreateDocApi = async () => {
+  if (validateInput() === true) {
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(newDocdata.value));
 
-  validateInput();
+  await axios.patch(
+    // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/" 
+    "http://localhost:5002/api/doc/" 
+    + newDocdata.value.id, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${Cookies.get("accessToken")}`
+    },
+  })
   
-  const formData = new FormData();
-  formData.append("file", file.value);
-  formData.append("data", JSON.stringify(newDocdata.value));
-  // const response = await axios.post("http://localhost:5001/api/doc/newdoc", formData);
-  await axios.patch("http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/" + newDocdata.value.id, formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
-  return router.push("/list");;
+  .then(function (response) {
+    alert('แก้ไขเอกสารสำเร็จ');
+    router.push("/list");
+  })
+  
+  .catch(function (AxiosError) {
+    if (AxiosError.response) {
+        switch (AxiosError.response.status) {
+          case 400:
+            alert('คำขอไม่ถูกต้อง');
+            break;
+          case 401:
+            alert('ไม่ได้รับอนุญาต');
+            break;
+          case 403:
+            alert('ถูกปฏิเสธ');
+            break;
+          case 404:
+            alert('ไม่พบข้อมูล');
+            break;
+          case 500:
+            alert('เซิร์ฟเวอร์เกิดข้อผิดพลาด');
+            break;
+          default:
+            alert('เกิดข้อผิดพลาด');
+        }
+      } else if (AxiosError.request) {
+        alert('ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์');
+      } else {
+        alert('เกิดข้อผิดพลาด: ' + AxiosError.message);
+      }
+  });
+  }
+
 };
 
 onMounted(() => {

@@ -1,15 +1,24 @@
 package doc.backendapi.entities;
 
+import doc.backendapi.Enum.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class User {
+@AllArgsConstructor
+public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UserID", nullable = false)
@@ -29,7 +38,8 @@ public class User {
 
     @Size(max = 255)
     @Column(name = "Role")
-    private String role;
+    @Enumerated(value = EnumType.STRING)
+    private Role  role;
 
     @Size(max = 255)
     @Column(name = "Email")
@@ -43,4 +53,29 @@ public class User {
     @Column(name = "Branch")
     private String branch;
 
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 }
