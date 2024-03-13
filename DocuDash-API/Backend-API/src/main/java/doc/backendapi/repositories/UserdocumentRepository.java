@@ -11,5 +11,8 @@ public interface UserdocumentRepository extends JpaRepository<Userdocument, Inte
     @Query("SELECT ud FROM Userdocument ud WHERE ud.usersUserid.id = ?1")
     List<Userdocument> findByUsers_UserID(int id);
 
+    @Query("SELECT ud FROM Userdocument ud WHERE ud.usersUserid.email = ?1")
+    Userdocument findByUsers_Email(String email);
+
     void deleteByDocumentsDocumentid1Id(int id);
 }

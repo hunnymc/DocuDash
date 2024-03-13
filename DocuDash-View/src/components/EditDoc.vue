@@ -7,6 +7,9 @@ import Cookies from "js-cookie";
 
 const route = useRoute();
 
+// let mainURL = "http://localhost:5002";
+let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+
 let editdocdata = ref({});
 
 function reciveData() {
@@ -32,7 +35,7 @@ const ClickFile = () => {
     // const fileUrl = "http://localhost:5001/api/files/" + doc.value.filePath;
     const fileUrl = 
     // "http://cp23kw2.sit.kmutt.ac.th:10003/api/files/" 
-    "http://localhost:5002/api/files/" 
+    mainURL + "/api/files/" 
     + newDocdata.value.filePath + 
     {
       headers: {
@@ -124,7 +127,7 @@ const CreateDocApi = async () => {
 
   await axios.patch(
     // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/" 
-    "http://localhost:5002/api/doc/" 
+    mainURL + "/api/doc/" 
     + newDocdata.value.id, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -171,20 +174,20 @@ const CreateDocApi = async () => {
 onMounted(() => {
   reciveData();
 
-  const isRefresh = sessionStorage.getItem('isRefresh');
-  const isRefresh2 = sessionStorage.getItem('isRefresh2');
+  // const isRefresh = sessionStorage.getItem('isRefresh');
+  // const isRefresh2 = sessionStorage.getItem('isRefresh2');
 
-  if (isRefresh === '1' && isRefresh2 === '1') {
-    sessionStorage.setItem('isRefresh', '2');
-    location.reload();
-  } else if (isRefresh === '1') {
-    sessionStorage.setItem('isRefresh', '2');
-  }
+  // if (isRefresh === '1' && isRefresh2 === '1') {
+  //   sessionStorage.setItem('isRefresh', '2');
+  //   location.reload();
+  // } else if (isRefresh === '1') {
+  //   sessionStorage.setItem('isRefresh', '2');
+  // }
 });
 
 onUnmounted(() => {
-  sessionStorage.setItem('isRefresh', '1');
-  sessionStorage.setItem('isRefresh2', '1');
+  // sessionStorage.setItem('isRefresh', '1');
+  // sessionStorage.setItem('isRefresh2', '1');
 });
 
 </script>

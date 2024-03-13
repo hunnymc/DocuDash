@@ -1,73 +1,119 @@
-[<script setup>
-import { ref, onMounted , onUnmounted} from "vue";
-import { useRoute } from "vue-router";
+<script setup>
+import { ref, onMounted, onBeforeMount, watch, watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { VuePDF, usePDF } from '@tato30/vue-pdf'
+import { useDocumentListStore } from "../stores/listOfDocumentStore";
 import axios from "axios";
 import Cookies from "js-cookie";
 
 const route = useRoute();
+const router = useRouter();
+const pdfRef = ref(null);
+let isEverythingLoaded = ref(false);
+let showPDF = ref(false);
+
+const store = useDocumentListStore();
+
+// let mainURL = "http://localhost:5002";
+let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+
+// console.log("route.params.id: ", route.params.id);
+// console.log("VIEW store.getDocumentUserId: ", store.getDocumentUserId);
+// console.log("VIEW store.getDocumentFilename: ", store.getDocumentFilename);
+
+const { pdf, pages } = usePDF(mainURL + "/api/files/" + store.getDocumentUserId + "/" + store.getDocumentFilename);
+// const { pdf, pages } = usePDF("https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf");
+
+const page = ref(1);
+const scale = ref(1);
 
 let doc = ref({
-    branchSource: "ฝ่าย IT",
-    category: "เอกสารภายใน",
+    branchSource: "NOT_FOUND",
+    category: "NOT_FOUND",
     dateAdd: "2023-12-06T06:13:03Z",
     dateUpdate: "2023-12-06T06:13:03Z",
-    description: "สำหรับทดสอบการส่งข้อมูล",
-    emailSource: "namjai@namjai.mail.com",
-    filePath: "เอกสารใบสี่งซื้ออุปกรณ์คอมพิวเตอร์.pdf",
-    fromSource: "ฝ่าย IT บริษัทน้ำใจงาม",
+    description: "NOT_FOUND",
+    emailSource: "NOT_FOUND@NOT_FOUND.mail.com",
+    filePath: "NOT_FOUND.pdf",
+    fromSource: "NOT_FOUND",
     id: 5,
-    phoneSource: "0200111110",
-    secrecyLevel: "ลับมาก",
-    status: "รออนุมัติ",
-    title: "เอกสารใบสี่งซื้ออุปกรณ์คอมพิวเตอร์",
-    urgency: "ด่วน"
+    phoneSource: "NOT_FOUND",
+    secrecyLevel: "NOT_FOUND",
+    status: "NOT_FOUND",
+    title: "NOT_FOUND",
+    urgency: "NOT_FOUND"
 });
 
 let doc_id = ref();
 
 const ClickFile = () => {
-    // const fileUrl = "http://localhost:5001/api/files/" + doc.value.filePath;
-    const fileUrl = 
-    // "http://cp23kw2.sit.kmutt.ac.th:10003/api/files/"
-    "http://localhost:5002/api/files/"
-     + doc.value.filePath;
+    const fileUrl =
+        // "http://cp23kw2.sit.kmutt.ac.th:10003/api/files/"
+        mainURL + "/api/files/" + doc.value.usersUserid.id + "/" + doc.value.filePath;
     // window.open(fileUrl, '_blank');
     const token = Cookies.get("accessToken"); // replace 'accessToken' with the actual key used to store the token
-const urlWithToken = `${fileUrl}?token=${token}`;
-window.open(urlWithToken, '_blank');
+    const urlWithToken = `${fileUrl}?token=${token}`;
+    window.open(urlWithToken, '_blank');
 };
 
-onMounted(async () => {
+const getDocById = async () => {
     doc_id.value = route.params.id;
     const response = await axios.get(
         // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/" 
-        "http://localhost:5002/api/doc/" 
-        + doc_id.value , {
-            headers: {
-                "Authorization": "Bearer " + Cookies.get("accessToken"),
-            },
-        }
-    );
+        mainURL + "/api/doc/"
+        + doc_id.value, {
+        headers: {
+            "Authorization": "Bearer " + Cookies.get("accessToken"),
+        },
+    })
+        .catch((error) => {
+            switch (error.response.status) {
+                case 401:
+                    alert("กรุณาเข้าสู่ระบบ");
+                    router.push("/login");
+                    break;
+                case 403:
+                    alert("คุณไม่มีสิทธิ์เข้าถึงเอกสารนี้");
+                    router.push("/list");
+                    break;
+                case 404:
+                    router.push("/NotFound");
+                    alert("ไม่พบเอกสารที่ต้องการ");
+                    break;
+                default:
+                    alert("เกิดข้อผิดพลาดบางอย่าง");
+                    break;
+            }
+        });
+
     doc.value = response.data;
+};
 
-  const isRefresh = sessionStorage.getItem('isRefresh');
-  const isRefresh2 = sessionStorage.getItem('isRefresh2');
+onBeforeMount(() => {
+    usePDF(mainURL + "/api/files/" + store.getDocumentUserId + "/" + store.getDocumentFilename);
 
-  if (isRefresh === '1' && isRefresh2 === '1') {
-    sessionStorage.setItem('isRefresh', '2');
-    location.reload();
-  } else if (isRefresh === '1') {
-    sessionStorage.setItem('isRefresh', '2');
-  }
 });
 
-onUnmounted(() => {
-  sessionStorage.setItem('isRefresh', '1');
-  sessionStorage.setItem('isRefresh2', '1');
+onMounted(async () => {
+    await getDocById();
+    // if (store.getDocumentUserId == null || store.getDocumentFilename == null) {
+    //     router.push("/list");
+    // }
+    isEverythingLoaded.value = true;
+});
+
+watch(() => route.params.id, async () => {
+    await getDocById();
+    isEverythingLoaded.value = true;
+}
+);
+
+watchEffect(() => {
+    // usePDF(mainURL + "/api/files/" + store.getDocumentUserId + "/" + store.getDocumentFilename);
 });
 
 </script>
- 
+
 <template>
     <div class="shadow-md sm:rounded-lg w-full ">
 
@@ -77,8 +123,8 @@ onUnmounted(() => {
                 <h2 class="mb-4 text-4xl font-bold text-gray-900 dark:text-white"> รายละเอียดเอกสาร
                     <button class="m-1 mb-4 pb-4" data-popover-target="popover-description"
                         data-popover-placement="bottom-end" type="button">
-                        <svg class="w-4 h-4 ms-2 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor"
-                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-4 h-4 ms-2 text-gray-400 hover:text-gray-500" aria-hidden="true"
+                            fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
                                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
                                 clip-rule="evenodd"></path>
@@ -144,7 +190,7 @@ onUnmounted(() => {
                             class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">แผนก</label>
                         <div
                             class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
-                            <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{doc.branchSource}}</h3>
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{ doc.branchSource }}</h3>
 
                         </div>
                     </div>
@@ -152,7 +198,7 @@ onUnmounted(() => {
                         <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">โทรศัพท์</label>
                         <div
                             class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
-                            <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{doc.phoneSource}}</h3>
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{ doc.phoneSource }}</h3>
 
                         </div>
                     </div>
@@ -180,7 +226,7 @@ onUnmounted(() => {
                             class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">ความเร่งด่วน</label>
                         <div
                             class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
-                            <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{ doc.urgency}}</h3>
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{ doc.urgency }}</h3>
 
                         </div>
                     </div>
@@ -190,7 +236,7 @@ onUnmounted(() => {
                             class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">ชั้นความลับ</label>
                         <div
                             class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
-                            <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{  doc.secrecyLevel }}</h3>
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{ doc.secrecyLevel }}</h3>
 
                         </div>
                     </div>
@@ -312,8 +358,9 @@ onUnmounted(() => {
                                 <tbody>
                                     <tr
                                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td @click="ClickFile" class="px-6 py-4 text-blue-600 dark:text-blue-500 underline cursor-pointer">
-                                            {{ doc.filePath  }}
+                                        <td @click="ClickFile"
+                                            class="px-6 py-4 text-blue-600 dark:text-blue-500 underline cursor-pointer">
+                                            {{ doc.filePath }}
                                         </td>
                                         <!-- <td @click="ClickFile" class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                                             {{ doc.filePath  }}
@@ -321,11 +368,14 @@ onUnmounted(() => {
                                         <!-- <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                                             46.6 MB
                                         </td> -->
-                                        
+
                                     </tr>
 
                                 </tbody>
                             </table>
+                            <!-- --------------------------------------------------- -->
+
+                            <!-- --------------------------------------------------- -->
                         </div>
                     </div>
 
@@ -348,8 +398,63 @@ onUnmounted(() => {
           </button> -->
                 <!-- </form> -->
             </div>
+
+            <!-- 
+            <div>
+                <h3 class="flex items-center justify-center mb-4 text-2xl font-bold text-green-700 dark:text-white ">
+                    ตัวอย่างไฟล์แนบ </h3>
+                <div class="flex items-center justify-center ">
+                    <div class="w-56 h-10 rounded-xl bg-gray-50 border border-gray-300 flex items-center justify-center">
+                        <button class="text-white bg-green-700 my-2 ml-1 px-5 rounded-lg"
+                            @click="scale = scale > 0.25 ? scale - 0.25 : scale">
+                            -
+                        </button>
+                        <span class="mx-2 font-semibold "> {{ scale * 100 }}%</span>
+                        <button class="text-white bg-green-700 my-2  px-5 rounded-lg"
+                            @click="scale = scale < 2 ? scale + 0.25 : scale">
+                            +
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="flex items-center justify-center ">
+                    <div class="w-56 h-10 rounded-xl bg-gray-50 border border-gray-300  items-center justify-center">
+                        <button class="text-white bg-green-700 my-2 ml-3 px-5 rounded-lg"
+                            @click="page = page > 1 ? page - 1 : page">
+                            <span>Prev</span>
+                        </button>
+                        <span class="mx-2 font-semibold ">{{ page }} / {{ pages }}</span>
+                        <button class="text-white bg-green-700 my-2  px-5 rounded-lg"
+                            @click="page = page < pages ? page + 1 : page">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Click to watch file -->
+            <div>
+                <!-- <button @click="showPDF = true">Show PDF</button> -->
+                <!-- <div
+                    class="border-slate-300 bg-gray-700 w-full rounded-lg shadow-md pdf-container flex items-center justify-center py-10">
+                    <VuePDF ref="pdf" :pdf="pdf" :page="page" :scale="scale" />
+                </div> -->
+                <div>
+                    <embed :src="mainURL + '/api/files/' + store.getDocumentUserId + '/' + store.getDocumentFilename"
+                        type="application/pdf" width="100%" height="1500px" />
+                </div>
+            </div>
+
+            <!-- <div
+                class="border-slate-300 bg-gray-700 w-full rounded-lg shadow-md pdf-container flex items-center justify-center py-10">
+                <VuePDF ref="pdf" :pdf="pdf" :page="page" :scale="scale" />
+            </div> -->
+
+
         </section>
+
     </div>
 </template>
- 
+
 <style></style>

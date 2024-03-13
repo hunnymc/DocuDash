@@ -6,6 +6,9 @@ import Cookies from "js-cookie";
 
 let route = useRoute();
 
+// let mainURL = "http://localhost:5002";
+let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+
 let user = ref({
     username: "",
     fullName: "",
@@ -17,7 +20,7 @@ let user = ref({
 
 const getUserInfo = async () => {
     await axios.post(
-        'http://localhost:5002/api/auth/user-info'
+        mainURL + '/api/auth/user-info'
         , { email: Cookies.get("email") }
         , { headers: { "Authorization": "Bearer " + Cookies.get("accessToken"), } })
         .then((response) => {

@@ -8,6 +8,8 @@ export const useLoginUserStore = defineStore('loginUser', {
         role: null
     }),
 
+    persist: true,
+    
     getters: {
         getUser() {
             return this.user

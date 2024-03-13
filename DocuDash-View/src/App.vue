@@ -3,33 +3,7 @@ import { onMounted, ref , defineComponent, onBeforeMount} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Navbar from "./components/Navbar.vue";
 import Cookies from "js-cookie";
-import { initFlowbite, initAccordions, 
-    initCarousels, 
-    initCollapses, 
-    initDials, 
-    initDismisses, 
-    initDrawers, 
-    initDropdowns, 
-    initModals, 
-    initPopovers, 
-    initTabs, 
-    initTooltips  } from 'flowbite'
-
-// initFlowbite();
-
-// onMounted(() => {
-//   initAccordions();
-//     initCarousels();
-//     initCollapses();
-//     initDials();
-//     initDismisses();
-//     initDrawers();
-//     initDropdowns();
-//     initModals();
-//     initPopovers();
-//     initTabs();
-//     initTooltips();
-// });
+import { initFlowbite } from 'flowbite'
 
 onMounted(() => {
     initFlowbite();
@@ -41,4 +15,6 @@ onMounted(() => {
   <router-view  ref="routerViewRef" />
 </template>
 
-<style scoped></style>
+<style scoped>
+
+</style>

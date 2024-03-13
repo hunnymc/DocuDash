@@ -1,8 +1,8 @@
 package doc.backendapi.entities;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,5 +29,9 @@ public class Userdocument {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "users_UserID", nullable = false)
     private User usersUserid;
+
+    @Size(max = 255)
+    @Column(name = "ownerDocument")
+    private String ownerDocument;
 
 }

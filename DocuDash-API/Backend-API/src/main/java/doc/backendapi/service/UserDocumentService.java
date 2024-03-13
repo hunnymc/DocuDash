@@ -5,6 +5,7 @@ import doc.backendapi.DTO.UserDocDTOpack.UserdocumentDto;
 import doc.backendapi.entities.Document;
 import doc.backendapi.entities.User;
 import doc.backendapi.entities.Userdocument;
+import doc.backendapi.notification.NotificationService;
 import doc.backendapi.repositories.DocumentRepository;
 import doc.backendapi.repositories.UserRepository;
 import doc.backendapi.repositories.UserdocumentRepository;
@@ -32,6 +33,9 @@ public class UserDocumentService {
     private UserRepository userRepository;
 
     @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     public List<UserdocumentDto> getAllUserDocument() {
@@ -40,24 +44,26 @@ public class UserDocumentService {
     }
 
     public CreateUserDocDTO save(CreateUserDocDTO data) {
-    Document document = documentRepository.findById(data.getDocumentsDocumentid1Id())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+        Document document = documentRepository.findById(data.getDocumentsDocumentid1Id())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
-    User user = userRepository.findById(data.getUsersUseridId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User user = userRepository.findById(data.getUsersUseridId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-    if (document == null || user == null) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document or User not found");
+        if (document == null || user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document or User not found");
+        }
+
+        Userdocument userdocument = modelMapper.map(data, Userdocument.class);
+        userdocument.setDocumentsDocumentid1(document);
+        userdocument.setUsersUserid(user);
+        userdocument.setOwnerDocument(data.getOwnerDocument());
+
+        Userdocument savedUserdocument = userdocumentRepository.save(userdocument);
+
+        // Create notification entity for each user
+        notificationService.createNotification(user.getId(), document.getId(), "Document shared with you", data.getOwnerDocument() );
+
+        return modelMapper.map(savedUserdocument, CreateUserDocDTO.class);
     }
-
-
-
-    Userdocument userdocument = modelMapper.map(data, Userdocument.class);
-    userdocument.setDocumentsDocumentid1(document);
-    userdocument.setUsersUserid(user);
-
-    Userdocument savedUserdocument = userdocumentRepository.save(userdocument);
-
-    return modelMapper.map(savedUserdocument, CreateUserDocDTO.class);
-}
 }

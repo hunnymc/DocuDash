@@ -37,6 +37,7 @@ services:
             - docudash-db:mysql
         ports:
             - "10003:8080"
+            - "10003:10003"
         restart: unless-stopped
 
     docudash-view:

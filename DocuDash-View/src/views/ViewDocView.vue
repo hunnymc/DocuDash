@@ -1,17 +1,22 @@
 <script setup>
-import { ref , onMounted } from "vue";
-import { onBeforeRouteUpdate } from "vue-router";
-
+import { onBeforeMount, onBeforeUnmount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import Navbar from "../components/Navbar.vue";
 import Sidebar from "../components/Sidebar.vue";
 import Footer from "../components/footer.vue";
 import ViewDoc from "../components/ViewDoc.vue";
 
-let key = ref(0);
+const router = useRouter();
+const route = useRoute();
 
-const refresh = () => {
-  key.value++;
-};
+// onBeforeMount(() => {
+//   if (localStorage.getItem('refreshed') && route.path.startsWith('/view')) {
+//     localStorage.removeItem('refreshed');
+//     router.push('/list');
+//   } else {
+//     localStorage.setItem('refreshed', true);
+//   }
+// });
 
 </script>
 

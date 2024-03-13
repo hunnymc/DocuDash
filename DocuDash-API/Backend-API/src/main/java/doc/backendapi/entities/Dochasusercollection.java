@@ -1,7 +1,7 @@
 package doc.backendapi.entities;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,5 +27,7 @@ public class Dochasusercollection {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "documents_DocumentID", nullable = false)
     private Document documentsDocumentid;
+
+
 
 }

@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     host: true,
+    port: 3000,
   },
   optimizeDeps: {
     exclude: ['fsevents']

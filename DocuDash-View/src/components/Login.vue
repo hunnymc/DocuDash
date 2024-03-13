@@ -6,6 +6,9 @@ import Cookies from "js-cookie";
 
 const router = useRouter();
 
+// let mainURL = "http://localhost:5002";
+let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+
 let userEmail = ref("");
 let password = ref("");
 
@@ -27,7 +30,7 @@ async function login() {
   }
 
     await axios.post(
-      'http://localhost:5002/api/auth/login'
+      mainURL + '/api/auth/login'
       // 'http://cp23kw2.sit.kmutt.ac.th:35000/api/auth/login'
       , {
       userEmail: userEmail.value,
@@ -56,7 +59,7 @@ async function login() {
     
     .catch((error) => {
       if (error.response.status === 401) {
-        alert('Login failed');
+        alert('Invalid email address or password. Please try again.');
       }
 
       if (error.response.status === 500) {
@@ -68,20 +71,9 @@ async function login() {
       }
 
       if (error.response.status === 400) {
-        alert('Bad request');
+        alert("Invalid email address or password. Please try again.");
       }
     });
-    
-}
-
-function demoLogin() {
-  userEmail.value = "user1@example.com";
-  password.value = "password1";
-  login();
-}
-
-function goToindex() {
-  router.push("/");
 }
 
 </script>
@@ -96,8 +88,6 @@ function goToindex() {
       >
         DocuDash
       </a>
-      <button @click="demoLogin()">Demo login</button>
-      <button @click="goToindex()">LIST</button>
       <div
         class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
       >

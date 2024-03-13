@@ -4,11 +4,13 @@ import doc.backendapi.DTO.CreateDocDto;
 import doc.backendapi.DTO.DocumentDto;
 import doc.backendapi.DTO.UserDocDTOpack.UserdocumentDto;
 import doc.backendapi.entities.Document;
-import doc.backendapi.entities.User;
+import doc.backendapi.entities.Notification;
 import doc.backendapi.entities.Userdocument;
+import doc.backendapi.notification.WSService;
 import doc.backendapi.repositories.DocumentRepository;
+import doc.backendapi.repositories.NotificationRepository;
+import doc.backendapi.repositories.UserRepository;
 import doc.backendapi.repositories.UserdocumentRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
@@ -20,9 +22,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,20 +35,22 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
 
     @Autowired
+    private final WSService wsService;
+
+    @Autowired
     private final UserdocumentRepository userdocumentRepository;
+
+    @Autowired
+    private final NotificationRepository notificationRepository;
+
+    @Autowired
+    private final UserRepository userRepository;
 
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<DocumentDto> getAllDocument() {
-        return documentRepository.findAll().stream()
-                .sorted(Comparator.comparing(Document::getDateUpdate).reversed())
-                .map((element) -> modelMapper.map(element, DocumentDto.class))
-                .collect(Collectors.toList());
-    }
-
-    public List<UserdocumentDto> getDocumentByUserId(int id) {
-        Map<Integer, Userdocument> uniqueDocuments = userdocumentRepository.findByUsers_UserID(id).stream()
+    public List<UserdocumentDto> getAllDocument() {
+        Map<Integer, Userdocument> uniqueDocuments = userdocumentRepository.findAll().stream()
                 .collect(Collectors.toMap(
                         ud -> ud.getDocumentsDocumentid1().getId(),  // Key is documentsDocumentid1.id
                         ud -> ud,  // Value is the Userdocument entity
@@ -57,7 +61,38 @@ public class DocumentService {
                 .collect(Collectors.toList());
     }
 
+    public List<UserdocumentDto> getDocumentByUserEmail(String email) {
+        Optional<Integer> id = userRepository.findIdByEmail(email);
+
+        return getDocumentByUserId(id.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "User with email " + email + " not found. Please ensure the email is correct and try again.")));
+    }
+
+    public List<UserdocumentDto> getDocumentByUserId(int id) {
+        Map<Integer, Userdocument> uniqueDocuments = userdocumentRepository.findByUsers_UserID(id).stream()
+                .collect(Collectors.toMap(
+                        ud -> ud.getDocumentsDocumentid1().getId(),  // Key is documentsDocumentid1.id
+                        ud -> ud,  // Value is the Userdocument entity
+                        (ud1, ud2) -> ud1  // If there are duplicates, keep the first one
+                ));
+        if (uniqueDocuments.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.OK,
+                    "No documents found for user with id " + id + ".");
+        }
+        return new ArrayList<>(uniqueDocuments.values()).stream()
+                .map(ud -> modelMapper.map(ud, UserdocumentDto.class))
+                .collect(Collectors.toList());
+    }
+
+    // get documents title by document id
+    public String getDocumentTitleById(int id) {
+        return documentRepository.findById(id).map(Document::getTitle).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Document with id " + id + " not found. Please ensure the document id is correct and try again."));
+    }
+
     public CreateDocDto saveDocument(CreateDocDto createDocDto, String filePath) {
+
         Document document = modelMapper.map(createDocDto, Document.class);
         document.setFilePath(filePath);
         document.setDateAdd(Instant.now());
@@ -66,13 +101,10 @@ public class DocumentService {
         // Save the Document entity to the database
         Document savedDocument = documentRepository.save(document);
 
-        // If the save operation failed, throw a ResponseStatusException
-        if (savedDocument == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Failed to save document. Please try again.");
-        }
-//        Document savedDocument = documentRepository.save(document);
-//        return modelMapper.map(savedDocument, CreateDocDto.class);
+        // Notify the frontend that a new document has been added
+        wsService.notifyFrontend("New document added to all users.");
+        wsService.notifyUser(String.valueOf(createDocDto.getUsersUserid()), "New document added to userID: " + createDocDto.getUsersUserid());
+
         return modelMapper.map(savedDocument, CreateDocDto.class);
     }
 
@@ -113,10 +145,21 @@ public class DocumentService {
 
     @Transactional
     public void deleteDocument(int id) {
+
         if (!documentRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Document with id " + id + " not found. Please ensure the document id is correct and try again.");
         }
+        // Fetch all notifications related to the document
+        List<Notification> notifications = notificationRepository.findByDocumentId(id);
+
+        // Delete all fetched notifications
+        for (Notification notification : notifications) {
+            notificationRepository.delete(notification);
+        }
+
+        // Fetch the document
+
         userdocumentRepository.deleteByDocumentsDocumentid1Id(id);
         documentRepository.deleteById(id);
     }
@@ -132,4 +175,7 @@ public class DocumentService {
         return documentRepository.getNewDocId();
     }
 
+    public boolean checkDocument(int id) {
+        return documentRepository.existsById(id);
+    }
 }

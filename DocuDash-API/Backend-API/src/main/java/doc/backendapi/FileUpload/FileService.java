@@ -19,10 +19,8 @@ import java.util.Objects;
 
 @Service
 public class FileService {
-    private final Path fileStorageLocation;
-
     private static final Logger logger = LoggerFactory.getLogger(FileService.class);
-
+    private final Path fileStorageLocation;
 
     @Autowired
     public FileService(FileStorageProperties fileStorageProperties) {
@@ -34,71 +32,38 @@ public class FileService {
         }
     }
 
-//    public String store(MultipartFile file) {
-//        // Normalize file name
-//        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-//        try {
-//            // Check if the file's name contains invalid characters
-//            if (fileName.contains("..")) {
-//                throw new RuntimeException("Invalid file name: " + fileName + ". Please ensure the file name does not contain '..' and try again.");
-//            }
-//            // Copy file to the target location (Replacing existing file with the same name)
-//            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-//            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-//            return fileName;
-//        } catch (IOException ex) {
-//            throw new RuntimeException("Failed to store file " + fileName + ". Please ensure the file is valid and try again.", ex);
-//        }
-//    }
-
-    public String store(MultipartFile file) {
+    public String store(MultipartFile file, Integer UserId) {
         logger.info("Storing file with size: " + file.getSize());
-        // Normalize file name
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
-            // Check if the file's name contains invalid characters
             if (fileName.contains("..")) {
                 throw new RuntimeException("Invalid file name: " + fileName + ". Please ensure the file name does not contain '..' and try again.");
             }
-            // Copy file to the target location (Replacing existing file with the same name)
-            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            Path targetLocation = this.fileStorageLocation.resolve(UserId.toString());
+
+            Files.createDirectories(targetLocation);
+
+            targetLocation = targetLocation.resolve(fileName);
             logger.info("Stored file at location: " + targetLocation);
+
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             return fileName;
         } catch (IOException ex) {
-            throw new RuntimeException("Failed to store file " + fileName + ". Please ensure the file is valid and try again.", ex);
+            throw new RuntimeException("Could not store file " + fileName + ". Please try again!", ex);
         }
     }
 
-
-
-//    public Resource loadFileAsResource(String fileName) {
-//        try {
-//            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
-//            Resource resource = new UrlResource(filePath.toUri());
-//            if (resource.exists()) {
-//                return resource;
-//            } else {
-//                throw new RuntimeException("File not found " + fileName);
-//            }
-//        } catch (MalformedURLException ex) {
-//            throw new RuntimeException("File not found " + fileName, ex);
-//        }
-//    }
-
-public Resource loadFileAsResource(String fileName) {
-    try {
-        Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
-        Resource resource = new UrlResource(filePath.toUri());
-        if (resource.exists()) {
-            return resource;
-        } else {
-            throw new RuntimeException("File not found " + fileName);
+    public Resource loadFileAsResource(String fileName, Integer UserId) {
+        try {
+            Path filePath = this.fileStorageLocation.resolve(UserId.toString()).resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new RuntimeException("File not found " + fileName);
+            }
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException("File not found " + fileName, ex);
         }
-    } catch (MalformedURLException ex) {
-        throw new RuntimeException("File not found " + fileName, ex);
     }
-}
-
-
 }

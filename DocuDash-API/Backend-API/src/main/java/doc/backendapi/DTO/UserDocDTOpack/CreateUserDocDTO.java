@@ -1,6 +1,6 @@
 package doc.backendapi.DTO.UserDocDTOpack;
 
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,4 +16,5 @@ public class CreateUserDocDTO implements Serializable {
     String accessLevel;
     Integer documentsDocumentid1Id;
     Integer usersUseridId;
+    String ownerDocument;
 }

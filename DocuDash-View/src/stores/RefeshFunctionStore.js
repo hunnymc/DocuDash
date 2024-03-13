@@ -27,4 +27,7 @@ export const useRefreshFunctionStore = defineStore('refreshFunctionStore', {
             }
         },
     },
+    
+    persist: true,
+
 });

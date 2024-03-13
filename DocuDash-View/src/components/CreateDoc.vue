@@ -7,11 +7,16 @@ import { useLoginUserStore } from "../stores/LoginUserStore";
 
 const loginUserStore = useLoginUserStore();
 
+let mainURL = "http://localhost:5002";
+// let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+
 const showAlert = ref(false);
+
+const listOfUsers = ref([]);
 
 const getDocID = async () => {
   const response = await axios.get(
-    "http://localhost:5002/api/doc/newdocid"
+    mainURL + "/api/doc/newdocid"
     // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/newdocid"
     , {
       headers: {
@@ -20,6 +25,19 @@ const getDocID = async () => {
     });
 
   newdocid.value = response.data;
+};
+
+const getAllUsers = async () => {
+  const response = await axios.get(
+    mainURL + "/api/doc/user"
+    , {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("accessToken")}`,
+      },
+    });
+
+  listOfUsers.value = response.data;
+  console.log(listOfUsers.value);
 };
 
 let newdocid = ref(0);
@@ -40,7 +58,20 @@ let newdocid = ref(0);
 const selectedSentUser = ref([]);
 const userDocs = ref([]);
 
+// function addDatatoNewDoc() {
+//   newDocdata.value.title = "test";
+//   newDocdata.value.fromSource = "test";
+//   newDocdata.value.emailSource = "test@test.com";
+//   newDocdata.value.branchSource = "ฝ่ายการตลาด";
+//   newDocdata.value.category = "เอกสารภายนอก";
+//   newDocdata.value.urgency = "ปกติ";
+//   newDocdata.value.secrecyLevel = "ลับ";
+//   newDocdata.value.description = "test";
+//   newDocdata.value.phoneSource = "0812345678";
+// }
+
 watch(selectedSentUser, (newVal, oldVal) => {
+  
   const addedUsers = newVal.filter((x) => !oldVal.includes(x));
   const removedUsers = oldVal.filter((x) => !newVal.includes(x));
 
@@ -48,6 +79,7 @@ watch(selectedSentUser, (newVal, oldVal) => {
     userDocs.value.push({
       documentsDocumentid1Id: newdocid.value, // Replace with your actual document ID
       usersUseridId: userId,
+      ownerDocument: localStorage.getItem("fullName"),
     });
   });
 
@@ -59,11 +91,12 @@ watch(selectedSentUser, (newVal, oldVal) => {
       userDocs.value.splice(index, 1);
     }
   });
+
 });
 
 const newDocdata = ref({
   usersUserid: {
-    id: 1,
+    id: Cookies.get("userId"),
   },
 });
 
@@ -134,11 +167,11 @@ const CreateDocApi = async () => {
   const formData = new FormData();
   formData.append("file", file.value);
   formData.append("data", JSON.stringify(newDocdata.value));
+  console.log(newDocdata.value);
   try {
     const response = await axios.post(
       // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/",
-      "http://localhost:5002/api/doc/",
-
+      mainURL + "/api/doc/",
       formData,
       {
         headers: {
@@ -163,7 +196,7 @@ const CreateDocApi = async () => {
 
       await axios.post(
         // "http://cp23kw2.sit.kmutt.ac.th:10003/api/userdoc/"
-        "http://localhost:5002/api/userdoc/",
+        mainURL + "/api/userdoc/",
         userDocs.value,
         {
           headers: {
@@ -215,23 +248,23 @@ const CreateDocApi = async () => {
 
 onMounted(() => {
   getDocID();
+  getAllUsers();
+  // newDocdata.value.usersUserid.id = Cookies.get("userId");
 
-  newDocdata.value.usersUserid.id = Cookies.get("userId");
+  // const isRefresh = sessionStorage.getItem("isRefresh");
+  // const isRefresh2 = sessionStorage.getItem("isRefresh2");
 
-  const isRefresh = sessionStorage.getItem("isRefresh");
-  const isRefresh2 = sessionStorage.getItem("isRefresh2");
-
-  if (isRefresh === "1" && isRefresh2 === "1") {
-    sessionStorage.setItem("isRefresh", "2");
-    location.reload();
-  } else if (isRefresh === "1") {
-    sessionStorage.setItem("isRefresh", "2");
-  }
+  // if (isRefresh === "1" && isRefresh2 === "1") {
+  //   sessionStorage.setItem("isRefresh", "2");
+  //   location.reload();
+  // } else if (isRefresh === "1") {
+  //   sessionStorage.setItem("isRefresh", "2");
+  // }
 });
 
 onUnmounted(() => {
-  sessionStorage.setItem("isRefresh", "1");
-  sessionStorage.setItem("isRefresh2", "1");
+  // sessionStorage.setItem("isRefresh", "1");
+  // sessionStorage.setItem("isRefresh2", "1");
 });
 </script>
 
@@ -392,36 +425,18 @@ onUnmounted(() => {
               <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">เลือกผู้ส่ง</label>
               <ul
                 class="w-5/6 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+
+                <li v-for="user in listOfUsers" class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
                   <div class="flex items-center ps-3">
-                    <input id="vue-checkbox" type="checkbox" value="1" v-model="selectedSentUser"
+                    <input id="vue-checkbox" type="checkbox" :value="user.id" v-model="selectedSentUser"
                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
                     <label for="vue-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">นภา ฟ้าสวย</label>
-                    <label for="angular-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">งานเอกสาร</label>
+                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">{{ user.fullName }}</label>
+                    <!-- <label for="angular-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">งานเอกสาร</label> -->
                   </div>
                 </li>
-                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
-                  <div class="flex items-center ps-3">
-                    <input id="react-checkbox" type="checkbox" value="2" v-model="selectedSentUser"
-                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-                    <label for="react-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">ใบฝ้าย นุ่มมิ่ม</label>
-                    <label for="angular-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายขาย</label>
-                  </div>
-                </li>
-                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
-                  <div class="flex items-center ps-3">
-                    <input id="angular-checkbox" type="checkbox" value="3" v-model="selectedSentUser"
-                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-                    <label for="angular-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">กันยา นาปี</label>
-                    <label for="angular-checkbox"
-                      class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายผลิต</label>
-                  </div>
-                </li>
+
               </ul>
             </div>
             <!-- ผู้ลงนาม -->

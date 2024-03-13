@@ -24,10 +24,10 @@ public class FileController {
         this.fileService = fileService;
     }
 
-    @GetMapping("/{filename}")
+    @GetMapping("/{userid}/{filename}")
     @ResponseBody
-    public ResponseEntity<Resource> serveImage(@PathVariable String filename) {
-        Resource file = fileService.loadFileAsResource(filename);
+    public ResponseEntity<Resource> serveImage(@PathVariable String filename, @PathVariable Integer userid) {
+        Resource file = fileService.loadFileAsResource(filename, userid);
         String mimeType;
         try {
             mimeType = Files.probeContentType(Paths.get(file.getURI()));
@@ -39,7 +39,7 @@ public class FileController {
 
     @PostMapping("")
     public String fileUpload(@RequestParam("file") MultipartFile file) {
-        String filePath = fileService.store(file);
+        String filePath = fileService.store(file, 1);
         return "You successfully uploaded " + file.getOriginalFilename() + "! The file path is " + filePath;
     }
 }

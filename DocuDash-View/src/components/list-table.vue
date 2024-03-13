@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import axios from "axios";
 import moment from "moment";
 import { useRouter } from "vue-router";
@@ -7,114 +7,124 @@ import { useDocumentListStore } from "../stores/listOfDocumentStore";
 import Cookies from "js-cookie";
 
 const router = useRouter();
-const documentListStore = useDocumentListStore();
+const store = useDocumentListStore();
+
+// let mainURL = "http://localhost:5002";
+let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
 
 let file = ref(null);
 
+watch(() => store.callFunctionInComponentB, (value) => {
+  if (value) {
+    getAllDoc();
+    store.setCallFunctionInComponentB(false);
+  }
+});
+
 const navigateToEdit = (doc) => {
-  router.push({ path: '/edit', query: { document: JSON.stringify(doc) } });
+  router.push({ path: "/edit", query: { document: JSON.stringify(doc) } });
 };
 
 const getAllDoc = async () => {
-  // const response = await axios.get("http://localhost:5002/api/doc/");
-  // const response = await axios.get("http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/");
-  const response = await axios.post(
-    "http://cp23kw2.sit.kmutt.ac.th:35000/api/doc/user/email"
-    // "http://localhost:5002/api/doc/user/email"
-    , { email: Cookies.get("email")}
-    ,{ 
-      headers: { Authorization: `Bearer ${Cookies.get("accessToken")}`, } , 
-    }
-  )
-  
-  .catch(function (AxiosError) {
-          if (AxiosError.response) {
-            switch (AxiosError.response.status) {
-              case 400:
-                alert('คำขอไม่ถูกต้อง');
-                break;
-              case 401:
-                alert('ไม่ได้รับอนุญาต');
-                break;
-              case 403:
-                alert('ถูกปฏิเสธ');
-                break;
-              case 404:
-                alert('ไม่พบข้อมูล');
-                break;
-              case 500:
-                alert('เซิร์ฟเวอร์เกิดข้อผิดพลาด');
-                break;
-              default:
-                alert('เกิดข้อผิดพลาด');
-            }
-          } else if (AxiosError.request) {
-            alert('ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์');
-          } else {
-            alert('เกิดข้อผิดพลาด: ' + AxiosError.message);
-          }
+  const response = await axios
+    .post(
+      // "http://cp23kw2.sit.kmutt.ac.th:35000/api/doc/user/email"
+      mainURL + "/api/doc/user/email",
+      { email: Cookies.get("email") },
+      {
+        headers: { Authorization: `Bearer ${Cookies.get("accessToken")}` },
+      }
+    )
+
+    .then(function (axiosResponse) {
+      listdata.value = axiosResponse.data;
+      if (listdata.value.length > 0) {
+        // Sort listdata by dateUpdate in descending order
+        listdata.value.sort((a, b) => {
+          return (
+            new Date(b.documentsDocumentid1.dateUpdate) -
+            new Date(a.documentsDocumentid1.dateUpdate)
+          );
         });
-  listdata.value = response.data;
-  listdata.value.forEach((element) => {
-    element.documentsDocumentid1.dateAdd = changeTimestampToDate(
-      element.documentsDocumentid1.dateAdd
-    );
-    element.documentsDocumentid1.dateUpdate = changeTimestampToDate(
-      element.documentsDocumentid1.dateUpdate
-    );
-  });
+        listdata.value.forEach((element) => {
+          element.documentsDocumentid1.dateAdd = changeTimestampToDate(
+            element.documentsDocumentid1.dateAdd
+          );
+          element.documentsDocumentid1.dateUpdate = changeTimestampToDate(
+            element.documentsDocumentid1.dateUpdate
+          );
+        });
+      }
+    })
 
-  // Sort listdata by dateUpdate
-  listdata.value.sort((a, b) => {
-    return new Date(b.documentsDocumentid1.dateUpdate) - new Date(a.documentsDocumentid1.dateUpdate);
-  });
+    .catch(function (AxiosError) {
+      if (AxiosError.response) {
+        switch (AxiosError.response.status) {
+          case 400:
+            alert("คำขอไม่ถูกต้อง");
+            break;
+          case 401:
+            alert("ไม่ได้รับอนุญาต");
+            break;
+          case 403:
+            alert("ถูกปฏิเสธ");
+            break;
+          case 404:
+            alert("ไม่พบข้อมูล");
+            break;
+          case 500:
+            alert("เซิร์ฟเวอร์เกิดข้อผิดพลาด");
+            break;
+          default:
+            alert("เกิดข้อผิดพลาด");
+        }
+      } else if (AxiosError.request) {
+        alert("ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์");
+      } else {
+        alert("เกิดข้อผิดพลาด: " + AxiosError.message);
+      }
 
-  // // ***** Test store *****
-  // documentListStore.setDocuments(listdata.value);
-  // console.log("This is listdata: " + listdata.value[0].documentsDocumentid1.title);
-  // console.log("This is document store: " + documentListStore.documents[0].documentsDocumentid1.title);
-  // // ***** 
-
-  return response.data;
+    });
 };
 
 const deleteDoc = async (id) => {
   if (window.confirm("ต้องการจะลบไฟล์ใช่หรือไม่?")) {
-    const response = await axios.delete(
-      "http://cp23kw2.sit.kmutt.ac.th:35000/api/doc/"
-      // "http://localhost:5002/api/doc/"
-      + id , {
-        headers: {
-          "Authorization": "Bearer " + Cookies.get("accessToken"),
-        },
-      }
-    )
+    const response = await axios
+      .delete(
+        // "http://cp23kw2.sit.kmutt.ac.th:35000/api/doc/"
+        mainURL + "/api/doc/" + id,
+        {
+          headers: {
+            Authorization: "Bearer " + Cookies.get("accessToken"),
+          },
+        }
+      )
 
       .catch(function (AxiosError) {
         if (AxiosError.response) {
           switch (AxiosError.response.status) {
             case 400:
-              alert('คำขอไม่ถูกต้อง');
+              alert("คำขอไม่ถูกต้อง");
               break;
             case 401:
-              alert('ไม่ได้รับอนุญาต');
+              alert("ไม่ได้รับอนุญาต");
               break;
             case 403:
-              alert('ถูกปฏิเสธ');
+              alert("ถูกปฏิเสธ");
               break;
             case 404:
-              alert('ไม่พบข้อมูล');
+              alert("ไม่พบข้อมูล");
               break;
             case 500:
-              alert('เซิร์ฟเวอร์เกิดข้อผิดพลาด');
+              alert("เซิร์ฟเวอร์เกิดข้อผิดพลาด");
               break;
             default:
-              alert('เกิดข้อผิดพลาด');
+              alert("เกิดข้อผิดพลาด");
           }
         } else if (AxiosError.request) {
-          alert('ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์');
+          alert("ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์");
         } else {
-          alert('เกิดข้อผิดพลาด: ' + AxiosError.message);
+          alert("เกิดข้อผิดพลาด: " + AxiosError.message);
         }
       });
 
@@ -125,7 +135,7 @@ const deleteDoc = async (id) => {
 const fileInput = ref(); // อ้างอิงไฟล์อัพโหลด
 let recentEditID = ref(0);
 
-//
+// ปุ่มแก้ไขเอกสาร
 const editDoc = async (id) => {
   const template = {
     title: "",
@@ -151,44 +161,46 @@ const editDoc = async (id) => {
   formData.append("file", file.value);
   formData.append("data", JSON.stringify(editList.value));
   // const response = await axios.patch("http://localhost:5001/api/doc/" + id, formData,
-  const response = await axios.patch(
-    // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/"
-    "http://localhost:5002/api/doc/"
-    + id,
-    formData,
-    // const response = await axios.patch('http://localhost:10003/api/doc/' + id, formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: "Bearer " + Cookies.get("accessToken"),
-      },
-    }
-  )
+  await axios
+    .patch(
+      // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/"
+      mainURL + "/api/doc/" + id,
+      formData,
+      // const response = await axios.patch('http://localhost:10003/api/doc/' + id, formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: "Bearer " + Cookies.get("accessToken"),
+        },
+      }
+    )
     .catch(function (AxiosError) {
       if (AxiosError.response) {
         switch (AxiosError.response.status) {
           case 400:
-            alert('คำขอไม่ถูกต้อง');
+            alert("คำขอไม่ถูกต้อง");
             break;
           case 401:
-            alert('ไม่ได้รับอนุญาต');
+            alert("ไม่ได้รับอนุญาต");
             break;
           case 403:
-            alert('ถูกปฏิเสธ');
+            alert("ถูกปฏิเสธ");
             break;
           case 404:
-            alert('ไม่พบข้อมูล');
+            alert("ไม่พบข้อมูล");
             break;
           case 500:
-            alert('เซิร์ฟเวอร์เกิดข้อผิดพลาด');
+            alert("เซิร์ฟเวอร์เกิดข้อผิดพลาด");
             break;
           default:
-            alert('เกิดข้อผิดพลาด');
+            alert("เกิดข้อผิดพลาด");
         }
       } else if (AxiosError.request) {
-        alert('ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์');
+        alert("ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์");
+      } else if (listdata.value.length == 0) {
+        alert("คุณไม่มีเอกสารในระบบ");
       } else {
-        alert('เกิดข้อผิดพลาด: ' + AxiosError.message);
+        alert("เกิดข้อผิดพลาด: " + AxiosError.message);
       }
     });
   getAllDoc();
@@ -196,40 +208,34 @@ const editDoc = async (id) => {
   location.reload();
 };
 
-const editList = ref(
-  {
-    "id": "",
-    "accessLevel": "",
-    "documentsDocumentid1": {
-      "id": "",
-      "title": "",
-      "filePath": "",
-      "dateAdd": "",
-      "dateUpdate": "",
-      "category": "",
-      "secrecyLevel": "",
-      "urgency": "",
-      "fromSource": "",
-      "status": "",
-      "description": "",
-      "usersUserid": {
-        "id": "",
-        "username": "",
-        "fullName": "",
-        "role": "",
-        "email": "",
-        "branch": ""
-      }
+const editList = ref({
+  id: "",
+  accessLevel: "",
+  documentsDocumentid1: {
+    id: "",
+    title: "",
+    filePath: "",
+    dateAdd: "",
+    dateUpdate: "",
+    category: "",
+    secrecyLevel: "",
+    urgency: "",
+    fromSource: "",
+    status: "",
+    description: "",
+    usersUserid: {
+      id: "",
+      username: "",
+      fullName: "",
+      role: "",
+      email: "",
+      branch: "",
     },
-    "usersUserid": {
-      "id": ""
-    }
-  }
-);
-
-const changeZtimetoDate = (ztime) => {
-  return moment(ztime).format("DD-MM-YYYY HH:mm");
-};
+  },
+  usersUserid: {
+    id: "",
+  },
+});
 
 const changeTimestampToDate = (timestamp) => {
   return moment(timestamp * 1000).format("DD-MM-YYYY HH:mm");
@@ -255,32 +261,46 @@ const editDocButtonFunction = (e) => {
   return editList.value;
 };
 
-const clickToViewDoc = async (id) => {
+const clickToViewDoc = async (id, obj) => {
+
+  console.log("obj", obj);
+  await useDocumentListStore().getdocumentFilenameAndUserIdFromAxios(id);
+  console.log("obj.usersUserid.id : ", obj.usersUserid.id);
+  console.log("obj.documentsDocumentid1.filePath : ", obj.documentsDocumentid1.filePath);
+
+  console.log("LIST : " + useDocumentListStore().getDocumentUserId);
+  console.log("LIST : " + useDocumentListStore().getDocumentFilename);
+
   router.push({
     name: "ViewDoc",
     params: {
       id: id,
     },
   });
+
 };
+
+function getNewDoc() {
+  getAllDoc();
+}
 
 onMounted(() => {
   getAllDoc();
 
-  const isRefresh = sessionStorage.getItem('isRefresh');
-  const isRefresh2 = sessionStorage.getItem('isRefresh2');
+  // const isRefresh = sessionStorage.getItem('isRefresh');
+  // const isRefresh2 = sessionStorage.getItem('isRefresh2');
 
-  if (isRefresh === '1' && isRefresh2 === '1') {
-    sessionStorage.setItem('isRefresh', '2');
-    location.reload();
-  } else if (isRefresh === '1') {
-    sessionStorage.setItem('isRefresh', '2');
-  }
+  // if (isRefresh === '1' && isRefresh2 === '1') {
+  //   sessionStorage.setItem('isRefresh', '2');
+  //   location.reload();
+  // } else if (isRefresh === '1') {
+  //   sessionStorage.setItem('isRefresh', '2');
+  // }
 });
 
 onUnmounted(() => {
-  sessionStorage.setItem('isRefresh', '1');
-  sessionStorage.setItem('isRefresh2', '1');
+  // sessionStorage.setItem('isRefresh', '1');
+  // sessionStorage.setItem('isRefresh2', '1');
 });
 
 const listdata = ref([
@@ -353,6 +373,7 @@ const listdata = ref([
 </script>
 
 <template>
+  <!-- <button @click="getNewDoc()" class="btn">Click to get new Doc</button> -->
   <div class="shadow-md sm:rounded-lg table-container">
     <table class="w-full text-sm text-left rtl:text-right text-white">
       <thead class="text-xs text-white uppercase bg-green-800">
@@ -429,8 +450,9 @@ const listdata = ref([
             {{ index + 1 }}
           </td>
           <th scope="row" class="px-6 py-4 font-medium">
-            <a v-on:click="clickToViewDoc(thisdoc.documentsDocumentid1.id)" class="cursor-pointer hover:text-blue-200">{{
-              thisdoc.documentsDocumentid1.title }}
+            <a v-on:click="clickToViewDoc(thisdoc.documentsDocumentid1.id, thisdoc)"
+              class="cursor-pointer hover:text-blue-200">{{
+                thisdoc.documentsDocumentid1.title }}
             </a>
           </th>
           <td class="px-6 py-4">
@@ -590,8 +612,7 @@ const listdata = ref([
                 <div class="col-span-6 sm:col-span-3">
                   <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">แผนก</label>
                   <select
-                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 
-                    dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     :placeholder="editList.documentsDocumentid1.branchSource"
                     v-model="editList.documentsDocumentid1.branchSource">
                     <option class="text-gray-900 text-sm" selected disabled>

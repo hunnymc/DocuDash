@@ -1,28 +1,38 @@
 package doc.backendapi.DTO;
 
+import doc.backendapi.Enum.Role;
 import doc.backendapi.entities.User;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.Serializable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 /**
  * DTO for {@link User}
  */
 @Getter
 @Setter
-public class UserDto  {
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserDto {
     private Integer id;
-    @Size(max = 255)
+
     private String username;
-    @Size(max = 255)
+
     private String fullName;
-    @Size(max = 255)
-    private String role;
-    @Size(max = 255)
+
+    private Role role;
+
     private String email;
-    @Size(max = 255)
+
     private String phone;
-    @Size(max = 255)
+
     private String branch;
+
 }

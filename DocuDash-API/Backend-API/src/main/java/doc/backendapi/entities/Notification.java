@@ -1,11 +1,11 @@
 package doc.backendapi.entities;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 
 @Getter
@@ -34,8 +34,24 @@ public class Notification {
     private String urgency;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "users_UserID", nullable = false)
-    private User usersUserid;
+    @Column(name = "users_UserID", nullable = false)
+    private Integer usersUserid;
+
+    @NotNull
+    @Column(name = "DocumentId")
+    private Integer documentId;
+
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "read_status", nullable = false)
+    private String readStatus;
+
+    @Size(max = 255)
+    @Column(name = "SourceUsername")
+    private String sourceUsername;
+
+    @Size(max = 255)
+    @Column(name = "DocTitle")
+    private String docTitle;
 
 }

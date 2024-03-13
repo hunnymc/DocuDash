@@ -1,5 +1,5 @@
 <script setup>
-import { ref , onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
 import Navbar from "../components/Navbar.vue";
 import Sidebar from "../components/Sidebar.vue";
@@ -19,11 +19,9 @@ const refresh = () => {
   <Navbar />
   <div class="flex">
     <Sidebar />
-     <CreateDoc />
+    <CreateDoc />
   </div>
   <Footer />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

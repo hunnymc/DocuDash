@@ -2,7 +2,7 @@ package doc.backendapi.repositories;
 
 import doc.backendapi.entities.Document;
 import doc.backendapi.entities.User;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
