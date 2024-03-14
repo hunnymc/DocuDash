@@ -6,13 +6,6 @@ import Sidebar from "../components/Sidebar.vue";
 import Footer from "../components/footer.vue";
 import CreateDoc from "../components/CreateDoc.vue";
 
-let key = ref(0);
-
-const refresh = () => {
-  key.value++;
-};
-
-
 </script>
 
 <template>

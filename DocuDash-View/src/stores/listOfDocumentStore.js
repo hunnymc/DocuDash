@@ -9,7 +9,8 @@ export const useDocumentListStore = defineStore('documentList', {
         documentFilename: null,
         document_userId: null,
         callFunctionInComponentB: false,
-        mainUrl: 'http://cp23kw2.sit.kmutt.ac.th:10003',
+        mainUrl: "http://capstone23.sit.kmutt.ac.th/kw2",
+        // mainUrl: 'http://cp23kw2.sit.kmutt.ac.th:10003',
         // mainUrl: 'http://localhost:5002'
     }),
     persist: true,

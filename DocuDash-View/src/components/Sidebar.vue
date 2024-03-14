@@ -44,7 +44,7 @@ onBeforeMount(() => {
                         <li>
                             <div>
                                 <!-- **** ปุ่มเข้าหน้าสร้าง **** -->
-                                <a href="/add"
+                                <a href="/kw2/add"
                                     class="flex block px-2 py-2 font-bold hover:bg-lime-300 bg-lime-400 dark:hover:bg-gray-600 dark:hover:text-white">
                                     <svg class="h-5 w-5 mr-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                                         fill="#000000">
@@ -144,7 +144,7 @@ onBeforeMount(() => {
 
                                     <!-- ปุ่มนี้เห็นได้เฉพาะ Admin -->
 
-                                    <a href="/list/all" data-tooltip-target="testtool2" data-tooltip-trigger="click"
+                                    <a href="/kw2/list/all" data-tooltip-target="testtool2" data-tooltip-trigger="click"
                                         class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800 ">
                                         ทะเบียนเอกสารทั้งหมด</a>
                                 </div>
@@ -208,7 +208,7 @@ onBeforeMount(() => {
                             </svg>
                         </div>
 
-                        <router-link to="/list"><a
+                        <router-link to="/kw2/list/"><a
                                 class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">
                                 เอกสารทั้งหมด</a>
                         </router-link>
@@ -382,7 +382,7 @@ onBeforeMount(() => {
                 <a class="px-6 pt-4 mt-4   font-bold text-xs text-neutral-400">เมนูผู้ดูแลระบบ</a>
 
                 <div class="px-6 pt-4 pb-8">
-                    <a href="/register">
+                    <a href="/kw2/register">
                         <button data-tooltip-target="testtool" data-tooltip-trigger="click" type="button"
                             class="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-1 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             <svg class="-translate-x-3 rtl:rotate-180 w-7 h-7 ms-2" viewBox="0 0 24 24" fill="none"

@@ -7,7 +7,8 @@ import Cookies from "js-cookie";
 const router = useRouter();
 
 // let mainURL = "http://localhost:5002";
-let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+// let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
 
 let userEmail = ref("");
 let password = ref("");
@@ -49,7 +50,7 @@ async function login() {
         alert('Login successful');
 
         // Redirect to the home page
-        router.push('/');
+        router.push('/kw2/list');
 
       } else {
         alert ('Login failed');

@@ -13,8 +13,9 @@ const documentListStore = useDocumentListStore();
 const router = useRouter();
 const route = useRoute();
 
-// let mainURL = "http://localhost:5002";
-let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+let mainURL = "http://localhost:5002";
+// let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+// let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
 
 function callFunctionInComponentB() {
   documentListStore.setCallFunctionInComponentB(true);
@@ -132,21 +133,24 @@ function connect() {
 
     console.log('Connected: ' + frame);
 
-    // stompClient.subscribe('/topic/messages', function (message) {
-    //   reciveMessage.value.push(JSON.parse(message.body).content);
-    //   console.log(JSON.parse(message.body).content);
-    //   // showMessage(JSON.parse(message.body).content);
-    // });
+    stompClient.subscribe('/topic/messages', function (message) {
+      callFunctionInComponentB();
+      // reciveMessage.value.push(JSON.parse(message.body).content);
+      // console.log(JSON.parse(message.body).content);
+      // showMessage(JSON.parse(message.body).content);
+    });
 
-    // stompClient.subscribe('/user/topic/private-messages', function (message) {
-    //   reciveMessage.value.push(JSON.parse(message.body).content);
-    //   console.log(JSON.parse(message.body).content);
-    //   // showMessage(JSON.parse(message.body).content);
-    // });
+    stompClient.subscribe('/user/topic/private-messages', function (message) {
+      callFunctionInComponentB();
+      // reciveMessage.value.push(JSON.parse(message.body).content);
+      // console.log(JSON.parse(message.body).content);
+      // showMessage(JSON.parse(message.body).content);
+    });
 
-    // stompClient.subscribe('/topic/global-notifications', function () {
-    //   notificationCount.value = notificationCount.value + 1;
-    // });
+    stompClient.subscribe('/topic/global-notifications', function () {
+      notificationCount.value = notificationCount.value + 1;
+      callFunctionInComponentB();
+    });
 
     stompClient.subscribe('/user/topic/private-notifications', function (message) {
       notificationMessage.value = JSON.parse(message.body);
@@ -160,11 +164,11 @@ async function clickNotification(documentId) {
   notificationCount.value = 0;
   await documentListStore.getdocumentFilenameAndUserIdFromAxios(documentId);
   getNewNotification();
-  router.push("/view/" + documentId);
+  router.push("/kw2/view/" + documentId);
 }
 
 function clickToAllDoc() {
-  router.push("/list");
+  router.push("/kw2/list");
 }
 
 // ---------------------------------------------------------------------------------
@@ -176,7 +180,7 @@ function logout() {
   Cookies.remove("email");
   Cookies.remove("userId");
   localStorage.removeItem("fullName");
-  router.push("/login");
+  router.push("/kw2/login");
 }
 
 // ---------------------------------------------------------------------------------
@@ -207,9 +211,9 @@ watch(() => route.value, getNewNotification(), { immediate: true });
       <!-- **** โลโก้เว็บ **** -->
       <!-- animate__animated animate__flip -->
       <div class="flex items-center justify-between">
-        <a href="/list" class="text-xl font-bold text-gray-100 md:text-2xl hover:text-indigo-400 cursor-pointer">
+        <a href="/kw2/list" class="text-xl font-bold text-gray-100 md:text-2xl hover:text-indigo-400 cursor-pointer">
           <img class="h-32 md:h-24 max-w-xs object-contain object-left contrast-125 brightness-150"
-            src="/public/img/DD1.png" alt="image description" />
+            src="../assets/DD1.png" alt="image description" />
         </a>
         <div @click="toggleNav" class="flex md:hidden">
           <button type="button" class="text-gray-100 hover:text-gray-400 focus:outline-none focus:text-gray-400">
@@ -226,7 +230,7 @@ watch(() => route.value, getNewNotification(), { immediate: true });
         <h2 class="text-gray-100 text-base md:text-sm">
           <span
             class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400 uppercase">E-Document</span>
-          <a href="#"
+          <a href="/kw2/list"
             class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 hover:underline">ระบบงานสารบรรณอิเล็กทรอนิกส์</a>
         </h2>
       </div>
@@ -246,7 +250,7 @@ watch(() => route.value, getNewNotification(), { immediate: true });
 
 
         <li>
-          <a href="/list" class="text-gray-100 hover:text-indigo-400 cursor-pointer">
+          <a href="/kw2/list" class="text-gray-100 hover:text-indigo-400 cursor-pointer">
             หน้าแรก
           </a>
         </li>
@@ -461,7 +465,7 @@ watch(() => route.value, getNewNotification(), { immediate: true });
             </div>
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownAvatarNameButton">
               <li>
-                <a href="#" @click="router.push('/user')"
+                <a href="#" @click="router.push('/kw2/user')"
                   class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                   ดูโปรไฟล์
                 </a>

@@ -15,17 +15,8 @@ let showPDF = ref(false);
 const store = useDocumentListStore();
 
 // let mainURL = "http://localhost:5002";
-let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-
-// console.log("route.params.id: ", route.params.id);
-// console.log("VIEW store.getDocumentUserId: ", store.getDocumentUserId);
-// console.log("VIEW store.getDocumentFilename: ", store.getDocumentFilename);
-
-const { pdf, pages } = usePDF(mainURL + "/api/files/" + store.getDocumentUserId + "/" + store.getDocumentFilename);
-// const { pdf, pages } = usePDF("https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf");
-
-const page = ref(1);
-const scale = ref(1);
+// let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
 
 let doc = ref({
     branchSource: "NOT_FOUND",
@@ -70,14 +61,14 @@ const getDocById = async () => {
             switch (error.response.status) {
                 case 401:
                     alert("กรุณาเข้าสู่ระบบ");
-                    router.push("/login");
+                    router.push("/kw2/login");
                     break;
                 case 403:
                     alert("คุณไม่มีสิทธิ์เข้าถึงเอกสารนี้");
-                    router.push("/list");
+                    router.push("/kw2/list");
                     break;
                 case 404:
-                    router.push("/NotFound");
+                    router.push("/kw2/NotFound");
                     alert("ไม่พบเอกสารที่ต้องการ");
                     break;
                 default:
@@ -96,9 +87,6 @@ onBeforeMount(() => {
 
 onMounted(async () => {
     await getDocById();
-    // if (store.getDocumentUserId == null || store.getDocumentFilename == null) {
-    //     router.push("/list");
-    // }
     isEverythingLoaded.value = true;
 });
 
@@ -107,10 +95,6 @@ watch(() => route.params.id, async () => {
     isEverythingLoaded.value = true;
 }
 );
-
-watchEffect(() => {
-    // usePDF(mainURL + "/api/files/" + store.getDocumentUserId + "/" + store.getDocumentFilename);
-});
 
 </script>
 

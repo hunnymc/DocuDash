@@ -13,10 +13,10 @@ import Setting from "../views/SettingView.vue";
 import Cookies from "js-cookie";
 
 const routes = [
-    {path: '/', redirect: '/list'},
-    {path: '/list', name: 'AllDocList', component: AllDocList},
+    {path: '/kw2/', redirect: '/kw2/list'},
+    {path: '/kw2/list', name: 'AllDocList', component: AllDocList},
     {
-        path: '/list/all', name: 'AdminDocList', component: AdminDocList,
+        path: '/kw2/list/all', name: 'AdminDocList', component: AdminDocList,
         beforeEnter: (to, from, next) => {
             if (Cookies.get('role') !== 'ADMIN') {
                 // alert('You are not authorized to access this page')
@@ -26,10 +26,10 @@ const routes = [
             }
         }
     },
-    {path: '/add', name: 'CreateDoc', component: CreateDoc},
-    {path: '/user', name: 'UserInfo', component: UserInfo},
+    {path: '/kw2/add', name: 'CreateDoc', component: CreateDoc},
+    {path: '/kw2/user', name: 'UserInfo', component: UserInfo},
     {
-        path: '/user', name: 'UserInfo', component: UserInfo,
+        path: '/kw2/user', name: 'UserInfo', component: UserInfo,
         beforeEnter: (to, from, next) => {
             if (Cookies.get('role') !== 'ADMIN') {
                 // alert('You are not authorized to access this page')
@@ -40,24 +40,24 @@ const routes = [
         }
     },
     {
-        path: '/view/:id', name: 'ViewDoc', component: ViewDoc,
-        // beforeEnter: (to, from, next) => {
-        //     if (from.path !== '/view/:id') {
-        //         next();
-        //     } else {
-        //         next('/list'); // redirect to /list if not coming from /list or Navbar
-        //     }
-        // }
-    },
-    {path: '/login', name: 'Login', component: Login},
-    {path: '/edit', namr: 'EditDoc', component: EditDoc},
-    {path: '/register', name: 'Register', component: Register},
-    {path: '/chat', name: 'Chat', component: Chat},
-    {path: '/setting', name: 'Setting', component: Setting},
-    {
-        path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound,
+        path: '/kw2/view/:id', name: 'ViewDoc', component: ViewDoc,
         beforeEnter: (to, from, next) => {
-            next('/list'); // redirect to /list if Not Found page
+            if (from.path !== '/kw2/view/:id') {
+                next();
+            } else {
+                next('/kw2/list'); // redirect to /list if not coming from /list or Navbar
+            }
+        }
+    },
+    {path: '/kw2/login', name: 'Login', component: Login},
+    {path: '/kw2/edit', namr: 'EditDoc', component: EditDoc},
+    {path: '/kw2/register', name: 'Register', component: Register},
+    {path: '/kw2/chat', name: 'Chat', component: Chat},
+    {path: '/kw2/setting', name: 'Setting', component: Setting},
+    {
+        path: '/kw2/:pathMatch(.*)*', name: 'NotFound', component: NotFound,
+        beforeEnter: (to, from, next) => {
+            next('/kw2/list'); // redirect to /list if Not Found page
         }
     }
 ]

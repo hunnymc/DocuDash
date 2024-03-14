@@ -8,7 +8,8 @@ import Cookies from "js-cookie";
 const route = useRoute();
 
 // let mainURL = "http://localhost:5002";
-let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+// let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
 
 let editdocdata = ref({});
 
@@ -137,7 +138,7 @@ const CreateDocApi = async () => {
   
   .then(function (response) {
     alert('แก้ไขเอกสารสำเร็จ');
-    router.push("/list");
+    router.push("/kw2/list");
   })
   
   .catch(function (AxiosError) {

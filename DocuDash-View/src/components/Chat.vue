@@ -3,8 +3,9 @@ import { ref, onMounted } from 'vue';
 
 import Stomp from 'stompjs';
 
-let url = 'http://cp23kw2.sit.kmutt.ac.th:10003';
-// let url = 'http://localhost:5002';
+// let url = "http://capstone23.sit.kmutt.ac.th/kw2";
+// let url = 'http://cp23kw2.sit.kmutt.ac.th:10003';
+let url = 'http://localhost:5002';
 
 let stompClient = null;
 let notificationCount = ref(0);
