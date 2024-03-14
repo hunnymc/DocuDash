@@ -12,7 +12,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <router-view  ref="routerViewRef" />
+  <router-view ref="routerViewRef" />
 </template>
 
 <style scoped>

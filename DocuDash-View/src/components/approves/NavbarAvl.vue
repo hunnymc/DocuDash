@@ -1,10 +1,9 @@
 <script setup>
-import { ref, onMounted, onBeforeMount, computed, onUpdated, watch } from "vue";
+    import { ref, onMounted, onBeforeMount, computed, onUpdated, watch } from "vue";
 import { initFlowbite } from 'flowbite'
 import { useRouter, useRoute } from "vue-router";
 import { useDocumentListStore } from '/src/stores/listOfDocumentStore.js';
 import Cookies from "js-cookie";
-import moment from 'moment';
 import Stomp from 'stompjs';
 import axios from 'axios';
 
@@ -13,9 +12,9 @@ const documentListStore = useDocumentListStore();
 const router = useRouter();
 const route = useRoute();
 
-let mainURL = "http://localhost:5002";
+// let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-// let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
+let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
 
 function callFunctionInComponentB() {
   documentListStore.setCallFunctionInComponentB(true);
@@ -133,24 +132,21 @@ function connect() {
 
     console.log('Connected: ' + frame);
 
-    stompClient.subscribe('/topic/messages', function (message) {
-      callFunctionInComponentB();
-      // reciveMessage.value.push(JSON.parse(message.body).content);
-      // console.log(JSON.parse(message.body).content);
-      // showMessage(JSON.parse(message.body).content);
-    });
+    // stompClient.subscribe('/topic/messages', function (message) {
+    //   reciveMessage.value.push(JSON.parse(message.body).content);
+    //   console.log(JSON.parse(message.body).content);
+    //   // showMessage(JSON.parse(message.body).content);
+    // });
 
-    stompClient.subscribe('/user/topic/private-messages', function (message) {
-      callFunctionInComponentB();
-      // reciveMessage.value.push(JSON.parse(message.body).content);
-      // console.log(JSON.parse(message.body).content);
-      // showMessage(JSON.parse(message.body).content);
-    });
+    // stompClient.subscribe('/user/topic/private-messages', function (message) {
+    //   reciveMessage.value.push(JSON.parse(message.body).content);
+    //   console.log(JSON.parse(message.body).content);
+    //   // showMessage(JSON.parse(message.body).content);
+    // });
 
-    stompClient.subscribe('/topic/global-notifications', function () {
-      notificationCount.value = notificationCount.value + 1;
-      callFunctionInComponentB();
-    });
+    // stompClient.subscribe('/topic/global-notifications', function () {
+    //   notificationCount.value = notificationCount.value + 1;
+    // });
 
     stompClient.subscribe('/user/topic/private-notifications', function (message) {
       notificationMessage.value = JSON.parse(message.body);
@@ -164,11 +160,11 @@ async function clickNotification(documentId) {
   notificationCount.value = 0;
   await documentListStore.getdocumentFilenameAndUserIdFromAxios(documentId);
   getNewNotification();
-  router.push("/kw2/view/" + documentId);
+  router.push("/view/" + documentId);
 }
 
 function clickToAllDoc() {
-  router.push("/kw2/list");
+  router.push("/list");
 }
 
 // ---------------------------------------------------------------------------------
@@ -180,7 +176,7 @@ function logout() {
   Cookies.remove("email");
   Cookies.remove("userId");
   localStorage.removeItem("fullName");
-  router.push("/kw2/login");
+  router.push("/login");
 }
 
 // ---------------------------------------------------------------------------------
@@ -206,14 +202,13 @@ watch(() => route.value, getNewNotification(), { immediate: true });
 </script>
 
 <template>
-  <div class="bg-green-900">
+<div class="bg-blue-900">
     <nav class="sticky-top md:flex md:justify-between md:items-center">
-      <!-- **** โลโก้เว็บ **** -->
-      <!-- animate__animated animate__flip -->
+    
       <div class="flex items-center justify-between">
-        <a href="/kw2/menu" class="text-xl font-bold text-gray-100 md:text-2xl hover:text-indigo-400 cursor-pointer">
+        <a href="/kw2/" class="text-xl font-bold text-gray-100 md:text-2xl hover:text-indigo-400 cursor-pointer">
           <img class="h-32 md:h-24 max-w-xs object-contain object-left contrast-125 brightness-150"
-            src="../assets/DD1.png" alt="image description" />
+            src="../../assets/DD1.png" alt="image description" />
         </a>
         <div @click="toggleNav" class="flex md:hidden">
           <button type="button" class="text-gray-100 hover:text-gray-400 focus:outline-none focus:text-gray-400">
@@ -229,9 +224,9 @@ watch(() => route.value, getNewNotification(), { immediate: true });
       <div class="text-gray-100  text-sm font-extrabold font-sans hidden md:block mr-auto">
         <h2 class="text-gray-100 text-base md:text-sm">
           <span
-            class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400 uppercase">E-Document</span>
-          <a href="/kw2/list"
-            class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 hover:underline">ระบบงานสารบรรณอิเล็กทรอนิกส์</a>
+            class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400 uppercase">E-Approval</span>
+          <a href="#"
+            class="text-transparent bg-clip-text font-bold bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 hover:underline">ระบบอนุมัติเอกสารออนไลน์</a>
         </h2>
       </div>
 
@@ -250,7 +245,7 @@ watch(() => route.value, getNewNotification(), { immediate: true });
 
 
         <li>
-          <a href="/kw2/list" class="text-gray-100 hover:text-indigo-400 cursor-pointer">
+          <a href="/kw2/approval" class="text-gray-100 hover:text-indigo-400 cursor-pointer">
             หน้าแรก
           </a>
         </li>
@@ -323,27 +318,6 @@ watch(() => route.value, getNewNotification(), { immediate: true });
               </a>
 
 
-
-              <!-- 
-              <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
-                  <div
-                    class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
-                    <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor" viewBox="0 0 20 14">
-                      <path
-                        d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div class="w-full ps-3">
-                  <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
-                      class="font-semibold text-gray-900 dark:text-white">ชื่อคนส่ง</span> ได้ส่งเอกสารถึงท่าน
-                      : <span class="font-semibold text-gray-900">เอกสาร หำผู้ใหญ่บ้านพัง</span></div>
-                  <div class="text-xs text-blue-600 dark:text-blue-500">3 ชั่วโมงที่แล้ว</div>
-                </div>
-              </a>
 
 
 
@@ -465,12 +439,22 @@ watch(() => route.value, getNewNotification(), { immediate: true });
             </div>
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownAvatarNameButton">
               <li>
-                <a href="#" @click="router.push('/kw2/user')"
+                <a href="#" @click="router.push('/user')"
                   class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                   ดูโปรไฟล์
                 </a>
               </li>
             </ul>
+
+            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-400 bg-blue-200" aria-labelledby="dropdownAvatarNameButton">
+              <li>
+                <a href="#" @click="router.push('/user')"
+                  class="block px-4 py-2 hover:bg-blue-400 ">
+                  กลับสู่เมนูหลัก
+                </a>
+              </li>
+            </ul>
+            
             <div class="py-2">
               <a href="#" @click="logout()"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
@@ -480,24 +464,9 @@ watch(() => route.value, getNewNotification(), { immediate: true });
           </div>
         </li>
 
-        <!-- กดทิปส์ -->
-        <!-- <div
-          id="testtool1"
-          role="tooltip"
-          class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-        >
-          งาน Release หน้าจ้า
-          <div class="tooltip-arrow" data-popper-arrow></div>
-        </div> -->
-
-        <!-- <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">
-          ข้อมูลผู้ใช้งาน
-        </li> -->
-
-        <!-- <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">ออกจากระบบ</li> -->
+        
       </ul>
     </nav>
   </div>
-</template>
 
-<style></style>
+</template>
