@@ -13,10 +13,10 @@ const documentListStore = useDocumentListStore();
 const router = useRouter();
 const route = useRoute();
 
-let mainURL = "http://localhost:5002";
+// let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-// let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
-
+let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
+//
 function callFunctionInComponentB() {
   documentListStore.setCallFunctionInComponentB(true);
 }
@@ -125,7 +125,7 @@ let notificationCount = ref(0);
 
 function connect() {
 
-  var socket = new SockJS(mainURL + '/api/our-websocket');
+  let socket = new SockJS(mainURL + '/api/our-websocket');
 
   stompClient = Stomp.over(socket);
 

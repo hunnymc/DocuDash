@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Integer> {
@@ -15,5 +16,8 @@ public interface DocumentRepository extends JpaRepository<Document, Integer> {
 
     @Query("SELECT COALESCE(MAX(d.id), 0) + 1 FROM Document d")
     int getNewDocId();
+
+    @Query("SELECT d FROM Document d WHERE d.usersUserid = ?1")
+    List<Document> findByUserID(User user);
 
 }

@@ -13,6 +13,7 @@
     "@stomp/stompjs": "^7.0.0",
     "@tato30/vue-pdf": "^1.9.4",
     "animate.css": "^4.1.1",
+    "apexcharts": "^3.47.0",
     "axios": "^1.6.2",
     "cors": "^2.8.5",
     "flowbite": "^2.3.0",
@@ -26,6 +27,7 @@
     "stompjs": "^2.3.3",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
+    "vue3-apexcharts": "^1.5.2",
     "ws": "^8.16.0"
   },
   "devDependencies": {

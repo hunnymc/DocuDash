@@ -22,8 +22,6 @@ onBeforeMount(() => {
         <div class="w-64  bg-green-950 ">
 
 
-
-
             <!-- **** ปุ่มใหญ่จัดการเอกสารเขียวๆ **** -->
             <div class="px-6 pt-8 ">
                 <button id="side1" data-dropdown-toggle="dropdown"
@@ -44,7 +42,7 @@ onBeforeMount(() => {
                         <li>
                             <div>
                                 <!-- **** ปุ่มเข้าหน้าสร้าง **** -->
-                                <a href="/kw2/add"
+                                <a href="/kw2/document/add"
                                     class="flex block px-2 py-2 font-bold hover:bg-lime-300 bg-lime-400 dark:hover:bg-gray-600 dark:hover:text-white">
                                     <svg class="h-5 w-5 mr-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                                         fill="#000000">

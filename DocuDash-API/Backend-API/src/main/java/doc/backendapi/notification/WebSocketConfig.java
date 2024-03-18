@@ -19,7 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
-        registry.addEndpoint("/api/our-websocket")
+        registry.addEndpoint("api/our-websocket")
                 .setAllowedOriginPatterns("*")
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();

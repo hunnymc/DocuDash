@@ -7,7 +7,7 @@ export default defineConfig({
   base: "/kw2",
   server: {
     host: true,
-    port: 3000,
+    // port: 3000,
   },
   optimizeDeps: {
     exclude: ['fsevents']

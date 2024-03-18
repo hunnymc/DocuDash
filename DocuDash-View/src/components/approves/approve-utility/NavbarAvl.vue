@@ -208,7 +208,7 @@ watch(() => route.value, getNewNotification(), { immediate: true });
       <div class="flex items-center justify-between">
         <a href="/kw2/" class="text-xl font-bold text-gray-100 md:text-2xl hover:text-indigo-400 cursor-pointer">
           <img class="h-32 md:h-24 max-w-xs object-contain object-left contrast-125 brightness-150"
-            src="../../assets/DD1.png" alt="image description" />
+               src="../../../assets/DD1.png" alt="image description" />
         </a>
         <div @click="toggleNav" class="flex md:hidden">
           <button type="button" class="text-gray-100 hover:text-gray-400 focus:outline-none focus:text-gray-400">
@@ -323,7 +323,7 @@ watch(() => route.value, getNewNotification(), { immediate: true });
 
               <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
+<!--                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">-->
                   <div
                     class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
                     <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -344,7 +344,7 @@ watch(() => route.value, getNewNotification(), { immediate: true });
 
               <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
+<!--                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">-->
                   <div
                     class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
                     <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -365,7 +365,7 @@ watch(() => route.value, getNewNotification(), { immediate: true });
 
               <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
+<!--                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">-->
                   <div
                     class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
                     <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"

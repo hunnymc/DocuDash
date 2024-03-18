@@ -33,6 +33,7 @@ public class FileService {
     }
 
     public String store(MultipartFile file, Integer UserId) {
+        // new line added to log the file size
         logger.info("Storing file with size: " + file.getSize());
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {

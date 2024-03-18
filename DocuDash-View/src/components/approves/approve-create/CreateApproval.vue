@@ -1,0 +1,606 @@
+<script setup>
+import { ref, watch, computed, onMounted, onUnmounted } from "vue";
+import axios from "axios";
+import router from "../../../router";
+import Cookies from "js-cookie";
+
+let mainURL = "http://localhost:5002";
+// let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+
+const showAlert = ref(false);
+
+const listOfUsers = ref([]);
+
+const getDocID = async () => {
+  const response = await axios.get(
+      mainURL + "/api/doc/newdocid"
+      // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/newdocid"
+      , {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      });
+
+  newdocid.value = response.data;
+};
+
+const getAllUsers = async () => {
+  const response = await axios.get(
+      mainURL + "/api/doc/user"
+      , {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      });
+
+  listOfUsers.value = response.data;
+  console.log(listOfUsers.value);
+};
+
+let newdocid = ref(0);
+
+// const selectedSentUser = ref([]);
+
+// // const userDocs = ref([
+//   {
+//     documentsDocumentid1Id: -1,
+//     usersUseridId: -1,
+//   },
+//   {
+//     documentsDocumentid1Id: -1,
+//     usersUseridId: -1,
+//   }
+// // ]);
+
+const selectedSentUser = ref([]);
+const userDocs = ref([]);
+
+// function addDatatoNewDoc() {
+//   newDocdata.value.title = "test";
+//   newDocdata.value.fromSource = "test";
+//   newDocdata.value.emailSource = "test@test.com";
+//   newDocdata.value.branchSource = "ฝ่ายการตลาด";
+//   newDocdata.value.category = "เอกสารภายนอก";
+//   newDocdata.value.urgency = "ปกติ";
+//   newDocdata.value.secrecyLevel = "ลับ";
+//   newDocdata.value.description = "test";
+//   newDocdata.value.phoneSource = "0812345678";
+// }
+
+watch(selectedSentUser, (newVal, oldVal) => {
+
+  const addedUsers = newVal.filter((x) => !oldVal.includes(x));
+  const removedUsers = oldVal.filter((x) => !newVal.includes(x));
+
+  addedUsers.forEach((userId) => {
+    userDocs.value.push({
+      documentsDocumentid1Id: newdocid.value, // Replace with your actual document ID
+      usersUseridId: userId,
+      ownerDocument: localStorage.getItem("fullName"),
+    });
+  });
+
+  removedUsers.forEach((userId) => {
+    const index = userDocs.value.findIndex(
+        (doc) => doc.usersUseridId === userId
+    );
+    if (index !== -1) {
+      userDocs.value.splice(index, 1);
+    }
+  });
+
+});
+
+const newDocdata = ref({
+  usersUserid: {
+    id: Cookies.get("userId"),
+  },
+});
+
+console.log(newDocdata.value.usersUserid.id);
+
+let file = ref(null);
+
+const handleFileUpload = (event) => {
+  file.value = event.target.files[0];
+};
+
+const deleteFile = () => {
+  file.value = null;
+};
+
+const CreateDocApi = async () => {
+  if (!newDocdata.value.title) {
+    alert("กรุณากรอกชื่อเรื่องของเอกสาร");
+    return false;
+  }
+
+  if (!newDocdata.value.fromSource) {
+    alert("กรุณากรอกชื่อผู้ส่ง");
+    return false;
+  }
+
+  if (!newDocdata.value.emailSource) {
+    alert("กรุณากรอกอีเมล");
+    return false;
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(newDocdata.value.emailSource)) {
+    alert("กรุณากรอกอีเมลที่ถูกต้อง");
+    return false;
+  }
+
+  if (!newDocdata.value.branchSource) {
+    alert("กรุณาเลือกแผนกของผู้ส่ง");
+    return false;
+  }
+
+  if (selectedSentUser.value.length === 0) {
+    alert("กรุณาเลือกผู้รับ");
+    return false;
+  }
+
+  if (!newDocdata.value.category) {
+    alert("กรุณาเลือกหมวดหมู่เอกสาร");
+    return false;
+  }
+
+  if (!newDocdata.value.urgency) {
+    alert("กรุณาเลือกความเร่งด่วนของเอกสาร");
+    return false;
+  }
+
+  if (!newDocdata.value.secrecyLevel) {
+    alert("กรุณาเลือกชั้นความลับของเอกสาร");
+    return false;
+  }
+
+  if (!file.value) {
+    alert("กรุณาเลือกไฟล์เอกสาร");
+    return false;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file.value);
+  formData.append("data", JSON.stringify(newDocdata.value));
+  console.log(newDocdata.value);
+  try {
+    const response = await axios.post(
+        // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/",
+        mainURL + "/api/doc/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${Cookies.get("accessToken")}`,
+          },
+        }
+    );
+
+    if (
+        response.status === 202 ||
+        response.status === 201 ||
+        response.status === 200 ||
+        response.status === 204
+    ) {
+      // alert("Document created successfully");
+
+      showAlert.value = true;
+      setTimeout(() => {
+        showAlert.value = false;
+      }, 3000);
+
+      await axios.post(
+          // "http://cp23kw2.sit.kmutt.ac.th:10003/api/userdoc/"
+          mainURL + "/api/userdoc/",
+          userDocs.value,
+          {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("accessToken")}`,
+            },
+          }
+      )
+          .then(function (response) {
+            alert('เพิ่มเอกสารสำเร็จ');
+            router.push("/list");
+          })
+
+          .catch(function (AxiosError) {
+            if (AxiosError.response) {
+              switch (AxiosError.response.status) {
+                case 400:
+                  alert('คำขอไม่ถูกต้อง');
+                  break;
+                case 401:
+                  alert('ไม่ได้รับอนุญาต');
+                  break;
+                case 403:
+                  alert('ถูกปฏิเสธ');
+                  break;
+                case 404:
+                  alert('ไม่พบข้อมูล');
+                  break;
+                case 500:
+                  alert('เซิร์ฟเวอร์เกิดข้อผิดพลาด');
+                  break;
+                default:
+                  alert('เกิดข้อผิดพลาด');
+              }
+            } else if (AxiosError.request) {
+              alert('ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์');
+            } else {
+              alert('เกิดข้อผิดพลาด: ' + AxiosError.message);
+            }
+          });
+
+      // return router.push("/list");
+    } else {
+      alert(`Error: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error creating document:", error);
+  }
+};
+
+onMounted(() => {
+  getDocID();
+  getAllUsers();
+  // newDocdata.value.usersUserid.id = Cookies.get("userId");
+
+  // const isRefresh = sessionStorage.getItem("isRefresh");
+  // const isRefresh2 = sessionStorage.getItem("isRefresh2");
+
+  // if (isRefresh === "1" && isRefresh2 === "1") {
+  //   sessionStorage.setItem("isRefresh", "2");
+  //   location.reload();
+  // } else if (isRefresh === "1") {
+  //   sessionStorage.setItem("isRefresh", "2");
+  // }
+});
+
+onUnmounted(() => {
+  // sessionStorage.setItem("isRefresh", "1");
+  // sessionStorage.setItem("isRefresh2", "1");
+});
+</script>
+
+<template>
+  <div class="shadow-md sm:rounded-lg w-full">
+    <section class="bg-gray-200 dark:bg-gray-900">
+      <div class="py-8 px-auto ml-5 mr-auto lg:py-12 w-full max-width: 100% justify-center">
+        <h2 class="mb-4 text-4xl font-bold text-gray-900 dark:text-white">
+          ขออนุมัติเอกสารและคำร้อง
+        </h2>
+
+        <!-- shadow-sm bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 -->
+
+        <form action="#">
+          <div class="grid gap-4 grid-rows-8 sm:grid-cols-2 sm:gap-6">
+            <!-- <div class="sm:col-span-2">
+                <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Product Name</label>
+                <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type product name" required="">
+            </div> -->
+            <!-- **** เลขเอกสาร **** -->
+            <div class="w-full">
+              <!-- <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">เลขที่ :</label>
+              <input
+                class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w- p-1 dark:bg-gray-700"
+                disabled :placeholder="newdocid" /> -->
+            </div>
+            <br />
+            <!-- **** ชื่อเรื่อง **** -->
+            <div class="w-full">
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">เรื่อง :</label>
+              <input type="text"
+                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5"
+                     placeholder="กรุณากรอกชื่อเรื่องหรือโครงการ" v-model="newDocdata.title" required="" />
+            </div>
+            <!-- **** กรอกส่งจากใคร **** -->
+            <div class="w-full">
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">ผู้ยื่นขออนุมัติ</label>
+              <div class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white ">รอแมค</h3>
+
+              </div>
+            </div>
+            <!-- **** กรอกรายละเอียด **** -->
+            <div class="w-full">
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">รายละเอียด</label>
+              <input
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5"
+                  placeholder="กรอกรายละเอียดคำขอเบื้องต้น" v-model="newDocdata.description" />
+            </div>
+            <!-- **** กรอกแผนก **** -->
+            <div>
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">แผนก</label>
+              <div class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white ">รอแมค</h3>
+
+              </div>
+            </div>
+            <!-- **** โทรศัพท์ **** -->
+            <div class="w-full">
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">โทรศัพท์</label>
+              <input type="number"
+                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5"
+                     placeholder="08X-XXX-XXXX" v-model="newDocdata.phoneSource" />
+            </div>
+            <!-- **** อีเมล **** -->
+            <div class="w-full">
+              <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">อีเมล</label>
+              <div class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white ">รอแมค</h3>
+
+              </div>
+            </div>
+            <!-- ปรเภทการขออนุมัติ -->
+            <div>
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">ประเภทการขออนุมัติ</label>
+              <select id="category" v-model="newDocdata.category"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700">
+                <option selected="">เลือกประเภทการขออนุมัติ</option>
+                <option value="เอกสารภายนอก">คำร้องขออนุมัติเอกสาร</option>
+                <option value="เอกสารภายใน">ขออนุมัติเพื่อแจ้งให้ทราบ</option>
+              </select>
+            </div>
+            <br>
+            <!-- **** ผจก **** -->
+            <div class="w-full">
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">* เลือกผู้จัดการที่ต้องอนุมัติเอกสาร</label>
+              <div  class="w-full block w-5/6 z-10 block bg-white rounded-lg shadow  dark:bg-gray-700">
+                <div class="p-3 ">
+                  <label  class="sr-only">Search</label>
+                  <div class="">
+                    <div class=" relative items-center ps-3 pointer-events-none">
+                      <svg class="transform translate-y-3 top-1/2 absolute w-4 h-4 text-gray-600 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                      </svg>
+                    </div>
+                    <input type="text" id="input-group-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ค้นหารายชื่อผู้ตรวจสอบขั้นตอนต่อไป">
+                  </div>
+                </div>
+                <ul class="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200" >
+                  <li>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input id="checkbox-item-11" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                      <label for="checkbox-item-11" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Bonnie Green</label>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input checked id="checkbox-item-12" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                      <label for="checkbox-item-12" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Jese Leos</label>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input id="checkbox-item-13" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                      <label for="checkbox-item-13" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Michael Gough</label>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input id="checkbox-item-14" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                      <label for="checkbox-item-14" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Robert Wall</label>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input id="checkbox-item-15" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                      <label for="checkbox-item-15" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Joseph Mcfall</label>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input id="checkbox-item-16" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                      <label for="checkbox-item-16" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Leslie Livingston</label>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <input id="checkbox-item-17" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                      <label for="checkbox-item-17" class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Roberta Casas</label>
+                    </div>
+                  </li>
+                </ul>
+
+              </div>
+            </div>
+            <br>
+            <!-- **** ชั้นความลับ **** -->
+            <div class="w-full">
+              <hr class="flex mx-auto w-full mb-2 border-slate-400" />
+              <a class="mb-3 font-bold text-xs text-gray-500">กรุณาเพิ่มข้อมูลให้กับเอกสารที่ขออนุมัติ</a>
+              <br><br>
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">ชั้นความลับ</label>
+              <select id="category" v-model="newDocdata.secrecyLevel"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700">
+                <option selected="">เลือกชั้นความลับของเอกสาร</option>
+                <option value="ปกติ">ปกติ</option>
+                <option value="ปกปิด">ปกปิด</option>
+                <option value="ลับ">ลับ</option>
+                <option value="ลับมาก">ลับมาก</option>
+                <option value="ลับที่สุด">ลับที่สุด</option>
+              </select>
+            </div> <br>
+            <div class="w-full"><label for="category"
+                                       class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">ความเร่งด่วน</label>
+              <select id="category" v-model="newDocdata.urgency"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-5/6 p-2.5 dark:bg-gray-700">
+                <option selected="">เลือกความเร่งด่วนของเอกสาร</option>
+                <option value="ปกติ">ปกติ</option>
+                <option value="ด่วน">ด่วน</option>
+                <option value="ด่วนที่สุด">ด่วนที่สุด</option>
+              </select></div>
+            <br />
+            <!-- <div>
+                <label for="item-weight" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">Item Weight (kg)</label>
+                <input type="number" name="item-weight" id="item-weight" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-5/6 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="12" required="">
+            </div>  -->
+
+            <!-- เลือกผู้ส่ง -->
+            <div class="w-full">
+              <label for="category" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">เลือกผู้ส่ง</label>
+              <ul
+                  class="w-5/6 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+
+                <li v-for="user in listOfUsers" class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <div class="flex items-center ps-3">
+                    <input id="vue-checkbox" type="checkbox" :value="user.id" v-model="selectedSentUser"
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                    <!-- <label for="vue-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">{{ user.fullName }}</label> -->
+                    <label for="angular-checkbox"
+                           class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">งานเอกสาร</label>
+                  </div>
+                </li>
+
+                <!-- เอามาให้มึงเห็นช่องเฉยๆ -->
+                <li  class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <div class="flex items-center ps-3">
+                    <input id="vue-checkbox"
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                    <!-- <label for="vue-checkbox"
+                      class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">{{ user.fullName }}</label> -->
+                    <label for="angular-checkbox"
+                           class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">รอแมค</label>
+                  </div>
+                </li>
+
+              </ul>
+            </div>
+            <!-- ผู้ลงนาม -->
+            <!-- <div class="w-full">
+              <label for="category"
+                     class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">เลือกผู้ลงนาม</label>
+              <ul class="w-5/6 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <div class="flex items-center ps-3">
+                    <input id="vue-checkbox" type="checkbox" value=""
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                    <label for="vue-checkbox"
+                           class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">นภา
+                      ฟ้าสวย</label>
+                    <label for="angular-checkbox"
+                           class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">งานเอกสาร</label>
+                  </div>
+                </li>
+                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <div class="flex items-center ps-3">
+                    <input id="react-checkbox" type="checkbox" value=""
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                    <label for="react-checkbox"
+                           class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">ใบฝ้าย
+                      นุ่มมิ่ม</label>
+                    <label for="angular-checkbox"
+                           class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายขาย</label>
+                  </div>
+                </li>
+                <li class="w-full hover:bg-gray-50 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <div class="flex items-center ps-3">
+                    <input id="angular-checkbox" type="checkbox" value=""
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                    <label for="angular-checkbox"
+                           class="w-full py-3 ms-2 text-sm font-bold text-gray-900 dark:text-gray-300">กันยา
+                      นาปี</label>
+                    <label for="angular-checkbox"
+                           class="w-full py-3 ms-2 text-sm font-bold text-orange-400 dark:text-gray-300">ฝ่ายผลิต</label>
+                  </div>
+                </li>
+              </ul>
+            </div> -->
+            <br />
+            <!-- กล่องวางไฟล์ -->
+            <div class="flex items-center w-full">
+              <label for="dropzone-file"
+                     class="flex flex-col items-center justify-center w-5/6 h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                       xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-semibold">คลิ๊กเพื่ออัพโหลดเอกสาร</span>
+                    หรือลากไฟล์และวาง
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    SVG, PNG, JPG, or Docx (MAX 10 MB)
+                  </p>
+                </div>
+                <input id="dropzone-file" type="file" class="hidden" @change="handleFileUpload" />
+              </label>
+            </div>
+
+            <!-- ที่แสดงไฟล์ -->
+            <div class="w-full">
+              <div class="rounded-lg shadow-md w-5/6">
+                <table class="rounded-lg w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" class="px-6 py-3">ชื่อไฟล์</th>
+
+                    <th scope="col" class="px-6 py-3">ขนาด</th>
+                    <th scope="col" class="py-3"></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-if="file"
+                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                      {{ file ? file.name : "" }}
+                    </td>
+                    <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                      {{ file ? (file.size / 1000000).toFixed(2) : "" }} MB
+                    </td>
+                    <td class="py-4">
+                      <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline"
+                         @click.prevent="deleteFile">ลบ</a>
+                    </td>
+                  </tr>
+
+                  <tr v-else
+                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                      ไม่มีไฟล์
+                    </td>
+                    <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                      -
+                    </td>
+                    <td class="py-4">
+                      <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline"></a>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- **** หมายเหตุ **** -->
+            <!-- <div class="w-full">
+              <label for="desc" class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">หมายเหตุ</label>
+              <textarea
+                  class="block p-2.5 w-5/6 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="กรอกหมายเหตุของคุณ"></textarea>
+            </div> -->
+          </div>
+          <br />
+          <!-- **** ปุ่มยืนยัน **** -->
+          <!-- <button type="submit" @click="CreateDocApi"
+            class="flex-col justify-center hover:bg-green-800 items-center px-16 py-4 mt-4 sm:mt-6 text-sm font-bold text-white text-center bg-green-600 rounded-lg focus:ring-4 focus:ring-primary-200">
+            ยืนยัน
+          </button> -->
+          <a type="submit" @click="CreateDocApi"
+             class="cursor-pointer flex-col justify-center hover:bg-green-800 items-center px-16 py-4 mt-4 sm:mt-6 text-sm font-bold text-white text-center bg-green-600 rounded-lg focus:ring-4 focus:ring-primary-200">
+            ยื่นขออนุมัติ
+          </a>
+        </form>
+      </div>
+    </section>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+
+</style>

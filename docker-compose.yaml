@@ -33,6 +33,8 @@ services:
             - docudash-db
         networks:
             - docudash-network
+        volumes:
+            - ./DocuDash-API/file-store:/file-store
         links:
             - docudash-db:mysql
         ports:

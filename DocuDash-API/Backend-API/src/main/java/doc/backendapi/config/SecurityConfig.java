@@ -9,23 +9,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.firewall.DefaultHttpFirewall;
-import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -53,8 +43,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    }
 
     @Bean
-    public Argon2PasswordEncoder argon2PasswordEncoder(){
-        return new Argon2PasswordEncoder(16,29,1,16,2);
+    public Argon2PasswordEncoder argon2PasswordEncoder() {
+        return new Argon2PasswordEncoder(16, 29, 1, 16, 2);
     }
 
     @Bean
@@ -64,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    public AccessDeniedHandler accessDeniedHandler() {
         return new CustomAccessDeniedHandler();
     }
 
@@ -89,16 +79,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and().csrf().disable()
                 .headers().frameOptions().disable().and()
                 .authorizeRequests()
-                .antMatchers("/our-websocket/**").permitAll()
+//                .antMatchers("/our-websocket/**").permitAll()
+                .antMatchers("/ws/**").permitAll()
                 .antMatchers("/api/our-websocket", "/api/our-websocket/**").permitAll()
-                .antMatchers("/ws/info", "/ws/**").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
 //                .antMatchers("/notifications").permitAll()
                 .antMatchers("/api/files/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/doc/").hasRole("ADMIN")
                 .antMatchers("/api/n/**").permitAll()
-                .antMatchers("/api/doc/user/email").hasAnyRole("ADMIN","USER","MANAGER")
-                .antMatchers("/api/doc/newdocid").hasAnyRole("ADMIN","USER","MANAGER")
+                .antMatchers("/api/doc/user/email").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers("/api/doc/newdocid").hasAnyRole("ADMIN", "USER", "MANAGER")
                 .anyRequest().authenticated().and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler()).and().sessionManagement()

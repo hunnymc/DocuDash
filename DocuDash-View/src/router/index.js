@@ -11,8 +11,15 @@ import NotFound from "../views/NotFoundView.vue";
 import Chat from "../views/ChatView.vue";
 import Setting from "../views/SettingView.vue";
 import MainMenu from "../components/MainMenu.vue";
-import ApproveList from "../views/ApproveListView.vue";
+import ApproveList from "../views/approve/approve-list/ApproveListView.vue";
+import AdminAcceptView from "../views/approve/AdminAcceptView.vue";
 import Cookies from "js-cookie";
+import AdminAlvView from "../views/approve/approve-detail/AdminAlvView.vue";
+import UserAlvView from "../views/approve/approve-detail/UserAlvView.vue";
+import ManagerAlvView from "../views/approve/approve-detail/ManagerAlvView.vue";
+import RequestAdminApprove from "../views/approve/approve-create/UserRequestApprovalView.vue";
+import ApproveStatusView from "../views/approve/approve-status-list/ApproveStatusView.vue";
+import ManagerListView from "../views/approve/approve-list/ManagerListView.vue";
 
 const routes = [
 
@@ -21,26 +28,26 @@ const routes = [
     {path: '/kw2/menu', name: 'MainMenu', component: MainMenu},
 
     // Document
+    { path: '/kw2/document', redirect: '/kw2/document/list' },
     {path: '/kw2/document/list', name: 'AllDocList', component: AllDocList},
     {
         path: '/kw2/document/list/all', name: 'AdminDocList', component: AdminDocList,
         beforeEnter: (to, from, next) => {
             if (Cookies.get('role') !== 'ADMIN') {
-                // alert('You are not authorized to access this page')
-                next({name: 'AllDocList'})
+                // redirect to not found page
+                next({name: 'NotFound'})
             } else {
                 next()
             }
         }
     },
     {path: '/kw2/document/add', name: 'CreateDoc', component: CreateDoc},
-    {path: '/kw2/document/user', name: 'UserInfo', component: UserInfo},
     {
         path: '/kw2/document/user', name: 'UserInfo', component: UserInfo,
         beforeEnter: (to, from, next) => {
             if (Cookies.get('role') !== 'ADMIN') {
-                // alert('You are not authorized to access this page')
-                next({name: 'AllDocList'})
+                // redirect to not found page
+                next({name: 'NotFound'})
             } else {
                 next()
             }
@@ -52,7 +59,7 @@ const routes = [
             if (from.path !== '/kw2/document/view/:id') {
                 next();
             } else {
-                next('/kw2/document/list'); // redirect to /list if not coming from /list or Navbar
+                next({name: 'NotFound'});
             }
         }
     },
@@ -62,17 +69,39 @@ const routes = [
     {path: '/kw2/document/chat', name: 'Chat', component: Chat},
     {path: '/kw2/document/setting', name: 'Setting', component: Setting},
 
+
+
     // Approval
     {path: '/kw2/approval', redirect: '/kw2/approval/list'},
     {path: '/kw2/approval/list', name: 'ApproveList', component: ApproveList},
+    { path: '/kw2/approval/create', name: 'RequestAdminApprove', component: RequestAdminApprove },
+    {
+        path: '/kw2/approval/admin/dashboard', name: 'AdminAcceptView', component: AdminAcceptView,
+        // beforeEnter: (to, from, next) => {
+        //     if (Cookies.get('role') !== 'ADMIN') {
+        //         // alert('You are not authorized to access this page')
+        //         next({name: 'ApproveList'})
+        //     } else {
+        //         next()
+        //     }
+        // }
+    },
+    { path: '/kw2/approval/list/manager-accept', name: 'ManagerListView', component: ManagerListView },
+    { path: "/kw2/approval/detail/user", name: UserAlvView, component: UserAlvView },
+    { path: "/kw2/approval/detail/admin", name: AdminAlvView, component: AdminAlvView },
+    { path: "/kw2/approval/detail/manager", name: ManagerAlvView, component: ManagerAlvView },
+    { path: '/kw2/approval/status', name: 'ApproveStatusView', component: ApproveStatusView },
+
+
 
     // Not Found
     {
         path: '/kw2/:pathMatch(.*)*', name: 'NotFound', component: NotFound,
-        beforeEnter: (to, from, next) => {
-            next('/kw2/document/list'); // redirect to /list if Not Found page
-        }
+        // beforeEnter: (to, from, next) => {
+        //     next('/kw2/document/list'); // redirect to /list if Not Found page
+        // }
     }
+
 ]
 
 const router = createRouter({

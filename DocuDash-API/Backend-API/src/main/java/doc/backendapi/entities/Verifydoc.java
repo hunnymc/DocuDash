@@ -1,15 +1,16 @@
 package doc.backendapi.entities;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "verifydocs")
+@Table(name = "verifydocs", schema = "documentdb")
 public class Verifydoc {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,12 +26,12 @@ public class Verifydoc {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "documents_DocumentID", nullable = false)
-    private Document documentsDocumentid;
+    @JoinColumn(name = "DocumentID", nullable = false)
+    private Document documentID;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "users_UserID", nullable = false)
-    private User usersUserid;
+    @JoinColumn(name = "managerID", nullable = false)
+    private User managerID;
 
 }

@@ -1,17 +1,25 @@
-# สร้าง image จาก oven/bun และตั้งชื่อ stage ว่า build-stage
-FROM oven/bun as build-stage
-# ตั้ง /app เป็น working directory
+## สร้าง image จาก oven/bun และตั้งชื่อ stage ว่า build-stage
+#FROM oven/bun:latest as build-stage
+## ตั้ง /app เป็น working directory
+#WORKDIR /app
+## คัดลอก package*.json ไปยัง working directory
+#COPY package*.json ./
+## ติดตั้ง dependencies ด้วย bun
+#RUN bun install
+## คัดลอกไฟล์ทั้งหมดจาก directory ปัจจุบันไปยัง working directory ใน Docker
+#COPY . .
+## Change the permissions of the scripts in node_modules/.bin
+#RUN chmod -R 777 node_modules/.bin
+## สร้าง application ด้วย bun
+#RUN bun run build
+
+FROM node:lts-alpine as build-stage
 WORKDIR /app
-# คัดลอก package*.json ไปยัง working directory
 COPY package*.json ./
-# ติดตั้ง dependencies ด้วย bun
-RUN bun install
-# คัดลอกไฟล์ทั้งหมดจาก directory ปัจจุบันไปยัง working directory ใน Docker
+RUN npm install
 COPY . .
-# Change the permissions of the scripts in node_modules/.bin
 RUN chmod -R 777 node_modules/.bin
-# สร้าง application ด้วย bun
-RUN bun run build
+RUN npm run build
 
 # สร้าง stage ใหม่จาก nginx และตั้งชื่อว่า production-stage
 FROM nginx as production-stage
