@@ -17,4 +17,5 @@ public class CreateUserDocDTO implements Serializable {
     Integer documentsDocumentid1Id;
     Integer usersUseridId;
     String ownerDocument;
+    Integer isShow;
 }

@@ -142,7 +142,7 @@ onBeforeMount(() => {
 
                                     <!-- ปุ่มนี้เห็นได้เฉพาะ Admin -->
 
-                                    <a href="/kw2/list/all" data-tooltip-target="testtool2" data-tooltip-trigger="click"
+                                    <a href="/kw2/document/list/all" data-tooltip-target="testtool2" data-tooltip-trigger="click"
                                         class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800 ">
                                         ทะเบียนเอกสารทั้งหมด</a>
                                 </div>
@@ -206,7 +206,7 @@ onBeforeMount(() => {
                             </svg>
                         </div>
 
-                        <router-link to="/kw2/list/"><a
+                        <router-link to="/kw2/document/list"><a
                                 class="inline-block w-full py-2 pl-8 pr-4 text-xs rounded hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:bg-gray-800">
                                 เอกสารทั้งหมด</a>
                         </router-link>

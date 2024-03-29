@@ -60,9 +60,8 @@ public class Document {
     @Column(name = "phoneSource")
     private String phoneSource;
 
-    @Size(max = 255)
     @Column(name = "Status")
-    private String status;
+    private Integer status;
 
     @Size(max = 255)
     @Column(name = "Description")

@@ -16,7 +16,7 @@ import java.time.Instant;
 @AllArgsConstructor
 public class VerifydocDto implements Serializable {
     Integer id;
-    Byte isPass;
+    Integer isPass;
     @Size(max = 255)
     String comment;
     @NotNull
@@ -54,7 +54,7 @@ public class VerifydocDto implements Serializable {
         @Size(max = 255)
         String phoneSource;
         @Size(max = 255)
-        String status;
+        Integer status;
         @Size(max = 255)
         String description;
         @NotNull
@@ -110,4 +110,5 @@ public class VerifydocDto implements Serializable {
         @Size(max = 255)
         String branch;
     }
+
 }

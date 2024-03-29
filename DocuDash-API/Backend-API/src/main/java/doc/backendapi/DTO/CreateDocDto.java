@@ -54,7 +54,7 @@ public class CreateDocDto implements Serializable {
     @Size(max = 15, message = "Phone Source size must not be more than 15")
     String phoneSource;
 
-    String status;
+//    Integer status;
 
     @Size(max = 255, message = "Description size must not be more than 255")
     String description;

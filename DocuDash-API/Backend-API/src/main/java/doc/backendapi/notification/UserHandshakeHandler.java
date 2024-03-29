@@ -3,17 +3,16 @@ package doc.backendapi.notification;
 import com.sun.security.auth.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
-import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Map;
-
 
 public class UserHandshakeHandler extends DefaultHandshakeHandler {
     private final Logger LOG = LoggerFactory.getLogger(UserHandshakeHandler.class);
@@ -21,25 +20,22 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
-        Cookie userIdCookie = null;
+        String userId = null;
 
-        // Extract the userId from the cookies by cookie name
         if (request instanceof ServletServerHttpRequest) {
             HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
-            userIdCookie = WebUtils.getCookie(servletRequest, "userId");
-            if (userIdCookie != null) {
-                System.out.println("userID is " + userIdCookie.getValue());
+            userId = servletRequest.getParameter("userId");
+
+            if (userId == null) {
+                LOG.error("User ID is missing");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID is missing in the request parameters for websocket connection" +
+                        "Please provide the user ID as a query parameter in the URL. Example: /api/kw2-websocket?userId=1");
             } else {
-                System.out.println("userID cookie not found");
+                LOG.info("User ID : " + userId + " " + "is connect to websocket");
             }
         }
 
-        assert userIdCookie != null;
-        LOG.info("User with ID '{}' opened the page", userIdCookie.getValue());
-
-//        final String randomId = UUID.randomUUID().toString();
-//        LOG.info("User with ID '{}' opened the page", randomId);
-
-        return new UserPrincipal(userIdCookie.getValue());
+        assert userId != null;
+        return new UserPrincipal(userId);
     }
 }

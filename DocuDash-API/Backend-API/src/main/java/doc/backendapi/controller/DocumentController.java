@@ -1,7 +1,6 @@
 package doc.backendapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.cj.log.Log;
 import doc.backendapi.DTO.CreateDocDto;
 import doc.backendapi.DTO.DocumentDto;
 import doc.backendapi.DTO.EmailDto;
@@ -58,7 +57,7 @@ public class DocumentController {
     }
 
     @PostMapping("/")
-    public CreateDocDto saveDocument(MultipartHttpServletRequest request) throws IOException {
+    public Integer saveDocument(MultipartHttpServletRequest request) throws IOException {
         MultipartFile file = request.getFile("file");
 
         String createDocDtoJson = request.getParameter("data");

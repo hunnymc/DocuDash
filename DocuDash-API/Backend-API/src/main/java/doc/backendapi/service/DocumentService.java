@@ -7,10 +7,7 @@ import doc.backendapi.entities.Document;
 import doc.backendapi.entities.Notification;
 import doc.backendapi.entities.Userdocument;
 import doc.backendapi.notification.WSService;
-import doc.backendapi.repositories.DocumentRepository;
-import doc.backendapi.repositories.NotificationRepository;
-import doc.backendapi.repositories.UserRepository;
-import doc.backendapi.repositories.UserdocumentRepository;
+import doc.backendapi.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
@@ -41,7 +38,16 @@ public class DocumentService {
     private final UserdocumentRepository userdocumentRepository;
 
     @Autowired
+    private final DocumentstatusRepository documentStatusRepository;
+
+    @Autowired
     private final NotificationRepository notificationRepository;
+
+    @Autowired
+    private final VerifyadmindocRepository verifyadmindocRepository;
+
+    @Autowired
+    private final VerifydocRepository verifydocRepository;
 
     @Autowired
     private final UserRepository userRepository;
@@ -63,35 +69,22 @@ public class DocumentService {
 
     public List<UserdocumentDto> getDocumentByUserEmail(String email) {
         Optional<Integer> id = userRepository.findIdByEmail(email);
-
-        return getDocumentByUserId(id.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+        return getDocumentByUserId(id.orElseThrow(() -> new ResponseStatusException(HttpStatus.OK,
                 "User with email " + email + " not found. Please ensure the email is correct and try again.")));
     }
 
     public List<UserdocumentDto> getDocumentByUserId(int id) {
-        Map<Integer, Userdocument> uniqueDocuments = userdocumentRepository.findByUsers_UserID(id).stream()
-                .collect(Collectors.toMap(
-                        ud -> ud.getDocumentsDocumentid1().getId(),  // Key is documentsDocumentid1.id
-                        ud -> ud,  // Value is the Userdocument entity
-                        (ud1, ud2) -> ud1  // If there are duplicates, keep the first one
-                ));
-        if (uniqueDocuments.isEmpty()) {
+
+        //  Get all documents that isShow is 1 in UserDocument table for the user with the given ID
+        Optional<Userdocument> Documents = userdocumentRepository.findByUsersUserid_IdAndIsShow(id, 1);
+        if (Documents.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.OK,
-                    "No documents found for user with id " + id + ".");
+                    "User with id " + id + " do not have any documents.");
         }
-        return new ArrayList<>(uniqueDocuments.values()).stream()
-                .map(ud -> modelMapper.map(ud, UserdocumentDto.class))
-                .collect(Collectors.toList());
+        return Documents.stream().map(ud -> modelMapper.map(ud, UserdocumentDto.class)).collect(Collectors.toList());
     }
 
-    // get documents title by document id
-    public String getDocumentTitleById(int id) {
-        return documentRepository.findById(id).map(Document::getTitle).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Document with id " + id + " not found. Please ensure the document id is correct and try again."));
-    }
-
-    public CreateDocDto saveDocument(CreateDocDto createDocDto, String filePath) {
+    public Integer saveDocument(CreateDocDto createDocDto, String filePath) {
 
         Document document = modelMapper.map(createDocDto, Document.class);
         document.setFilePath(filePath);
@@ -105,15 +98,10 @@ public class DocumentService {
         wsService.notifyFrontend("New document added to all users.");
         wsService.notifyUser(String.valueOf(createDocDto.getUsersUserid()), "New document added to userID: " + createDocDto.getUsersUserid());
 
-        return modelMapper.map(savedDocument, CreateDocDto.class);
+        return savedDocument.getId(); // return the ID of the saved document
     }
 
     public DocumentDto updateDocument(int id, DocumentDto document, String filePath) {
-//        if (!documentRepository.existsById(id)) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-//                    "Document with id " + id + " not found. Please ensure the document id is correct and try again.");
-//        }
-
         Document originalDocument = documentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Document with id " + id + " not found. Please ensure the document id is correct and try again."));
@@ -146,21 +134,20 @@ public class DocumentService {
     @Transactional
     public void deleteDocument(int id) {
 
-        if (!documentRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Document with id " + id + " not found. Please ensure the document id is correct and try again.");
-        }
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Document with id " + id + " not found. Please ensure the document id is correct and try again."));
+
         // Fetch all notifications related to the document
         List<Notification> notifications = notificationRepository.findByDocumentId(id);
 
         // Delete all fetched notifications
-        for (Notification notification : notifications) {
-            notificationRepository.delete(notification);
-        }
+        notificationRepository.deleteAll(notifications);
 
-        // Fetch the document
-
+        verifyadmindocRepository.deleteByDocumentID(document);
         userdocumentRepository.deleteByDocumentsDocumentid1Id(id);
+        verifydocRepository.deleteByDocumentID(document);
+        documentStatusRepository.deleteByDocumentId(id);
         documentRepository.deleteById(id);
     }
 

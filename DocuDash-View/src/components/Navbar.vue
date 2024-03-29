@@ -7,16 +7,20 @@ import Cookies from "js-cookie";
 import moment from 'moment';
 import Stomp from 'stompjs';
 import axios from 'axios';
+import * as StompJs from "@stomp/stompjs";
 
 const documentListStore = useDocumentListStore();
 
 const router = useRouter();
 const route = useRoute();
 
-// let mainURL = "http://localhost:5002";
+let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
-//
+// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
+// let wsURL = "https://capstone23.sit.kmutt.ac.th/kw2-socket";
+let wsURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+// let wsURL = "http://localhost:5002";
+
 function callFunctionInComponentB() {
   documentListStore.setCallFunctionInComponentB(true);
 }
@@ -58,7 +62,6 @@ const user = ref({
 const getUserInfo = async () => {
   await axios.post(
     mainURL + '/api/auth/user-info'
-    // 'http://cp23kw2.sit.kmutt.ac.th:35000/api/auth/user-info'
     , { email: Cookies.get("email") }
     , { headers: { "Authorization": "Bearer " + Cookies.get("accessToken"), } })
     .then((response) => {
@@ -72,9 +75,7 @@ const getUserInfo = async () => {
 
 const getNewNotification = async () => {
   await axios.get(
-    mainURL + '/api/n/user/'
-    // 'http://cp23kw2.sit.kmutt.ac.th:35000/api/n/user/'
-    + Cookies.get("userId")
+      mainURL + '/api/n/user/' + Cookies.get("userId")
     , { headers: { "Authorization": "Bearer " + Cookies.get("accessToken"), } })
     .then((response) => {
       if (response.status === 200) {
@@ -125,7 +126,8 @@ let notificationCount = ref(0);
 
 function connect() {
 
-  let socket = new SockJS(mainURL + '/api/our-websocket');
+  let socket = new SockJS(wsURL + '/api/kw2-websocket?userId=' + userID.value);
+  // let socket = new SockJS(wsURL + '/api/kw2-websocket');
 
   stompClient = Stomp.over(socket);
 
@@ -164,11 +166,11 @@ async function clickNotification(documentId) {
   notificationCount.value = 0;
   await documentListStore.getdocumentFilenameAndUserIdFromAxios(documentId);
   getNewNotification();
-  router.push("/kw2/view/" + documentId);
+  router.push("/kw2/document/view/" + documentId);
 }
 
 function clickToAllDoc() {
-  router.push("/kw2/list");
+  router.push("/kw2/document/list");
 }
 
 // ---------------------------------------------------------------------------------
@@ -194,14 +196,14 @@ onMounted(async () => {
   console.log("Index page is ready");
   await getUserInfo();
   connect();
-  getNewNotification();
+  await getNewNotification();
 });
 
 onUpdated(() => {
   // getNewNotification();
 });
 
-watch(() => route.value, getNewNotification(), { immediate: true });
+// watch(() => route.value, getNewNotification(), { immediate: true });
 
 </script>
 

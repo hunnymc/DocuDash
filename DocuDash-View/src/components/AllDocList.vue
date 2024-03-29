@@ -11,7 +11,7 @@ const store = useDocumentListStore();
 
 // let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
+let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 let file = ref(null);
 
@@ -185,7 +185,7 @@ const editDoc = async (id) => {
                 }
             } else if (AxiosError.request) {
                 alert("ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์");
-            } else if (listdata.value.length == 0) {
+            } else if (listdata.value.length === 0) {
                 alert("คุณไม่มีเอกสารในระบบ");
             } else {
                 alert("เกิดข้อผิดพลาด: " + AxiosError.message);
@@ -240,13 +240,7 @@ const cancelEdit = () => {
 
 const clickToViewDoc = async (id, obj) => {
 
-    console.log("obj", obj);
     await useDocumentListStore().getdocumentFilenameAndUserIdFromAxios(id);
-    console.log("obj.usersUserid.id : ", obj.usersUserid.id);
-    console.log("obj.documentsDocumentid1.filePath : ", obj.documentsDocumentid1.filePath);
-
-    console.log("LIST : " + useDocumentListStore().getDocumentUserId);
-    console.log("LIST : " + useDocumentListStore().getDocumentFilename);
 
     router.push({
         name: "ViewDoc",

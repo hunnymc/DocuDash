@@ -9,7 +9,7 @@ export const useDocumentListStore = defineStore('documentList', {
         documentFilename: null,
         document_userId: null,
         callFunctionInComponentB: false,
-        mainUrl: "http://capstone23.sit.kmutt.ac.th/kw2",
+        mainUrl: "https://capstone23.sit.kmutt.ac.th/kw2",
         // mainUrl: 'http://cp23kw2.sit.kmutt.ac.th:10003',
         // mainUrl: 'http://localhost:5002'
     }),
@@ -45,7 +45,8 @@ export const useDocumentListStore = defineStore('documentList', {
             this.documentFilename = filename
         },
         async getdocumentFilenameAndUserIdFromAxios(documentId) {
-            await axios.get(this.mainUrl + `/api/doc/${documentId}`,{
+            let mainUrl = "https://capstone23.sit.kmutt.ac.th/kw2";
+            await axios.get(mainUrl + `/api/doc/${documentId}`,{
                 headers: {
                     "Authorization": "Bearer " + Cookies.get("accessToken"),
                 },
@@ -55,10 +56,10 @@ export const useDocumentListStore = defineStore('documentList', {
                     this.document_userId = response.data.usersUserid.id
                     sessionStorage.setItem('documentFilename', this.documentFilename)
                     sessionStorage.setItem('document_userId', this.document_userId)
-                    console.log("store response.data:", response.data)
-                    console.log('store respoone userId id:', response.data.usersUserid.id)
-                    console.log('store documentFilename:', this.documentFilename)
-                    console.log('store document_userId:', this.document_userId)
+                    // console.log("store response.data:", response.data)
+                    // console.log('store respoone userId id:', response.data.usersUserid.id)
+                    // console.log('store documentFilename:', this.documentFilename)
+                    // console.log('store document_userId:', this.document_userId)
                 })
                 .catch(error => {
                     console.log(error)

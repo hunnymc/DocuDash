@@ -34,4 +34,7 @@ public class Userdocument {
     @Column(name = "ownerDocument")
     private String ownerDocument;
 
+    @Column(name = "isShow")
+    private Integer isShow;
+
 }

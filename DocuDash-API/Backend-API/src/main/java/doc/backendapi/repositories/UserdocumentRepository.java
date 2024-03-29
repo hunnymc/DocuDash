@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserdocumentRepository extends JpaRepository<Userdocument, Integer> {
     @Query("SELECT ud FROM Userdocument ud WHERE ud.usersUserid.id = ?1")
@@ -15,4 +16,8 @@ public interface UserdocumentRepository extends JpaRepository<Userdocument, Inte
     Userdocument findByUsers_Email(String email);
 
     void deleteByDocumentsDocumentid1Id(int id);
+
+    Optional<Userdocument> findByDocumentsDocumentid1_IdAndIsShow(Integer id, Integer isShow);
+
+    Optional<Userdocument> findByUsersUserid_IdAndIsShow(Integer id, Integer isShow);
 }

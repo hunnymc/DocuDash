@@ -18,7 +18,7 @@ public class Verifydoc {
     private Integer id;
 
     @Column(name = "isPass")
-    private Byte isPass;
+    private Integer isPass;
 
     @Size(max = 255)
     @Column(name = "Comment")

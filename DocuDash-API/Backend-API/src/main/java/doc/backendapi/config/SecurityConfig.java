@@ -81,7 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
 //                .antMatchers("/our-websocket/**").permitAll()
                 .antMatchers("/ws/**").permitAll()
-                .antMatchers("/api/our-websocket", "/api/our-websocket/**").permitAll()
+                .antMatchers("/api/kw2-websocket", "/api/kw2-websocket/**").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
 //                .antMatchers("/notifications").permitAll()
                 .antMatchers("/api/files/**").permitAll()
@@ -96,20 +96,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
-//    @Override
-//    protected void configure(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity.cors().and().csrf().disable()
-//                .exceptionHandling().authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-//                .accessDeniedHandler(accessDeniedHandler())
-//                .and()
-//                .authorizeRequests()
-//                .antMatchers("/api/auth/**").permitAll()
-//                .antMatchers("/api/doc/user/email").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//
-//        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-//    }
 }

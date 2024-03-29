@@ -37,7 +37,7 @@ public class UserVerifydocDto implements Serializable {
     @Size(max = 255)
     String phoneSource;
     @Size(max = 255)
-    String status;
+    Integer status;
     @Size(max = 255)
     String description;
     @NotNull

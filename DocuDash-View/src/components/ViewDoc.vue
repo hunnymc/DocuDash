@@ -14,9 +14,9 @@ let showPDF = ref(false);
 
 const store = useDocumentListStore();
 
-// let mainURL = "http://localhost:5002";
+let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
+// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 let doc = ref({
     branchSource: "NOT_FOUND",
@@ -38,13 +38,11 @@ let doc = ref({
 let doc_id = ref();
 
 const ClickFile = () => {
-    const fileUrl =
-        // "http://cp23kw2.sit.kmutt.ac.th:10003/api/files/"
-        mainURL + "/api/files/" + doc.value.usersUserid.id + "/" + doc.value.filePath;
-    // window.open(fileUrl, '_blank');
-    const token = Cookies.get("accessToken"); // replace 'accessToken' with the actual key used to store the token
-    const urlWithToken = `${fileUrl}?token=${token}`;
-    window.open(urlWithToken, '_blank');
+    const fileUrl = mainURL + "/api/files/" + doc.value.usersUserid.id + "/" + doc.value.filePath;
+    // // window.open(fileUrl, '_blank');
+    // const token = Cookies.get("accessToken"); // replace 'accessToken' with the actual key used to store the token
+    // const urlWithToken = `${fileUrl}?token=${token}`;
+    window.open(fileUrl, '_blank');
 };
 
 const getDocById = async () => {
@@ -81,7 +79,6 @@ const getDocById = async () => {
 };
 
 onBeforeMount(() => {
-    usePDF(mainURL + "/api/files/" + store.getDocumentUserId + "/" + store.getDocumentFilename);
 
 });
 

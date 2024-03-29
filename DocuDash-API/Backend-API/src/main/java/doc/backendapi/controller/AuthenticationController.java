@@ -41,8 +41,8 @@ public class AuthenticationController {
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<JwtResponse> matching(@Valid @RequestBody AuthLoginDto match) throws Exception {
-        wsService.notifyFrontend("User " + match.getUserEmail() + " has logged in.");
-        wsService.notifyUser("2", "You have logged in.");
+//        wsService.notifyFrontend("User " + match.getUserEmail() + " has logged in.");
+//        wsService.notifyUser("2", "You have logged in.");
         return service.Matching(match);
     }
 

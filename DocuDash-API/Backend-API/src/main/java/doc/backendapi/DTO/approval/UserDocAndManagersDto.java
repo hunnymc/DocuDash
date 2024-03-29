@@ -10,6 +10,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDocAndManagersDto implements Serializable {
-    private UserVerifydocDto documentInfo;
+
+    int status_type_id;
+    int totalManagers;
+    int totalManagersWhoVerified;
+    int approve_type_Id;
     private List<VerifydocDto> managersWhoVerified;
+    private UserVerifydocDto documentInfo;
+
 }

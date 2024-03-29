@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -43,16 +44,13 @@ public class UserDocumentService {
                 modelMapper.map(element, UserdocumentDto.class)).collect(Collectors.toList());
     }
 
+    @Transactional
     public CreateUserDocDTO save(CreateUserDocDTO data) {
         Document document = documentRepository.findById(data.getDocumentsDocumentid1Id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
         User user = userRepository.findById(data.getUsersUseridId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
-        if (document == null || user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document or User not found");
-        }
 
         Userdocument userdocument = modelMapper.map(data, Userdocument.class);
         userdocument.setDocumentsDocumentid1(document);

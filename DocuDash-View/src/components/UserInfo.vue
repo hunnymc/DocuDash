@@ -8,7 +8,7 @@ let route = useRoute();
 
 // let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
+let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 let user = ref({
     username: "",

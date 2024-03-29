@@ -1,7 +1,7 @@
 <script setup>
 import NavbarAvl from "../../components/approves/approve-utility/NavbarAvl.vue";
 import SidebarAvl from "../../components/approves/approve-utility/SidebarAvl.vue";
-import AdminAcceptPage from "../../components/approves/AdminDashboard.vue";
+import AdminAcceptPage from "../../components/approves/approve-admin-list/AdminDashboard.vue";
 </script>
 
 <template>

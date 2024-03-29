@@ -2,6 +2,7 @@ package doc.backendapi.service;
 
 import doc.backendapi.DTO.CreateUserDto;
 import doc.backendapi.DTO.UserInfoDto;
+import doc.backendapi.DTO.user.AllUserDto;
 import doc.backendapi.entities.User;
 import doc.backendapi.repositories.UserRepository;
 import doc.backendapi.utils.ListMapper;
@@ -156,6 +157,4 @@ public class UserService implements UserDetailsService {
 //        if (update.getRole() != null) original.setRole(update.getRole());
 //        return original;
 //    }
-
-
 }

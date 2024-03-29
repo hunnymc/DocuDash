@@ -9,9 +9,9 @@ import Cookies from "js-cookie";
 const router = useRouter();
 const store = useDocumentListStore();
 
-// let mainURL = "http://localhost:5002";
+let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "http://capstone23.sit.kmutt.ac.th/kw2";
+// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 let file = ref(null);
 
@@ -28,9 +28,7 @@ const navigateToEdit = (doc) => {
 
 const getAllDoc = async () => {
   const response = await axios
-    .post(
-      // "http://cp23kw2.sit.kmutt.ac.th:35000/api/doc/user/email"
-      mainURL + "/api/doc/user/email",
+    .post(mainURL + "/api/doc/user/email",
       { email: Cookies.get("email") },
       {
         headers: { Authorization: `Bearer ${Cookies.get("accessToken")}` },
@@ -91,9 +89,7 @@ const getAllDoc = async () => {
 const deleteDoc = async (id) => {
   if (window.confirm("ต้องการจะลบไฟล์ใช่หรือไม่?")) {
     const response = await axios
-      .delete(
-        // "http://cp23kw2.sit.kmutt.ac.th:35000/api/doc/"
-        mainURL + "/api/doc/" + id,
+      .delete(mainURL + "/api/doc/" + id,
         {
           headers: {
             Authorization: "Bearer " + Cookies.get("accessToken"),
@@ -129,137 +125,13 @@ const deleteDoc = async (id) => {
         }
       });
 
-    getAllDoc();
+    await getAllDoc();
+
   }
 };
-
-const fileInput = ref(); // อ้างอิงไฟล์อัพโหลด
-let recentEditID = ref(0);
-
-// ปุ่มแก้ไขเอกสาร
-const editDoc = async (id) => {
-  const template = {
-    title: "",
-    category: "",
-    branchSource: "",
-    phoneSource: "",
-    emailSource: "",
-    fromSource: "",
-    description: "",
-  };
-  for (let key in editList.value) {
-    if (!template.hasOwnProperty(key)) {
-      delete editList.value[key];
-    }
-  }
-  const formData = new FormData();
-  // if (fileInput.value && fileInput.value.files && fileInput.value.files.length > 0) {
-  //   formData.append('file', fileInput.value.files[0]);
-  // }
-  // console.log(fileInput.value);
-  // formData.append("file", this.file);
-
-  formData.append("file", file.value);
-  formData.append("data", JSON.stringify(editList.value));
-  // const response = await axios.patch("http://localhost:5001/api/doc/" + id, formData,
-  await axios
-    .patch(
-      // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/"
-      mainURL + "/api/doc/" + id,
-      formData,
-      // const response = await axios.patch('http://localhost:10003/api/doc/' + id, formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: "Bearer " + Cookies.get("accessToken"),
-        },
-      }
-    )
-    .catch(function (AxiosError) {
-      if (AxiosError.response) {
-        switch (AxiosError.response.status) {
-          case 400:
-            alert("คำขอไม่ถูกต้อง");
-            break;
-          case 401:
-            alert("ไม่ได้รับอนุญาต");
-            break;
-          case 403:
-            alert("ถูกปฏิเสธ");
-            break;
-          case 404:
-            alert("ไม่พบข้อมูล");
-            break;
-          case 500:
-            alert("เซิร์ฟเวอร์เกิดข้อผิดพลาด");
-            break;
-          default:
-            alert("เกิดข้อผิดพลาด");
-        }
-      } else if (AxiosError.request) {
-        alert("ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์");
-      } else if (listdata.value.length == 0) {
-        alert("คุณไม่มีเอกสารในระบบ");
-      } else {
-        alert("เกิดข้อผิดพลาด: " + AxiosError.message);
-      }
-    });
-  getAllDoc();
-  cancelEdit();
-  location.reload();
-};
-
-const editList = ref({
-  id: "",
-  accessLevel: "",
-  documentsDocumentid1: {
-    id: "",
-    title: "",
-    filePath: "",
-    dateAdd: "",
-    dateUpdate: "",
-    category: "",
-    secrecyLevel: "",
-    urgency: "",
-    fromSource: "",
-    status: "",
-    description: "",
-    usersUserid: {
-      id: "",
-      username: "",
-      fullName: "",
-      role: "",
-      email: "",
-      branch: "",
-    },
-  },
-  usersUserid: {
-    id: "",
-  },
-});
 
 const changeTimestampToDate = (timestamp) => {
   return moment(timestamp * 1000).format("DD-MM-YYYY HH:mm");
-};
-
-const handleFileUpload = (event) => {
-  file.value = event.target.files[0];
-};
-
-const cancelEdit = () => {
-  editList.value = [];
-  getAllDoc();
-};
-
-const editDocButtonFunction = (e) => {
-  // if (e.id == recentEditID.value) {
-  //   fileInput.value.target.value = null;
-  // }
-  recentEditID.value = e.id;
-  editList.value = e;
-  // location.reload();
-  // openModal;
-  return editList.value;
 };
 
 const clickToViewDoc = async (id, obj) => {
@@ -281,27 +153,8 @@ const clickToViewDoc = async (id, obj) => {
 
 };
 
-function getNewDoc() {
-  getAllDoc();
-}
-
 onMounted(() => {
   getAllDoc();
-
-  // const isRefresh = sessionStorage.getItem('isRefresh');
-  // const isRefresh2 = sessionStorage.getItem('isRefresh2');
-
-  // if (isRefresh === '1' && isRefresh2 === '1') {
-  //   sessionStorage.setItem('isRefresh', '2');
-  //   location.reload();
-  // } else if (isRefresh === '1') {
-  //   sessionStorage.setItem('isRefresh', '2');
-  // }
-});
-
-onUnmounted(() => {
-  // sessionStorage.setItem('isRefresh', '1');
-  // sessionStorage.setItem('isRefresh2', '1');
 });
 
 const listdata = ref([
@@ -374,19 +227,12 @@ const listdata = ref([
 </script>
 
 <template>
-  <!-- <button @click="getNewDoc()" class="btn">Click to get new Doc</button> -->
   <div class="shadow-md sm:rounded-lg table-container">
     <table class="w-full text-sm text-left rtl:text-right text-white">
       <thead class="text-xs text-white uppercase bg-green-800">
         <tr>
           <th scope="col" class="p-4">
             <div class="flex items-center">
-              <!-- <input
-              id="checkbox-all"
-              type="checkbox"
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600
-              dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            /> -->
               <label class="">รายการ</label>
             </div>
           </th>
@@ -425,9 +271,6 @@ const listdata = ref([
                   <span class="important">หากลบแล้วจะไม่สามารถกู้คืนได้
                     กรุณาตรวจเช็คก่อนดำเนินการ</span>
                 </p>
-                <!-- <a href="#" class="flex items-center font-medium text-blue-600 dark:text-blue-500 dark:hover:text-blue-600 hover:text-blue-700 hover:underline">Read more <svg class="w-2 h-2 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-        </svg></a> -->
               </div>
               <div data-popper-arrow></div>
             </div>
@@ -438,16 +281,6 @@ const listdata = ref([
       <tbody v-if="listdata.length > 0" v-for="(thisdoc, index) in listdata">
         <tr class="bg-white text-gray-900 border-b border-gray-700 hover:bg-gray-600 hover:text-white">
           <td class="w-4 p-4">
-            <!-- <div class="flex items-center">
-            <input
-              id="checkbox-table-1"
-
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500
-              dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2
-              dark:bg-gray-700 dark:border-gray-600"
-            />
-            <label for="checkbox-table-1" class="sr-only">checkbox</label>
-          </div> -->
             {{ index + 1 }}
           </td>
           <th scope="row" class="px-6 py-4 font-medium">
@@ -462,42 +295,42 @@ const listdata = ref([
           <td class="px-6 py-4">{{ thisdoc.documentsDocumentid1.urgency }}</td>
           <td class="px-6 py-4">{{ thisdoc.documentsDocumentid1.category }}</td>
           <td class="px-6 py-4">{{ thisdoc.documentsDocumentid1.dateAdd }}</td>
-          <td class="px-6 py-4">
-            <div>
-              <!-- hamberger -->
-              <!-- edit buttton -->
-              <button @click="navigateToEdit(thisdoc)">
-                <a class="font-medium text-amber-400 hover:underline">
-                  <svg class="w-6 h-6" id="Icons" xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" xml:space="preserve" fill="#ffbb00"
-                    stroke="#ffbb00">
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                    <g id="SVGRepo_iconCarrier">
-                      <path class="st0" d="M5,21l-2,8l8-2L30,8l0,0c-0.6-3-3-5.4-6-6l0,0L5,21z"></path>
-                      <path class="st0" d="M26,12L26,12c-0.6-3-3-5.4-6-6l0,0"></path>
-                      <line class="st0" x1="9" y1="23" x2="21" y2="11"></line>
-                    </g>
-                  </svg>
-                </a>
-              </button>
+<!--          <td class="px-6 py-4">-->
+<!--            <div>-->
+<!--              &lt;!&ndash; hamberger &ndash;&gt;-->
+<!--              &lt;!&ndash; edit buttton &ndash;&gt;-->
+<!--              <button @click="navigateToEdit(thisdoc)">-->
+<!--                <a class="font-medium text-amber-400 hover:underline">-->
+<!--                  <svg class="w-6 h-6" id="Icons" xmlns="http://www.w3.org/2000/svg"-->
+<!--                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" xml:space="preserve" fill="#ffbb00"-->
+<!--                    stroke="#ffbb00">-->
+<!--                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>-->
+<!--                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>-->
+<!--                    <g id="SVGRepo_iconCarrier">-->
+<!--                      <path class="st0" d="M5,21l-2,8l8-2L30,8l0,0c-0.6-3-3-5.4-6-6l0,0L5,21z"></path>-->
+<!--                      <path class="st0" d="M26,12L26,12c-0.6-3-3-5.4-6-6l0,0"></path>-->
+<!--                      <line class="st0" x1="9" y1="23" x2="21" y2="11"></line>-->
+<!--                    </g>-->
+<!--                  </svg>-->
+<!--                </a>-->
+<!--              </button>-->
 
-              <!-- delete buttton -->
-              <button type="button" v-on:click="deleteDoc(thisdoc.documentsDocumentid1.id)" class="px-3">
-                <a href="#" class="font-medium text-amber-400">
-                  <svg class="w-6 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                    <g id="SVGRepo_iconCarrier">
-                      <path
-                        d="M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6M18 6V16.2C18 17.8802 18 18.7202 17.673 19.362C17.3854 19.9265 16.9265 20.3854 16.362 20.673C15.7202 21 14.8802 21 13.2 21H10.8C9.11984 21 8.27976 21 7.63803 20.673C7.07354 20.3854 6.6146 19.9265 6.32698 19.362C6 18.7202 6 17.8802 6 16.2V6M14 10V17M10 10V17"
-                        stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </g>
-                  </svg>
-                </a>
-              </button>
-            </div>
-          </td>
+<!--              &lt;!&ndash; delete buttton &ndash;&gt;-->
+<!--              <button type="button" v-on:click="deleteDoc(thisdoc.documentsDocumentid1.id)" class="px-3">-->
+<!--                <a href="#" class="font-medium text-amber-400">-->
+<!--                  <svg class="w-6 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>-->
+<!--                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>-->
+<!--                    <g id="SVGRepo_iconCarrier">-->
+<!--                      <path-->
+<!--                        d="M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6M18 6V16.2C18 17.8802 18 18.7202 17.673 19.362C17.3854 19.9265 16.9265 20.3854 16.362 20.673C15.7202 21 14.8802 21 13.2 21H10.8C9.11984 21 8.27976 21 7.63803 20.673C7.07354 20.3854 6.6146 19.9265 6.32698 19.362C6 18.7202 6 17.8802 6 16.2V6M14 10V17M10 10V17"-->
+<!--                        stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>-->
+<!--                    </g>-->
+<!--                  </svg>-->
+<!--                </a>-->
+<!--              </button>-->
+<!--            </div>-->
+<!--          </td>-->
         </tr>
       </tbody>
 
@@ -541,274 +374,6 @@ const listdata = ref([
         </tr>
       </tbody>
     </table>
-
-    <!-- test alert -->
-    <!-- <div class="flex items-center p-4 mb-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800" role="alert">
-  <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-  </svg>
-  <span class="sr-only">Info</span>
-  <div>
-    <span class="font-medium">Success alert!</span> Change a few things up and try submitting again.
-  </div>
-</div>
- -->
-
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <!-- Edit user modal -->
-      <div id="editUserModal" data-modal-target="editUserModal" data-modal-backdrop="static" tabindex="-1"
-        aria-hidden="true"
-        class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full animate__animated animate__fadeInUpBig transition duration-300 delay-150">
-        <div class="relative w-full max-w-2xl max-h-full">
-          <!-- Modal content -->
-          <form class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <!-- Modal header -->
-            <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                แก้ไขเอกสาร
-              </h3>
-              <button type="button" @click="cancelEdit()"
-                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                data-modal-hide="editUserModal">
-                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 14 14">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                </svg>
-                <span class="sr-only">Close modal</span>
-              </button>
-            </div>
-            <!-- Modal body -->
-            <div class="p-6 space-y-6">
-              <div class="grid grid-cols-6 gap-6">
-                <div class="col-span-6 sm:col-span-3">
-                  <label class="block mb-2 text-sm font-medium text-slate-950 dark:text-white">เลขที่</label>
-                  <input disabled readonly="" type="text" name="first-name" id="first-name"
-                    class="shadow-sm bg-gray-200 border border-gray-300 text-slate-950 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-28 p-1 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :placeholder="editList.documentsDocumentid1.id" />
-                </div>
-                <br />
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="first-name"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">เรื่อง</label>
-                  <input type="text"
-                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :placeholder="editList.documentsDocumentid1.title" v-model="editList.documentsDocumentid1.title"
-                    required="" />
-                </div>
-                <div class="col-span-6 sm:col-span-3">
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ส่งจาก</label>
-                  <input type="text"
-                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :placeholder="editList.documentsDocumentid1.fromSource"
-                    v-model="editList.documentsDocumentid1.fromSource" required="" />
-                </div>
-                <div class="col-span-6 sm:col-span-3">
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รายละเอียด</label>
-                  <input type="text"
-                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :placeholder="editList.documentsDocumentid1.description"
-                    v-model="editList.documentsDocumentid1.description" required="" />
-                </div>
-                <div class="col-span-6 sm:col-span-3">
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">แผนก</label>
-                  <select
-                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :placeholder="editList.documentsDocumentid1.branchSource"
-                    v-model="editList.documentsDocumentid1.branchSource">
-                    <option class="text-gray-900 text-sm" selected disabled>
-                      แผนกของผู้ส่ง
-                    </option>
-                    <option value="ฝ่ายเอกสาร">ฝ่ายเอกสาร</option>
-                    <option value="ฝ่ายการตลาด">ฝ่ายการตลาด</option>
-                    <option value="ฝ่ายขาย">ฝ่ายขาย</option>
-                    <option value="ฝ่ายบุคคล">ฝ่ายบุคคล</option>
-                    <option value="ฝ่ายลูกค้าสัมพันธ์">
-                      ฝ่ายลูกค้าสัมพันธ์
-                    </option>
-                    <option value="ฝ่ายบัญชี/การเงิน">ฝ่ายบัญชี/การเงิน</option>
-                    <option value="ฝ่ายจัดซื้อ">ฝ่ายจัดซื้อ</option>
-                    <option value="ฝ่าย IT">ฝ่าย IT</option>
-                    <option value="อื่นๆ">อื่นๆ</option>
-                  </select>
-                  <!-- กล่องเดิม -->
-                  <!-- <input type="number" name="phone-number" id="phone-number" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="แผนกของผู้ส่ง" required=""> -->
-                </div>
-                <!-- <div class="col-span-6 sm:col-span-3">
-                    <label for="phone-number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone Number</label>
-                    <input type="number" name="phone-number" id="phone-number" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="แผนกของผู้ส่ง" required="">
-                </div> -->
-                <div class="col-span-6 sm:col-span-3">
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">หมวดหมู่</label>
-                  <select v-model="editList.documentsDocumentid1.category"
-                    :placeholder="editList.documentsDocumentid1.category"
-                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option class="text-gray-900 text-sm" selected disabled>
-                      เลือกหมวดหมู่เอกสาร
-                    </option>
-                    <option value="เอกสารภายนอก">เอกสารภายนอก</option>
-                    <option value="เอกสารภายใน">เอกสารภายใน</option>
-                  </select>
-                </div>
-
-                <!-- <div class="col-span-6 sm:col-span-3">
-                  <label for="current-password"
-                    class="block mb-2 text-sm font-medium text-slate-950 dark:text-white">โทรศัพท์</label>
-                  <input type="number" name="phone-number"
-                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="08X-XXX-XXXX" required="">
-                </div> -->
-
-                <div class="col-span-6 sm:col-span-3">
-                  <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">อีเมล</label>
-                  <input type="email" name="email" id="email"
-                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :placeholder="editList.documentsDocumentid1.emailSource"
-                    v-model="editList.documentsDocumentid1.emailSource" required="" />
-                </div>
-
-                <div class="col-span-6 sm:col-span-3">
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ความเร่งด่วน</label>
-                  <input disabled readonly="" type="text" id="urgency"
-                    class="shadow-sm bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :placeholder="editList.documentsDocumentid1.urgency" required="" />
-                </div>
-                <div class="col-span-6 sm:col-span-3">
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชั้นความลับ</label>
-                  <input disabled readonly="" type="text" id="urgency"
-                    class="shadow-sm bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :placeholder="editList.documentsDocumentid1.secrecyLevel" required="" />
-                </div>
-
-                <!-- <div class="col-span-6 sm:col-span-3">
-                    <label  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">สาขา</label>
-                    <input   class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="กรอก" required="">
-                </div> -->
-
-                <!-- <div class="col-span-6 sm:col-span-3">
-                    <label  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รหัสผ่าน</label>
-                    <input   id="current-password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="••••••••" required="">
-                </div> -->
-
-                <!-- <div class="col-span-6 sm:col-span-3">
-                    <label for="new-password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">กรอกรหัสผ่านอีกครั้ง</label>
-                    <input type="password" name="new-password" id="new-password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="••••••••" required="">
-                </div> -->
-
-                <!-- ลบ-เพิ่ม ชื่อผู้รับ-->
-                <!-- <div class="col-span-6 sm:col-span-3">
-                  <label for="first-name"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อผู้รับ</label>
-
-                  <input type="text"
-                    class=" shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="กรอกชื่อผู้รับ/ส่งถึงใคร" required="">
-                  
-                  <div
-                    class="col-span-6 sm:col-span-3 block my-2 mb-2 text-sm font-medium text-gray-900 border border-gray-300 rounded-lg dark:text-white">
-                    <a aria-current="true"
-                      class="block w-full px-4 py-2 text-white bg-slate-600 border-b border-gray-200 rounded-t-lg  dark:bg-gray-800 dark:border-gray-600">
-                      ชื่อผู้รับปัจจุบัน
-                    </a>
-                    <a
-                      class="  block w-full px-4 py-2 border-b border-gray-200  hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                      Nattakit Rattanasiriprom
-                      <button type="button" aria-hidden="true" class="m-1  ">
-                        <svg class="  w-4 h-4 " viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                          <g id="SVGRepo_iconCarrier">
-                            <path
-                              d="M15 12.75C15.4142 12.75 15.75 12.4142 15.75 12C15.75 11.5858 15.4142 11.25 15 11.25H9C8.58579 11.25 8.25 11.5858 8.25 12C8.25 12.4142 8.58579 12.75 9 12.75H15Z"
-                              fill="#ff0000"></path>
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                              d="M12.0574 1.25H11.9426C9.63424 1.24999 7.82519 1.24998 6.41371 1.43975C4.96897 1.63399 3.82895 2.03933 2.93414 2.93414C2.03933 3.82895 1.63399 4.96897 1.43975 6.41371C1.24998 7.82519 1.24999 9.63422 1.25 11.9426V12.0574C1.24999 14.3658 1.24998 16.1748 1.43975 17.5863C1.63399 19.031 2.03933 20.1711 2.93414 21.0659C3.82895 21.9607 4.96897 22.366 6.41371 22.5603C7.82519 22.75 9.63423 22.75 11.9426 22.75H12.0574C14.3658 22.75 16.1748 22.75 17.5863 22.5603C19.031 22.366 20.1711 21.9607 21.0659 21.0659C21.9607 20.1711 22.366 19.031 22.5603 17.5863C22.75 16.1748 22.75 14.3658 22.75 12.0574V11.9426C22.75 9.63423 22.75 7.82519 22.5603 6.41371C22.366 4.96897 21.9607 3.82895 21.0659 2.93414C20.1711 2.03933 19.031 1.63399 17.5863 1.43975C16.1748 1.24998 14.3658 1.24999 12.0574 1.25ZM3.9948 3.9948C4.56445 3.42514 5.33517 3.09825 6.61358 2.92637C7.91356 2.75159 9.62177 2.75 12 2.75C14.3782 2.75 16.0864 2.75159 17.3864 2.92637C18.6648 3.09825 19.4355 3.42514 20.0052 3.9948C20.5749 4.56445 20.9018 5.33517 21.0736 6.61358C21.2484 7.91356 21.25 9.62177 21.25 12C21.25 14.3782 21.2484 16.0864 21.0736 17.3864C20.9018 18.6648 20.5749 19.4355 20.0052 20.0052C19.4355 20.5749 18.6648 20.9018 17.3864 21.0736C16.0864 21.2484 14.3782 21.25 12 21.25C9.62177 21.25 7.91356 21.2484 6.61358 21.0736C5.33517 20.9018 4.56445 20.5749 3.9948 20.0052C3.42514 19.4355 3.09825 18.6648 2.92637 17.3864C2.75159 16.0864 2.75 14.3782 2.75 12C2.75 9.62177 2.75159 7.91356 2.92637 6.61358C3.09825 5.33517 3.42514 4.56445 3.9948 3.9948Z"
-                              fill="#ff0000"></path>
-                          </g>
-                        </svg>
-                      </button>
-                    </a>
-                    <a
-                      class="block w-full px-4 py-2 border-b border-gray-200  hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                      Harry Jamorant
-                      <button type="button" aria-hidden="true" class="m-1 ">
-                        <svg class=" w-4 h-4 " viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                          <g id="SVGRepo_iconCarrier">
-                            <path
-                              d="M15 12.75C15.4142 12.75 15.75 12.4142 15.75 12C15.75 11.5858 15.4142 11.25 15 11.25H9C8.58579 11.25 8.25 11.5858 8.25 12C8.25 12.4142 8.58579 12.75 9 12.75H15Z"
-                              fill="#ff0000"></path>
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                              d="M12.0574 1.25H11.9426C9.63424 1.24999 7.82519 1.24998 6.41371 1.43975C4.96897 1.63399 3.82895 2.03933 2.93414 2.93414C2.03933 3.82895 1.63399 4.96897 1.43975 6.41371C1.24998 7.82519 1.24999 9.63422 1.25 11.9426V12.0574C1.24999 14.3658 1.24998 16.1748 1.43975 17.5863C1.63399 19.031 2.03933 20.1711 2.93414 21.0659C3.82895 21.9607 4.96897 22.366 6.41371 22.5603C7.82519 22.75 9.63423 22.75 11.9426 22.75H12.0574C14.3658 22.75 16.1748 22.75 17.5863 22.5603C19.031 22.366 20.1711 21.9607 21.0659 21.0659C21.9607 20.1711 22.366 19.031 22.5603 17.5863C22.75 16.1748 22.75 14.3658 22.75 12.0574V11.9426C22.75 9.63423 22.75 7.82519 22.5603 6.41371C22.366 4.96897 21.9607 3.82895 21.0659 2.93414C20.1711 2.03933 19.031 1.63399 17.5863 1.43975C16.1748 1.24998 14.3658 1.24999 12.0574 1.25ZM3.9948 3.9948C4.56445 3.42514 5.33517 3.09825 6.61358 2.92637C7.91356 2.75159 9.62177 2.75 12 2.75C14.3782 2.75 16.0864 2.75159 17.3864 2.92637C18.6648 3.09825 19.4355 3.42514 20.0052 3.9948C20.5749 4.56445 20.9018 5.33517 21.0736 6.61358C21.2484 7.91356 21.25 9.62177 21.25 12C21.25 14.3782 21.2484 16.0864 21.0736 17.3864C20.9018 18.6648 20.5749 19.4355 20.0052 20.0052C19.4355 20.5749 18.6648 20.9018 17.3864 21.0736C16.0864 21.2484 14.3782 21.25 12 21.25C9.62177 21.25 7.91356 21.2484 6.61358 21.0736C5.33517 20.9018 4.56445 20.5749 3.9948 20.0052C3.42514 19.4355 3.09825 18.6648 2.92637 17.3864C2.75159 16.0864 2.75 14.3782 2.75 12C2.75 9.62177 2.75159 7.91356 2.92637 6.61358C3.09825 5.33517 3.42514 4.56445 3.9948 3.9948Z"
-                              fill="#ff0000"></path>
-                          </g>
-                        </svg>
-                      </button>
-                    </a>
-                    <a
-                      class="block w-full px-4 py-2 rounded-b-lg  hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                      Downy Hurnany
-                      <button type="button" aria-hidden="true" class="m-1 ">
-                        <svg class=" w-4 h-4 " viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                          <g id="SVGRepo_iconCarrier">
-                            <path
-                              d="M15 12.75C15.4142 12.75 15.75 12.4142 15.75 12C15.75 11.5858 15.4142 11.25 15 11.25H9C8.58579 11.25 8.25 11.5858 8.25 12C8.25 12.4142 8.58579 12.75 9 12.75H15Z"
-                              fill="#ff0000"></path>
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                              d="M12.0574 1.25H11.9426C9.63424 1.24999 7.82519 1.24998 6.41371 1.43975C4.96897 1.63399 3.82895 2.03933 2.93414 2.93414C2.03933 3.82895 1.63399 4.96897 1.43975 6.41371C1.24998 7.82519 1.24999 9.63422 1.25 11.9426V12.0574C1.24999 14.3658 1.24998 16.1748 1.43975 17.5863C1.63399 19.031 2.03933 20.1711 2.93414 21.0659C3.82895 21.9607 4.96897 22.366 6.41371 22.5603C7.82519 22.75 9.63423 22.75 11.9426 22.75H12.0574C14.3658 22.75 16.1748 22.75 17.5863 22.5603C19.031 22.366 20.1711 21.9607 21.0659 21.0659C21.9607 20.1711 22.366 19.031 22.5603 17.5863C22.75 16.1748 22.75 14.3658 22.75 12.0574V11.9426C22.75 9.63423 22.75 7.82519 22.5603 6.41371C22.366 4.96897 21.9607 3.82895 21.0659 2.93414C20.1711 2.03933 19.031 1.63399 17.5863 1.43975C16.1748 1.24998 14.3658 1.24999 12.0574 1.25ZM3.9948 3.9948C4.56445 3.42514 5.33517 3.09825 6.61358 2.92637C7.91356 2.75159 9.62177 2.75 12 2.75C14.3782 2.75 16.0864 2.75159 17.3864 2.92637C18.6648 3.09825 19.4355 3.42514 20.0052 3.9948C20.5749 4.56445 20.9018 5.33517 21.0736 6.61358C21.2484 7.91356 21.25 9.62177 21.25 12C21.25 14.3782 21.2484 16.0864 21.0736 17.3864C20.9018 18.6648 20.5749 19.4355 20.0052 20.0052C19.4355 20.5749 18.6648 20.9018 17.3864 21.0736C16.0864 21.2484 14.3782 21.25 12 21.25C9.62177 21.25 7.91356 21.2484 6.61358 21.0736C5.33517 20.9018 4.56445 20.5749 3.9948 20.0052C3.42514 19.4355 3.09825 18.6648 2.92637 17.3864C2.75159 16.0864 2.75 14.3782 2.75 12C2.75 9.62177 2.75159 7.91356 2.92637 6.61358C3.09825 5.33517 3.42514 4.56445 3.9948 3.9948Z"
-                              fill="#ff0000"></path>
-                          </g>
-                        </svg>
-                      </button>
-                    </a>
-                  </div>
-                </div> -->
-
-                <div class="col-span-6 sm:col-span-3">
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    for="small_size">แนบไฟล์เอกสาร</label>
-                  <input ref="fileInput"
-                    class="block w-full mb-3 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                    id="small_size" type="file" @change="handleFileUpload" />
-                  <div
-                    class="col-span-6 sm:col-span-3 block my-1 mb-2 text-sm font-medium text-gray-900 border border-gray-300 rounded-lg dark:text-white">
-                    <a aria-current="true"
-                      class="block w-full px-4 py-2 text-white bg-orange-700 border-b border-gray-200 rounded-t-lg dark:bg-gray-800 dark:border-gray-600">
-                      ไฟล์ที่แนบอยู่ปัจจุบัน
-                    </a>
-                    <!-- แสดงชื่อไฟล์ที่แนบอยู่ปัจจุบัน -->
-                    <a
-                      class="block w-full px-4 py-2 border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                      <span class="cursor-pointer" href="#">{{
-                        editList.documentsDocumentid1.filePath
-                      }}</span>
-                    </a>
-
-                    <!-- <a
-                      class="block w-full  px-4 py-2 border-b border-gray-200  hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                      <span class="cursor-pointer" href="#">เอกสารงานธุรการ.docx</span>
-                    </a> -->
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Modal footer -->
-            <div
-              class="flex items-center p-6 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600">
-              <a v-on:click="editDoc(editList.documentsDocumentid1.id)"
-                class="cursor-pointer text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                บันทึกข้อมูล
-              </a>
-              <!-- <a v-on:click="editDoc(editList.id)">test-button</a> -->
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-    <!-- End of edit user modal -->
   </div>
 </template>
 
