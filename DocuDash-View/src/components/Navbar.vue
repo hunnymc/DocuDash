@@ -14,11 +14,14 @@ const documentListStore = useDocumentListStore();
 const router = useRouter();
 const route = useRoute();
 
-let mainURL = "http://localhost:5002";
+let mainURL = import.meta.env.VITE_API_URL;
+let wsURL = import.meta.env.VITE_WS_URL;
+
+// let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
 // let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 // let wsURL = "https://capstone23.sit.kmutt.ac.th/kw2-socket";
-let wsURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
+// let wsURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
 // let wsURL = "http://localhost:5002";
 
 function callFunctionInComponentB() {
@@ -195,7 +198,7 @@ onMounted(async () => {
   initFlowbite();
   console.log("Index page is ready");
   await getUserInfo();
-  connect();
+  // connect();
   await getNewNotification();
 });
 
@@ -243,21 +246,15 @@ onUpdated(() => {
 
         <!-- **** หน้าแรก **** -->
 
-
-        <!-- <li>
-          <a href="/list" class="text-gray-100 hover:text-indigo-400 cursor-pointer">
-            จำนวนแจ้งเตือน: {{ notificationCount }}
-          </a>
-        </li> -->
-
-
         <li>
           <a href="/kw2/list" class="text-gray-100 hover:text-indigo-400 cursor-pointer">
             หน้าแรก
           </a>
         </li>
-        <li data-tooltip-trigger="click" class="text-gray-100 hover:text-indigo-400 cursor-pointer">
 
+        <!-- **** รายการเอกสาร **** -->
+        <!--   data-tooltip-trigger="click"      -->
+        <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">
 
           <a v-if="!$route.path.startsWith('/view/')">
             <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification"
@@ -300,117 +297,17 @@ onUpdated(() => {
               <a v-else v-for="noti in notificationMessage"
                 class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <a @click="clickNotification(noti.documentId)">
-                  <!-- <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
-                  <div
-                    class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
-                    <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor" viewBox="0 0 20 14">
-                      <path
-                        d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
-                    </svg>
-                  </div>
-                </div> -->
                   <div class="w-full ps-3">
                     <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
                         class="font-semibold text-gray-900 dark:text-white">{{ noti.sourceUsername }}</span>
                       ได้ส่งเอกสารถึงท่าน
                       : <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span></div>
-                    <!-- <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div> -->
                     <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
 
                   </div>
 
                 </a>
               </a>
-
-
-
-              <!-- 
-              <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
-                  <div
-                    class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
-                    <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor" viewBox="0 0 20 14">
-                      <path
-                        d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div class="w-full ps-3">
-                  <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
-                      class="font-semibold text-gray-900 dark:text-white">ชื่อคนส่ง</span> ได้ส่งเอกสารถึงท่าน
-                      : <span class="font-semibold text-gray-900">เอกสาร หำผู้ใหญ่บ้านพัง</span></div>
-                  <div class="text-xs text-blue-600 dark:text-blue-500">3 ชั่วโมงที่แล้ว</div>
-                </div>
-              </a>
-
-
-
-              <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
-                  <div
-                    class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
-                    <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor" viewBox="0 0 20 14">
-                      <path
-                        d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div class="w-full ps-3">
-                  <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
-                      class="font-semibold text-gray-900 dark:text-white">ชื่อคนส่ง</span> ได้ส่งเอกสารถึงท่าน
-                      : <span class="font-semibold text-gray-900">เอกสาร ท่อประปาแตก</span></div>
-                  <div class="text-xs text-blue-600 dark:text-blue-500">3 ชั่วโมงที่แล้ว</div>
-                </div>
-              </a>
-
-
-              <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
-                  <div
-                    class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
-                    <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor" viewBox="0 0 20 14">
-                      <path
-                        d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div class="w-full ps-3">
-                  <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
-                      class="font-semibold text-gray-900 dark:text-white">ชื่อคนส่ง</span> ได้ส่งเอกสารถึงท่าน
-                      : <span class="font-semibold text-gray-900">เอกสาร ท่อประปาแตก</span></div>
-                  <div class="text-xs text-blue-600 dark:text-blue-500">3 ชั่วโมงที่แล้ว</div>
-                </div>
-              </a>
-
-
-              <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex-shrink-0">
-                  <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
-                  <div
-                    class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
-                    <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor" viewBox="0 0 20 14">
-                      <path
-                        d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div class="w-full ps-3">
-                  <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
-                      class="font-semibold text-gray-900 dark:text-white">ชื่อคนส่ง</span> ได้ส่งเอกสารถึงท่าน
-                      : <span class="font-semibold text-gray-900">เอกสาร ท่อประปาแตก</span></div>
-                  <div class="text-xs text-blue-600 dark:text-blue-500">3 ชั่วโมงที่แล้ว</div>
-                </div>
-              </a> -->
-
             </div>
 
             <!-- ---------------------------------------------------------------------------------------------------------------- -->
@@ -452,9 +349,7 @@ onUpdated(() => {
             </svg>
           </button>
 
-          <!-- <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-    <svg class="absolute w-12 h-12 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-</div> -->
+
 
           <!-- Dropdown menu -->
           <div id="dropdownAvatarName"
@@ -482,21 +377,8 @@ onUpdated(() => {
           </div>
         </li>
 
-        <!-- กดทิปส์ -->
-        <!-- <div
-          id="testtool1"
-          role="tooltip"
-          class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-        >
-          งาน Release หน้าจ้า
-          <div class="tooltip-arrow" data-popper-arrow></div>
-        </div> -->
 
-        <!-- <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">
-          ข้อมูลผู้ใช้งาน
-        </li> -->
 
-        <!-- <li class="text-gray-100 hover:text-indigo-400 cursor-pointer">ออกจากระบบ</li> -->
       </ul>
     </nav>
   </div>

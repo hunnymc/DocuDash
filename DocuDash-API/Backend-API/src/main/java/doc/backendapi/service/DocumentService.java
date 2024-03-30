@@ -5,6 +5,7 @@ import doc.backendapi.DTO.DocumentDto;
 import doc.backendapi.DTO.UserDocDTOpack.UserdocumentDto;
 import doc.backendapi.entities.Document;
 import doc.backendapi.entities.Notification;
+import doc.backendapi.entities.User;
 import doc.backendapi.entities.Userdocument;
 import doc.backendapi.notification.WSService;
 import doc.backendapi.repositories.*;
@@ -74,14 +75,19 @@ public class DocumentService {
     }
 
     public List<UserdocumentDto> getDocumentByUserId(int id) {
-
-        //  Get all documents that isShow is 1 in UserDocument table for the user with the given ID
-        Optional<Userdocument> Documents = userdocumentRepository.findByUsersUserid_IdAndIsShow(id, 1);
-        if (Documents.isEmpty()) {
+        Map<Integer, Userdocument> uniqueDocuments = userdocumentRepository.findByUserIdAndIsShow(id, 1).stream()
+                .collect(Collectors.toMap(
+                        ud -> ud.getDocumentsDocumentid1().getId(),  // Key is documentsDocumentid1.id
+                        ud -> ud,  // Value is the Userdocument entity
+                        (ud1, ud2) -> ud1  // If there are duplicates, keep the first one
+                ));
+        if (uniqueDocuments.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.OK,
-                    "User with id " + id + " do not have any documents.");
+                    "No documents found for user with id " + id + ".");
         }
-        return Documents.stream().map(ud -> modelMapper.map(ud, UserdocumentDto.class)).collect(Collectors.toList());
+        return new ArrayList<>(uniqueDocuments.values()).stream()
+                .map(ud -> modelMapper.map(ud, UserdocumentDto.class))
+                .collect(Collectors.toList());
     }
 
     public Integer saveDocument(CreateDocDto createDocDto, String filePath) {

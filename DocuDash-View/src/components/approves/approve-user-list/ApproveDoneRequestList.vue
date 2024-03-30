@@ -5,9 +5,11 @@ import Cookies from "js-cookie";
 import {useDocumentListStore} from "../../../stores/listOfDocumentStore.js";
 import {useRouter} from "vue-router";
 
+let mainURL = import.meta.env.VITE_API_URL;
+
 // let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
+// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 let router = useRouter();
 
@@ -17,6 +19,7 @@ const approveList = ref([{
   "totalManagers": 1,
   "totalManagersWhoVerified": 1,
   "approve_type_Id": 2,
+  "sentToUser": 0,
   "managersWhoVerified": [{
     "id": 96,
     "isPass": 1,
@@ -63,6 +66,7 @@ const approveList = ref([{
   "totalManagers": 1,
   "totalManagersWhoVerified": 1,
   "approve_type_Id": 1,
+  "sentToUser": 1,
   "managersWhoVerified": [{
     "id": 95,
     "isPass": 1,
@@ -140,6 +144,21 @@ const StatusColor = {
   5: "bg-red-500",
 }
 
+const sentDocToUserButton = async (documentID) => {
+  confirm("คุณต้องการส่งเอกสารนี้ให้ผู้ใช้งานหรือไม่?");
+  axios.post(mainURL + '/api/approve/sent-doc?documentID=' + documentID,
+       { documentID: documentID  },
+      { headers: { "Authorization": 'Bearer ' + access_token }
+  })
+      .then(function (response) {
+        alert('ส่งเอกสารเรียบร้อยแล้ว');
+        getApproveList();
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+};
+
 const clickToViewDoc = async (id) => {
 
   await useDocumentListStore().getdocumentFilenameAndUserIdFromAxios(id);
@@ -215,26 +234,28 @@ onMounted(async () => {
             {{ StatusName[item.status_type_id] }}
           </div>
         </td>
+
         <td v-if="item.approve_type_Id === 1" class="px-6 py-4">
+          <div class="flex items-center">
+            <span class="text-gray-900 rounded bg-orange-200 px-2 py-0.5">คำร้องขออนุมัติเอกสาร</span>
+          </div>
+        </td>
+
+        <td v-if="item.approve_type_Id === 2" class="px-6 py-4">
           <div class="flex items-center">
             <span class="text-gray-900 rounded bg-indigo-200 px-2 py-0.5">คำร้องแจ้งให้ทราบ</span>
           </div>
         </td>
 
-        <td v-else-if="item.approve_type_Id === 2" class="px-6 py-4">
-          <div class="flex items-center">
-            <span class="text-gray-900 rounded bg-orange-200 px-2 py-0.5">คำร้องขออนุมัติเอกสาร</span>
-          </div>
-        </td>
         <td class="px-6 py-4">
           <button class="font-medium text-blue-600 dark:text-blue-500 hover:underline" type="button"
                   @click="clickToViewDoc(item.documentInfo.id)">ตรวจสอบ
           </button>
         </td>
 
-        <!--   สำหรับคำร้องขออนุมัติเอกสาร แบบที่ 2   -->
-        <td v-if="item.approve_type_Id === 2" class="px-6 py-4">
-          <button class="cursor-pointer inline-flex hover:bg-blue-800   px-6 py-1   text-sm  text-white text-center items-center bg-blue-600 rounded-lg "
+        <!--   สำหรับคำร้องขออนุมัติเอกสาร แบบที่ 1   -->
+        <td v-if="item.approve_type_Id === 1 && item.sentToUser === 0" class="px-6 py-4">
+          <button @click="sentDocToUserButton(item.documentInfo.id)" class="cursor-pointer inline-flex hover:bg-blue-800   px-6 py-1   text-sm  text-white text-center items-center bg-blue-600 rounded-lg "
                   type="button">
             ส่ง
             <svg class="pl-2 w-8 h-6" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -247,6 +268,16 @@ onMounted(async () => {
               </g>
             </svg>
           </button>
+        </td>
+
+        <!--   สำหรับคำร้องแข้งให้ทราบ แบบที่ 2   -->
+        <td v-else-if="item.approve_type_Id === 2 || item.sentToUser === 1" class="px-6 py-4">
+          <a class="font-normal text-gray-500 text-center items-center"> เอกสารถูกส่งแล้ว </a>
+        </td>
+
+        <!--    สำหรับคำร้องขออนุมัติเอกสาร แบบที่ 1 แต่ส่งไปหาผู้ใช้งานแล้ว    -->
+        <td v-else-if="item.sentToUser === 1" class="px-6 py-4">
+          <a class="font-normal text-gray-500 text-center items-center"> เอกสารถูกส่งแล้ว </a>
         </td>
 
       </tr>

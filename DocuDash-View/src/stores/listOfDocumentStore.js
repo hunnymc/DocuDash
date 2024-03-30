@@ -9,6 +9,7 @@ export const useDocumentListStore = defineStore('documentList', {
         documentFilename: null,
         document_userId: null,
         callFunctionInComponentB: false,
+        editDocument: {},
         mainUrl: "https://capstone23.sit.kmutt.ac.th/kw2",
         // mainUrl: 'http://cp23kw2.sit.kmutt.ac.th:10003',
         // mainUrl: 'http://localhost:5002'
@@ -27,6 +28,9 @@ export const useDocumentListStore = defineStore('documentList', {
         getDocumentFilename() {
             return this.documentFilename
         },
+        getEditDocument() {
+            return this.editDocument
+        }
     },
     actions: {
         setDocuments(documents) {
@@ -44,8 +48,12 @@ export const useDocumentListStore = defineStore('documentList', {
         setDocumentFilename(filename) {
             this.documentFilename = filename
         },
+        setEditDocument(document) {
+            this.editDocument = document;
+        },
         async getdocumentFilenameAndUserIdFromAxios(documentId) {
-            let mainUrl = "https://capstone23.sit.kmutt.ac.th/kw2";
+            // let mainUrl = "https://capstone23.sit.kmutt.ac.th/kw2";
+            let mainUrl = import.meta.env.VITE_API_URL;
             await axios.get(mainUrl + `/api/doc/${documentId}`,{
                 headers: {
                     "Authorization": "Bearer " + Cookies.get("accessToken"),

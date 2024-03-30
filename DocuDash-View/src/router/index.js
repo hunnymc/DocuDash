@@ -21,7 +21,6 @@ import RequestAdminApprove from "../views/approve/approve-create/UserRequestAppr
 import ApproveStatusView from "../views/approve/approve-status-list/ApproveStatusView.vue";
 import ManagerListView from "../views/approve/approve-list/ManagerListView.vue";
 import ApproveDoneRequestList from "../views/approve/approve-user-list/ApproveDoneList.vue";
-import ApprovePendingRequestList from "../components/approves/approve-user-list/ApprovePendingRequestList.vue";
 import ApprovePendingList from "../views/approve/approve-user-list/ApprovePendingList.vue";
 
 const user_role = Cookies.get('role');
@@ -40,11 +39,10 @@ const routes = [
         name: 'AdminDocList',
         component: AdminDocList,
         beforeEnter: (to, from, next) => {
-            if (user_role !== 'ADMIN') {
-                // redirect to not found page
-                next({name: 'NotFound'})
-            } else {
+            if (user_role === 'ADMIN') {
                 next()
+            } else {
+                next({name: 'NotFound'})
             }
         }
     },
@@ -53,6 +51,18 @@ const routes = [
         path: '/kw2/document/user',
         name: 'UserInfo',
         component: UserInfo,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'ADMIN') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        }
+    },
+    {path: '/kw2/document/view/:id', name: 'ViewDoc', component: ViewDoc},
+    {path: '/kw2/login', name: 'Login', component: Login},
+    {
+        path: '/kw2/document/edit/:id', namr: 'EditDoc', component: EditDoc,
         beforeEnter: (to, from, next) => {
             if (Cookies.get('role') !== 'ADMIN') {
                 // redirect to not found page
@@ -63,20 +73,15 @@ const routes = [
         }
     },
     {
-        path: '/kw2/document/view/:id',
-        name: 'ViewDoc',
-        component: ViewDoc,
+        path: '/kw2/register', name: 'Register', component: Register,
         beforeEnter: (to, from, next) => {
-            if (from.path !== '/kw2/document/view/:id') {
-                next();
+            if (Cookies.get('role') === 'ADMIN') {
+                next()
             } else {
-                next({name: 'NotFound'});
+                next({name: 'NotFound'})
             }
-        }
+        },
     },
-    {path: '/kw2/login', name: 'Login', component: Login},
-    {path: '/kw2/document/edit', namr: 'EditDoc', component: EditDoc},
-    {path: '/kw2/register', name: 'Register', component: Register},
     {path: '/kw2/document/chat', name: 'Chat', component: Chat},
     {path: '/kw2/document/setting', name: 'Setting', component: Setting},
 
@@ -93,29 +98,115 @@ const routes = [
             }
         }
     },
-    {path: '/kw2/approval/list', name: 'ApproveList', component: ApproveList},
-    {path: "/kw2/approval/list/done-request", name: 'ApproveDoneRequestList', component: ApproveDoneRequestList},
-    {path: '/kw2/approve/list/pending-request', name: 'ApprovePendingRequestList', component: ApprovePendingList},
+
+    {
+        path: '/kw2/approval/list', name: 'ApproveList', component: ApproveList, beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'ADMIN' || Cookies.get('role') === 'USER') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        },
+    },
+
+    {
+        path: "/kw2/approval/list/done-request", name: 'ApproveDoneRequestList', component: ApproveDoneRequestList,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'ADMIN' || Cookies.get('role') === 'USER') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        },
+    },
+
+    {path: '/kw2/approve/list/pending-request', name: 'ApprovePendingRequestList', component: ApprovePendingList,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'ADMIN' || Cookies.get('role') === 'USER') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        },
+    },
+
     {path: '/kw2/approval/create', name: 'RequestAdminApprove', component: RequestAdminApprove},
+
     {
         path: '/kw2/approval/admin/dashboard',
         name: 'AdminAcceptView',
         component: AdminAcceptView,
-        // beforeEnter: (to, from, next) => {
-        //     if (Cookies.get('role') !== 'ADMIN') {
-        //         // alert('You are not authorized to access this page')
-        //         next({name: 'ApproveList'})
-        //     } else {
-        //         next()
-        //     }
-        // }
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'ADMIN') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        }
     },
 
-    {path: '/kw2/approval/list/manager-accept', name: 'ManagerListView', component: ManagerListView},
-    {path: "/kw2/approval/detail/user/:id", name: UserAlvView, component: UserAlvView},
-    {path: "/kw2/approval/detail/admin/:id", name: AdminAlvView, component: AdminAlvView},
-    {path: "/kw2/approval/detail/manager/:id", name: ManagerAlvView, component: ManagerAlvView},
-    {path: '/kw2/approval/status', name: 'ApproveStatusView', component: ApproveStatusView},
+    {path: '/kw2/approval/list/manager-accept', name: 'ManagerListView', component: ManagerListView,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'MANAGER') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        }
+    },
+
+    {
+        path: "/kw2/approval/detail/user/:id",
+        name: 'UserAlvView',
+        component: UserAlvView,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'USER' || Cookies.get('role') === 'ADMIN') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        }
+    },
+
+    {
+        path: "/kw2/approval/detail/admin/:id",
+        name: 'AdminAlvView',
+        component: AdminAlvView,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'ADMIN') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        }
+    },
+
+    {
+        path: "/kw2/approval/detail/manager/:id",
+        name: 'ManagerAlvView',
+        component: ManagerAlvView,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'MANAGER') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        }
+    },
+    {
+        path: '/kw2/approval/status',
+        name: 'ApproveStatusView',
+        component: ApproveStatusView,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get('role') === 'ADMIN') {
+                next()
+            } else {
+                next({name: 'NotFound'})
+            }
+        }
+    },
+
+
 
     // Not Found
     {
@@ -140,10 +231,10 @@ const router = createRouter({
 
 export default router
 
-// router.beforeEach((to, from, next) => {
-//     if (to.name !== 'Login' && !Cookies.get('accessToken'))
-//         next({name: 'Login'})
+router.beforeEach((to, from, next) => {
+    if (to.name !== 'Login' && !Cookies.get('accessToken'))
+        next({name: 'Login'})
 
-//     else next()
+    else next()
 
-// })
+})

@@ -14,7 +14,9 @@ let showPDF = ref(false);
 
 const store = useDocumentListStore();
 
-let mainURL = "http://localhost:5002";
+let mainURL = import.meta.env.VITE_API_URL;
+
+// let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
 // let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
@@ -113,12 +115,10 @@ watch(() => route.params.id, async () => {
                     <div data-popover id="popover-description" role="tooltip"
                         class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400">
                         <div class="p-3 space-y-2">
-                            <h3 class="font-semibold text-gray-900 dark:text-white">การสร้างเอกสาร</h3>
-                            <p>ท่านสามารถสร้างเอกสารที่ต้องการโดยกรอกรายละเอียดเอกสารต่าง ๆ ลงในแบบฟอร์ม แนบไฟล์เอกสาร
-                                และกดยืนยันเพื่อทำการส่ง</p>
-                            <h3 class="font-semibold text-gray-900 dark:text-white">การเลือกผู้ส่ง</h3>
-                            <p>ท่านสามารถเลือกผู้คนที่ต้องการจะส่งถึงได้
-                                หากเลือกผิดสามารถทำการลบหรือเพิ่มในภายหลังได้ที่หน้าแรก</p>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">รายละเอียดเอกสาร</h3>
+                            <p>ท่านสามารถดูรายละเอียดเอกสารและตัวอย่างไฟล์ได้ที่หน้านี้</p>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">การแก้ไข</h3>
+                            <p>หากมีจุดผิดพลาดที่ท่านต้องการแก้ไขเอกสารนี้ กรุณาติดต่อผู้ดูแลระบบโดยตรง</p>
                             <!-- <a href="#" class="flex items-center font-medium text-blue-600 dark:text-blue-500 dark:hover:text-blue-600 hover:text-blue-700 hover:underline">อ่านเพิ่มเติม <svg class="w-2 h-2 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
   </svg></a> -->

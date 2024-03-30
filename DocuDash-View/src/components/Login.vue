@@ -6,9 +6,11 @@ import Cookies from "js-cookie";
 
 const router = useRouter();
 
+let mainURL = import.meta.env.VITE_API_URL;
+
 // let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
+// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 let userEmail = ref("");
 let password = ref("");
@@ -177,11 +179,16 @@ async function login() {
 </template>
 
 <style scoped>
-.bg-image {
+
+/* .bg-image {
   background-image: url('src/assets/CV.png');
   background-repeat: no-repeat;
-
   background-position: center;
+} */
 
+.bg-image {
+  background-image: url('../assets/CV.png');
+  background-repeat: no-repeat;
+  background-position: center;
 }
 </style>

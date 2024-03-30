@@ -8,7 +8,9 @@ import { useRouter } from "vue-router";
 
 let router = useRouter();
 
-let mainURL = "http://localhost:5002";
+let mainURL = import.meta.env.VITE_API_URL;
+
+// let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
 // let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
@@ -157,15 +159,16 @@ onMounted(async () => {
 
         <td v-if="item.approve_type_Id === 1" class="px-6 py-4">
           <div class="flex items-center">
+            <span class="text-gray-900 rounded bg-orange-200 px-2 py-0.5">คำร้องขออนุมัติเอกสาร</span>
+          </div>
+        </td>
+
+        <td v-if="item.approve_type_Id === 2" class="px-6 py-4">
+          <div class="flex items-center">
             <span class="text-gray-900 rounded bg-indigo-200 px-2 py-0.5">คำร้องแจ้งให้ทราบ</span>
           </div>
         </td>
 
-        <td v-else-if="item.approve_type_Id === 2" class="px-6 py-4">
-          <div class="flex items-center">
-            <span class="text-gray-900 rounded bg-orange-200 px-2 py-0.5">คำร้องขออนุมัติเอกสาร</span>
-          </div>
-        </td>
 
         <td class="px-6 py-4">
           <button @click="clickToViewDoc(item.documentInfo.id)" class="font-medium text-sm  text-white px-6 py-1 bg-sky-600 rounded-lg hover:bg-sky-800  hover:underline" type="button">ตรวจสอบ</button>

@@ -7,6 +7,7 @@ import doc.backendapi.DTO.approval.VerifydocDto;
 import doc.backendapi.DTO.approval.admin.AdminApproveDocDto;
 import doc.backendapi.DTO.approval.manager.ManagerApproveDocDto;
 import doc.backendapi.entities.*;
+import doc.backendapi.notification.NotificationService;
 import doc.backendapi.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,11 @@ public class ApprovalService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private UserdocumentRepository userdocumentRepository;
+    @Autowired
     private DocumentRepository documentRepository;
+    @Autowired
+    private NotificationService notificationService;
     @Autowired
     private DocumentstatusRepository documentStatusRepository;
     @Autowired
@@ -116,7 +121,7 @@ public class ApprovalService {
                 verifydoc.setIsPass(-1);
                 verifydocRepository.save(verifydoc);
 
-                if (verifyadmindocRepository.findByDocumentID_Id(document.getId()).isEmpty()){
+                if (verifyadmindocRepository.findByDocumentID_Id(document.getId()).isEmpty()) {
                     Verifyadmindoc verifyadmindoc = new Verifyadmindoc();
                     verifyadmindoc.setDocumentID(document);
                     verifyadmindoc.setIsPass(-1);
@@ -130,12 +135,13 @@ public class ApprovalService {
                     documentstatus.setStatusID(status);
                     DocumentApproveType documentApproveType = documentApproveTypeRepository.findById(userDocAndManagersDto.getDocumentApproveTypeID()).orElseThrow(() -> new RuntimeException("DocumentApproveType not found"));
                     documentstatus.setDocumentApproveTypeID(documentApproveType);
+                    documentstatus.setSentToUser(0);
 
                     documentStatusRepository.save(documentstatus);
 
                 }
 
-            // in case the document has been added by the admin
+                // in case the document has been added by the admin
             } else {
                 Verifydoc verifydoc = new Verifydoc();
                 verifydoc.setDocumentID(document);
@@ -143,7 +149,7 @@ public class ApprovalService {
                 verifydoc.setIsPass(-1);
                 verifydocRepository.save(verifydoc);
 
-                if (verifyadmindocRepository.findByDocumentID_Id(document.getId()).isEmpty()){
+                if (verifyadmindocRepository.findByDocumentID_Id(document.getId()).isEmpty()) {
                     Verifyadmindoc verifyadmindoc = new Verifyadmindoc();
                     verifyadmindoc.setDocumentID(document);
                     verifyadmindoc.setIsPass(1);
@@ -157,6 +163,7 @@ public class ApprovalService {
                     documentstatus.setStatusID(status);
                     DocumentApproveType documentApproveType = documentApproveTypeRepository.findById(userDocAndManagersDto.getDocumentApproveTypeID()).orElseThrow(() -> new RuntimeException("DocumentApproveType not found"));
                     documentstatus.setDocumentApproveTypeID(documentApproveType);
+                    documentstatus.setSentToUser(0);
 
                     documentStatusRepository.save(documentstatus);
 
@@ -211,7 +218,9 @@ public class ApprovalService {
 
                     int approve_type_Id = documentstatus != null ? documentstatus.getDocumentApproveTypeID().getId() : 0;
 
-                    return new UserDocAndManagersDto(status_type_id, totalManagers, totalManagersWhoVerified, approve_type_Id, managersWhoVerified, documentInfo);
+                    int sentToUser = documentstatus != null ? documentstatus.getSentToUser() : 0;
+
+                    return new UserDocAndManagersDto(status_type_id, totalManagers, totalManagersWhoVerified, approve_type_Id, sentToUser, managersWhoVerified, documentInfo);
                 })
                 .filter(dto -> !dto.getManagersWhoVerified().isEmpty())
                 .toList();
@@ -274,6 +283,21 @@ public class ApprovalService {
                 Verifystatustype verifystatustype = verifystatustypeRepository.findById(4).orElseThrow(() -> new RuntimeException("Status not found"));
                 documentstatus.setStatusID(verifystatustype);
                 documentStatusRepository.save(documentstatus);
+
+                // if the document approve type id is 2 (approved by all managers), update isShow to 1 in userdocument table
+                if (documentstatus.getDocumentApproveTypeID().getId() == 2) {
+                    List<Userdocument> userdocument = userdocumentRepository.findByDocumentIdAndIsShow(document.getId(), 0);
+                    userdocument.forEach(ud -> ud.setIsShow(1));
+                    userdocumentRepository.saveAll(userdocument);
+
+                    // set SentToUser to 1 in documentstatus table
+                    documentstatus.setSentToUser(1);
+
+                    // if isShow is 1 then create notification
+                    userdocument.forEach(ud -> notificationService.createNotification(ud.getUsersUserid().getId(), document.getId(), "Document shared with you", ud.getOwnerDocument()));
+
+                }
+
                 throw new ResponseStatusException(HttpStatus.OK, "The operation was successful and the document has been approved.");
             }
 
@@ -283,7 +307,6 @@ public class ApprovalService {
             documentstatus.setStatusID(verifystatustypeRepository.findById(5).orElseThrow(() -> new RuntimeException("Status not found")));
             documentStatusRepository.save(documentstatus);
             throw new ResponseStatusException(HttpStatus.OK, "The operation was successful and the document has been rejected.");
-
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid value for is_pass");
         }
@@ -295,5 +318,38 @@ public class ApprovalService {
     public UserDocAndManagersDto getApprovedDocByDocID(int documentId) {
         Document document = documentRepository.findById(documentId).orElseThrow(() -> new RuntimeException("Document not found"));
         return getAllApproveDoc(Collections.singletonList(document)).get(0);
+    }
+
+    public ResponseEntity sentDocToUserEdoc(Integer documentId) {
+        Document document = documentRepository.findById(documentId).orElseThrow(() -> new RuntimeException("Document not found"));
+        Documentstatus documentstatus = documentStatusRepository.findByDocumentID(document);
+
+        if (documentstatus == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document status not found");
+        }
+
+        if (documentstatus.getStatusID().getId() != 4) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The document has not been approved by all managers");
+        }
+
+        // if the document approve type id is 1 (approved by any manager), update isShow to 1 in userdocument table
+        if (documentstatus.getDocumentApproveTypeID().getId() == 1) {
+            List<Userdocument> userdocuments = userdocumentRepository.findByDocumentIdAndIsShow(documentId, 0);
+            if (userdocuments.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Userdocument entities found for the given documentId and isShow value");
+            }
+            userdocuments.forEach(ud -> ud.setIsShow(1));
+
+            // set SentToUser to 1 in documentstatus table
+            documentstatus.setSentToUser(1);
+
+            userdocumentRepository.saveAll(userdocuments); // batch update
+        }
+
+        // Fetch all Userdocument entities with isShow = 1 in one go
+        List<Userdocument> userdocumentsToShow = userdocumentRepository.findByDocumentIdAndIsShow(documentId, 1);
+        userdocumentsToShow.forEach(ud -> notificationService.createNotification(ud.getUsersUserid().getId(), documentId, "Document shared with you", ud.getOwnerDocument()));
+
+        return ResponseEntity.status(HttpStatus.OK).body("The operation was successful and the document has been shared with the user.");
     }
 }

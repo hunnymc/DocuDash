@@ -6,9 +6,11 @@ import Cookies from 'js-cookie';
 
 const router = useRouter();
 
+let mainUrl = import.meta.env.VITE_API_URL;
+
 // let mainUrl = 'http://localhost:5002';
 // let mainUrl = 'http://cp23kw2.sit.kmutt.ac.th:10003';
-let mainUrl = "https://capstone23.sit.kmutt.ac.th/kw2";
+// let mainUrl = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 const newUser = ref({
     // "email": "johndoe10@example.com",

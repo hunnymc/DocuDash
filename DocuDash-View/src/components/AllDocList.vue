@@ -3,15 +3,17 @@ import { ref, onMounted, onUnmounted, watch } from "vue";
 import axios from "axios";
 import moment from "moment";
 import { useRouter } from "vue-router";
-import { useDocumentListStore } from "../stores/listOfDocumentStore";
+import { useDocumentListStore } from "../stores/listOfDocumentStore.js";
 import Cookies from "js-cookie";
 
 const router = useRouter();
 const store = useDocumentListStore();
 
+let mainURL = import.meta.env.VITE_API_URL;
+
 // let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
+// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 let file = ref(null);
 
@@ -23,7 +25,10 @@ watch(() => store.callFunctionInComponentB, (value) => {
 });
 
 const navigateToEdit = (doc) => {
-    router.push({ path: "/kw2/edit", query: { document: JSON.stringify(doc) } });
+  store.setEditDocument(doc);
+  // router.push({ path: "/kw2/document/edit/" + doc.documentsDocumentid1.id, query: { document: JSON.stringify(doc) } });
+  router.push({ path: "/kw2/document/edit/" + doc.documentsDocumentid1.id });
+
 };
 
 const getAllDoc = async () => {
@@ -130,71 +135,6 @@ const deleteDoc = async (id) => {
 
 const fileInput = ref(); // อ้างอิงไฟล์อัพโหลด
 let recentEditID = ref(0);
-
-// ปุ่มแก้ไขเอกสาร
-const editDoc = async (id) => {
-    const template = {
-        title: "",
-        category: "",
-        branchSource: "",
-        phoneSource: "",
-        emailSource: "",
-        fromSource: "",
-        description: "",
-    };
-    for (let key in editList.value) {
-        if (!template.hasOwnProperty(key)) {
-            delete editList.value[key];
-        }
-    }
-    const formData = new FormData();
-
-    formData.append("file", file.value);
-    formData.append("data", JSON.stringify(editList.value));
-    await axios
-        .patch(
-            mainURL + "/api/doc/" + id,
-            formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    Authorization: "Bearer " + Cookies.get("accessToken"),
-                },
-            }
-        )
-        .catch(function (AxiosError) {
-            if (AxiosError.response) {
-                switch (AxiosError.response.status) {
-                    case 400:
-                        alert("คำขอไม่ถูกต้อง");
-                        break;
-                    case 401:
-                        alert("ไม่ได้รับอนุญาต");
-                        break;
-                    case 403:
-                        alert("ถูกปฏิเสธ");
-                        break;
-                    case 404:
-                        alert("ไม่พบข้อมูล");
-                        break;
-                    case 500:
-                        alert("เซิร์ฟเวอร์เกิดข้อผิดพลาด");
-                        break;
-                    default:
-                        alert("เกิดข้อผิดพลาด");
-                }
-            } else if (AxiosError.request) {
-                alert("ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์");
-            } else if (listdata.value.length === 0) {
-                alert("คุณไม่มีเอกสารในระบบ");
-            } else {
-                alert("เกิดข้อผิดพลาด: " + AxiosError.message);
-            }
-        });
-    getAllDoc();
-    cancelEdit();
-    location.reload();
-};
 
 const editList = ref({
     id: "",

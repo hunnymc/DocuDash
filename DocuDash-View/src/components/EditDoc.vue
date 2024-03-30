@@ -4,17 +4,21 @@ import { useRoute } from 'vue-router';
 import axios from "axios";
 import router from "../router";
 import Cookies from "js-cookie";
+import { useDocumentListStore} from "../stores/listOfDocumentStore.js";
 
 const route = useRoute();
+const store = useDocumentListStore();
+
+let mainURL = import.meta.env.VITE_API_URL;
 
 // let mainURL = "http://localhost:5002";
 // let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
+// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 let editdocdata = ref({});
 
 function reciveData() {
-  editdocdata.value = JSON.parse(route.query.document);
+  editdocdata.value = store.getEditDocument;
   newDocdata.value.id = editdocdata.value.documentsDocumentid1.id;
   newDocdata.value.title = editdocdata.value.documentsDocumentid1.title;
   newDocdata.value.category = editdocdata.value.documentsDocumentid1.category;

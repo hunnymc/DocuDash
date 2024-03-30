@@ -12,6 +12,12 @@ public interface UserdocumentRepository extends JpaRepository<Userdocument, Inte
     @Query("SELECT ud FROM Userdocument ud WHERE ud.usersUserid.id = ?1")
     List<Userdocument> findByUsers_UserID(int id);
 
+    @Query("SELECT ud FROM Userdocument ud WHERE ud.usersUserid.id = ?1 AND ud.isShow = ?2")
+    List<Userdocument> findByUserIdAndIsShow(int id, int isShow);
+
+    @Query("SELECT ud FROM Userdocument ud WHERE ud.documentsDocumentid1.id = ?1 AND ud.isShow = ?2")
+    List<Userdocument> findByDocumentIdAndIsShow(int id, int isShow);
+
     @Query("SELECT ud FROM Userdocument ud WHERE ud.usersUserid.email = ?1")
     Userdocument findByUsers_Email(String email);
 

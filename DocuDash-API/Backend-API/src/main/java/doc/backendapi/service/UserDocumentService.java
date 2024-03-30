@@ -59,8 +59,16 @@ public class UserDocumentService {
 
         Userdocument savedUserdocument = userdocumentRepository.save(userdocument);
 
+        // if isShow is 1 then create notification for each user
+        if (data.getIsShow() == 1) {
+            List<User> users = userRepository.findAll();
+            for (User u : users) {
+                notificationService.createNotification(u.getId(), document.getId(), "Document shared with you", data.getOwnerDocument());
+            }
+        }
+
         // Create notification entity for each user
-        notificationService.createNotification(user.getId(), document.getId(), "Document shared with you", data.getOwnerDocument() );
+        // notificationService.createNotification(user.getId(), document.getId(), "Document shared with you", data.getOwnerDocument() );
 
         return modelMapper.map(savedUserdocument, CreateUserDocDTO.class);
     }

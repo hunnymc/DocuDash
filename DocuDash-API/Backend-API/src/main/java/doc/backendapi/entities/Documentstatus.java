@@ -28,4 +28,7 @@ public class Documentstatus {
     @JoinColumn(name = "DocumentApproveTypeID")
     private DocumentApproveType documentApproveTypeID;
 
+    @Column(name = "SentToUser")
+    private Integer sentToUser;
+
 }

@@ -22,11 +22,6 @@ public class ApproveController {
     @Autowired
     private ApprovalService approvalService;
 
-//    @GetMapping("/doc")
-//    public List<VerifydocDto> getAllApprovedDoc() {
-//        return approvalService.getAllApprovedDoc();
-//    }
-
     @GetMapping("/mg/{managerId}")
     public List<UserDocAndManagersDto> getApprovedDocByManagerID(@PathVariable int managerId) {
         return approvalService.getApprovedDocByManagerID(managerId);
@@ -67,4 +62,10 @@ public class ApproveController {
     public ResponseEntity addManager(@RequestBody @Valid List<CreateVerifyManagerDto> newManagers) {
         return approvalService.addManager(newManagers);
     }
+
+    @PostMapping("/sent-doc")
+    public ResponseEntity sentDocToUserEdoc(@RequestParam int documentID) {
+        return approvalService.sentDocToUserEdoc(documentID);
+    }
+
 }

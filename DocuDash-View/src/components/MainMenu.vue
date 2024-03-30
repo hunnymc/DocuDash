@@ -100,8 +100,14 @@ onBeforeMount(() => {
  
 <style>
 
-.bg-image {
+/* .bg-image {
   background-image: url('src/assets/CV.png');
+  background-repeat: no-repeat;
+  background-position: center;
+} */
+
+.bg-image {
+  background-image: url('../assets/CV.png');
   background-repeat: no-repeat;
   background-position: center;
 }
