@@ -22,22 +22,36 @@ let user_role = Cookies.get('role')
 let access_token = Cookies.get('accessToken')
 
 const getApproveList = () => {
-  axios.get(mainURL + '/api/approve/info/' + user_id, {
+  const response = axios.get(mainURL + '/api/approve/info/' + user_id, {
     headers: {
       "Authorization": 'Bearer ' + access_token
     }
   })
       .then(function (response) {
         approveList.value = response.data
-        // filter only status 4
+        // filter only status 3
         approveList.value = approveList.value.filter(item => item.status_type_id === 3)
       })
       .catch(function (error) {
-        console.log(error);
+        if (error.status === 404 || error.response.status === 404
+            || error.response.data.message === "User does not have any documents that have a manager to verify") {
+          console.log('No document for this user');
+        } else {
+          console.log('Error', error.message);
+        }
       })
 }
 
 const clickToViewDoc = async (id) => {
+
+  await axios.post(mainURL + '/api/approve/read/user/' + id, {
+    user_id: user_id
+  }, {
+    headers: {
+      "Authorization": 'Bearer ' + access_token
+    }
+  })
+
   await useDocumentListStore().getdocumentFilenameAndUserIdFromAxios(id);
   await router.push(`/kw2/approval/detail/user/${id}`)
 };
@@ -47,6 +61,7 @@ const StatusName = {
   3: "รออนุมัติ",
   4: "อนุมัติแล้ว",
   5: "ไม่ผ่านการอนุมัติ",
+  6: "ไม่ผ่านการอนุมัติ",
 }
 
 const StatusColor = {
@@ -54,8 +69,8 @@ const StatusColor = {
   3: "bg-yellow-300",
   4: "bg-green-500",
   5: "bg-red-500",
+  6: "bg-red-500",
 }
-
 
 onMounted(() => {
   getApproveList();
@@ -85,6 +100,9 @@ onMounted(() => {
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
       <tr>
+        <th  class="py-3" scope="col">
+          <!-- จุดแดง  -->
+        </th>
         <th scope="col" class="px-6 py-3">
           ชื่อเรื่อง
         </th>
@@ -103,6 +121,9 @@ onMounted(() => {
       <tr
           v-for="item in approveList"
           class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+        <td class="pl-4 items-center justify-center">
+          <div v-if="item.isOwnerRead === 0" class="w-2 h-2 bg-red-500 border border-white rounded-full"></div>
+        </td>
         <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
           <div class="ps-3">
             <div class="text-base font-semibold">{{ item.documentInfo.title }}</div>

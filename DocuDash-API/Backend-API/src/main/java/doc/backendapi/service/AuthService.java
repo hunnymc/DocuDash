@@ -3,6 +3,7 @@ package doc.backendapi.service;
 import doc.backendapi.DTO.AuthLoginDto;
 import doc.backendapi.config.JwtTokenUtil;
 import doc.backendapi.entities.User;
+import doc.backendapi.hadlers.CustomHttpException;
 import doc.backendapi.model.JwtResponse;
 import doc.backendapi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,23 +36,20 @@ public class AuthService {
         Argon2PasswordEncoder encoder = new Argon2PasswordEncoder();
         match.setPassword(match.getPassword());
         if (match.getUserEmail().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is empty.");
+            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Email is empty.");
         }
         List<User> checkPassword = repository.findAll();
         User duplicateEmail = repository.findByEmail(match.getUserEmail()).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist"));
+                new CustomHttpException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist"));
         for (User eventUser : checkPassword){
             if (eventUser.getEmail().equals(match.getUserEmail().trim())){
-//                if (encoder.matches(match.getPassword(), eventUser.getPassword())){
-//                    throw new ResponseStatusException(HttpStatus.OK, "Password OK Matched.");
-//                }
                 if (!encoder.matches(match.getPassword(), eventUser.getPassword())){
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password NOT Matched");
+                    throw new CustomHttpException(HttpStatus.UNAUTHORIZED, "Password NOT Matched");
                 }
             }
         }
         if (duplicateEmail.getEmail().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is empty.");
+            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Email is empty.");
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(match.getUserEmail());

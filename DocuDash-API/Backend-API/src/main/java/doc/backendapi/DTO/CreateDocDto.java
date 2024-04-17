@@ -19,7 +19,6 @@ public class CreateDocDto implements Serializable {
     @NotBlank(message = "Title must not be blank")
     @Size(max = 255, message = "Title size must not be more than 255")
     String title;
-
     @NotNull(message = "Category must not be null")
     @NotBlank(message = "Category must not be blank")
     @Size(max = 255, message = "Category size must not be more than 255")
@@ -66,6 +65,8 @@ public class CreateDocDto implements Serializable {
     @Data
     @NoArgsConstructor
     public static class UserDto1 implements Serializable {
+        @NotNull(message = "User ID must not be null")
+        @NotBlank(message = "User ID must not be blank")
         Integer id;
     }
 }

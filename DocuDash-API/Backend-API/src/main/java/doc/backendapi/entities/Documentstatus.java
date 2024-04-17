@@ -31,4 +31,7 @@ public class Documentstatus {
     @Column(name = "SentToUser")
     private Integer sentToUser;
 
+    @Column(name = "isOwnerRead")
+    private Integer isOwnerRead;
+
 }

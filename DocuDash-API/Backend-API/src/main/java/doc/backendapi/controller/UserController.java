@@ -28,4 +28,9 @@ public class UserController {
     public List<UserInfoDto> getAllUsers() {
         return userService.getAllUsers();
     }
+
+    @GetMapping("/check-token")
+    public ResponseEntity<String> checkToken() {
+        return ResponseEntity.ok("Token is valid");
+    }
 }

@@ -26,7 +26,6 @@ watch(() => store.callFunctionInComponentB, (value) => {
 
 const navigateToEdit = (doc) => {
   store.setEditDocument(doc);
-  // router.push({ path: "/kw2/document/edit/" + doc.documentsDocumentid1.id, query: { document: JSON.stringify(doc) } });
   router.push({ path: "/kw2/document/edit/" + doc.documentsDocumentid1.id });
 
 };
@@ -100,7 +99,6 @@ const deleteDoc = async (id) => {
                     },
                 }
             )
-
             .catch(function (AxiosError) {
                 if (AxiosError.response) {
                     switch (AxiosError.response.status) {
@@ -129,53 +127,12 @@ const deleteDoc = async (id) => {
                 }
             });
 
-        getAllDoc();
+        await getAllDoc();
     }
 };
 
-const fileInput = ref(); // อ้างอิงไฟล์อัพโหลด
-let recentEditID = ref(0);
-
-const editList = ref({
-    id: "",
-    accessLevel: "",
-    documentsDocumentid1: {
-        id: "",
-        title: "",
-        filePath: "",
-        dateAdd: "",
-        dateUpdate: "",
-        category: "",
-        secrecyLevel: "",
-        urgency: "",
-        fromSource: "",
-        status: "",
-        description: "",
-        usersUserid: {
-            id: "",
-            username: "",
-            fullName: "",
-            role: "",
-            email: "",
-            branch: "",
-        },
-    },
-    usersUserid: {
-        id: "",
-    },
-});
-
 const changeTimestampToDate = (timestamp) => {
     return moment(timestamp * 1000).format("DD-MM-YYYY HH:mm");
-};
-
-const handleFileUpload = (event) => {
-    file.value = event.target.files[0];
-};
-
-const cancelEdit = () => {
-    editList.value = [];
-    getAllDoc();
 };
 
 const clickToViewDoc = async (id, obj) => {
@@ -190,10 +147,6 @@ const clickToViewDoc = async (id, obj) => {
     });
 
 };
-
-function getNewDoc() {
-    getAllDoc();
-}
 
 onMounted(() => {
     getAllDoc();
@@ -269,7 +222,20 @@ const listdata = ref([
 </script>
 
 <template>
-    <div class="shadow-md sm:rounded-lg table-container">
+  <div class="w-full relative overflow-x-auto shadow-md ">
+    <section class="flex items-center">
+      <div class="w-full   mx-auto ">
+        <div class="relative overflow-hidden bg-green-800 ">
+          <div
+              class=" flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
+            <div>
+              <h5 class="mr-3 font-semibold text-white text-3xl">รายการเอกสารในระบบทั้งหมด</h5>
+              <p class="text-gray-100 ">รวมรายการเอกสารในระบบสำหรับผู้ดูแลระบบ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
         <table class="w-full text-sm text-left rtl:text-right text-white">
             <thead class="text-xs text-white uppercase bg-green-800">
                 <tr>

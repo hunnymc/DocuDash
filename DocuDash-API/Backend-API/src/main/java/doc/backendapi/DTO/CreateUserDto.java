@@ -6,6 +6,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
@@ -24,6 +25,8 @@ public class CreateUserDto implements Serializable {
 //    @Size(max = 100, message = "Username size must not be more than 100")
     String username;
 
+    @NotBlank(message = "Password must not be blank")
+    @NotNull(message = "Password must not be null")
     @Size(max = 255)
     String password;
 

@@ -28,4 +28,9 @@ public interface VerifydocRepository extends JpaRepository<Verifydoc, Integer> {
     Optional<Verifydoc> findByDocumentID_IdAndManagerID_Id(Integer id, Integer id1);
 
     List<Verifydoc> findByManagerID_IdAndIsPassNotAndIsPassNot(Integer id, Integer isPass, Integer isPass1);
+
+    @Query("SELECT COUNT(vd) FROM Verifydoc vd WHERE vd.managerID.id = ?1 AND vd.isRead = 0")
+    int countManagerIncoming(Integer id);
+
+    Optional<Object> findByDocumentID_IdAndIsPass(int documentId, int i);
 }

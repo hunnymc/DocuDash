@@ -59,33 +59,23 @@ const createUser = async () => {
                         <label for="fullName" class="block mb-2 text-sm font-medium text-gray-900 ">ชื่อ - นามสกุล </label>
                         <input v-model="newUser.fullName" type="text"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            placeholder="กรอกชื่อ - นามสกุล" required="">
+                            placeholder="กรอกชื่อ - นามสกุล" required autocomplete="username">
                     </div>
                     <div class="sm:col-span-2">
                         <label for="name" class="block mb-2 text-sm font-medium text-gray-900 ">รหัสผ่าน (Password)</label>
                         <input v-model="newUser.password" type="password"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            placeholder="กรอกรหัสผ่าน" required="">
+                            placeholder="กรอกรหัสผ่าน" required autocomplete="current-password"
+>
                     </div>
-
 
 
                     <div class="sm:col-span-2">
                         <label for="name" class="block mb-2 text-sm font-medium text-gray-900 ">อีเมล</label>
                         <input v-model="newUser.email" type="email"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            placeholder="example@mail.com" required="">
+                            placeholder="example@mail.com" required >
                     </div>
-
-                    <!-- <div class="w-full">
-                  <label for="brand" class="block mb-2 text-sm font-medium text-gray-900 ">Brand</label>
-                  <input type="text" name="brand" id="brand" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" 
-                  placeholder="Product brand" required="">
-              </div>
-              <div class="w-full">
-                  <label for="price" class="block mb-2 text-sm font-medium text-gray-900 ">Price</label>
-                  <input type="number" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="$2999" required="">
-              </div> -->
 
 
                     <div class="sm:col-span-2">
@@ -117,12 +107,6 @@ const createUser = async () => {
                         </select>
                     </div>
 
-
-
-                    <!-- <div class="sm:col-span-2">
-                  <label for="description" class="block mb-2 text-sm font-medium text-gray-900 ">Description</label>
-                  <textarea id="description" rows="8" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Your description here"></textarea>
-              </div> -->
                 </div>
                 <a @click="createUser()" type="submit"
                     class="cursor-pointer flex-col justify-center hover:bg-green-800 items-center px-16 py-4 mt-4 sm:mt-6 text-sm font-bold text-white text-center bg-green-600 rounded-lg focus:ring-4 focus:ring-primary-200">

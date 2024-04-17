@@ -76,19 +76,60 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                // CORS and CSRF
                 .cors().and().csrf().disable()
                 .headers().frameOptions().disable().and()
                 .authorizeRequests()
-//                .antMatchers("/our-websocket/**").permitAll()
+
+                // Websocket
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/api/kw2-websocket", "/api/kw2-websocket/**").permitAll()
-                .antMatchers("/api/auth/**").permitAll()
-//                .antMatchers("/notifications").permitAll()
+
+                // Authentication
+                .antMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
+                .antMatchers(HttpMethod.GET,"/api/auth/refresh").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.POST,"/api/auth/user-info").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.POST,"/api/auth/register").hasRole("ADMIN")
+
+                // File store
                 .antMatchers("/api/files/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/doc/").hasRole("ADMIN")
+
+                // Graph Info
+                .antMatchers("/api/approve/graph/**").permitAll()
+
+                // Notification Service
                 .antMatchers("/api/n/**").permitAll()
-                .antMatchers("/api/doc/user/email").hasAnyRole("ADMIN", "USER", "MANAGER")
-                .antMatchers("/api/doc/newdocid").hasAnyRole("ADMIN", "USER", "MANAGER")
+
+                // Document Service
+                .antMatchers(HttpMethod.GET,"/api/doc/").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET,"/api/doc/newdocid").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.GET,"/api/doc/user/{id}").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.POST,"/api/doc/user/email").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.GET, "/api/doc/{id}").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.POST, "/api/doc/").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.PATCH, "/api/doc/").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/api/doc/{id}").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/doc/check/{id}").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.GET, "/api/doc/user").hasAnyRole("ADMIN", "USER", "MANAGER")
+
+                // user document service
+                .antMatchers(HttpMethod.POST, "/api/userdoc/").hasAnyRole("ADMIN", "USER", "MANAGER")
+
+                // Approval Service
+                .antMatchers(HttpMethod.GET, "/api/approve/mg/{managerId}").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.GET, "/api/approve/info/{userId}").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.GET, "/api/approve/doc/{documentId}").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.GET, "/api/approve/info/all").hasAnyRole("ADMIN", "MANAGER")
+                .antMatchers(HttpMethod.POST, "/api/approve/admin/check-approve").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/api/approve/mg/check-approve").hasRole("MANAGER")
+                .antMatchers(HttpMethod.POST, "/api/approve/add-manager").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.POST, "/api/approve/sent-doc").hasAnyRole("ADMIN", "USER", "MANAGER")
+
+                // User Service
+                .antMatchers(HttpMethod.GET, "/api/user/all-users").hasAnyRole("ADMIN", "USER", "MANAGER")
+                .antMatchers(HttpMethod.GET, "/api/user/check-token").hasAnyRole("ADMIN", "USER", "MANAGER")
+
+                // Default
                 .anyRequest().authenticated().and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler()).and().sessionManagement()

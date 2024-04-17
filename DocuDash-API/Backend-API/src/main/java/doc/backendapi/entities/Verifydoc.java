@@ -34,4 +34,7 @@ public class Verifydoc {
     @JoinColumn(name = "managerID", nullable = false)
     private User managerID;
 
+    @Column(name = "isRead")
+    private Integer isRead;
+
 }

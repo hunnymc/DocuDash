@@ -12,6 +12,8 @@ const documentListStore = useDocumentListStore();
 const router = useRouter();
 const route = useRoute();
 
+let userRole = Cookies.get("role");
+
 let mainURL = import.meta.env.VITE_API_URL;
 let wsURL = import.meta.env.VITE_WS_URL;
 
@@ -148,9 +150,9 @@ function connect() {
 
     stompClient.subscribe('/user/topic/private-messages', function (message) {
       callFunctionInComponentB();
-      // reciveMessage.value.push(JSON.parse(message.body).content);
-      // console.log(JSON.parse(message.body).content);
-      // showMessage(JSON.parse(message.body).content);
+      reciveMessage.value.push(JSON.parse(message.body).content);
+      console.log(JSON.parse(message.body).content);
+      showMessage(JSON.parse(message.body).content);
     });
 
     stompClient.subscribe('/topic/global-notifications', function () {
@@ -166,15 +168,66 @@ function connect() {
   });
 }
 
-async function clickNotification(documentId) {
+async function clickNotification(Notification) {
+
+  await axios.post(
+      mainURL + '/api/n/read/' + Notification.id
+      , {userId: Cookies.get("userId")}
+      , {headers: {"Authorization": "Bearer " + Cookies.get("accessToken"),}})
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("Read notification success");
+        }
+      });
+
+  if (Notification.notificationTypeID === 1) {
+    await documentListStore.getdocumentFilenameAndUserIdFromAxios(Notification.documentId);
+    await getNewNotification();
+    await router.push("/kw2/document/view/" + Notification.documentId);
+  }
+
+  if (Notification.notificationTypeID >= 2 && Notification.notificationTypeID <= 6) {
+      await documentListStore.getdocumentFilenameAndUserIdFromAxios(Notification.documentId);
+      await getNewNotification();
+      await router.push("/kw2/approval/detail/user/" + Notification.documentId);
+  }
+
+    if (Notification.notificationTypeID === 7) {
+      console.log("NotificationTypeID 7");
+
+      await axios.post(
+          mainURL + '/api/n/read/' + Notification.id
+          , {userId: Cookies.get("userId")}
+          , {headers: {"Authorization": "Bearer " + Cookies.get("accessToken"),}})
+          .then((response) => {
+            if (response.status === 200) {
+              console.log("Read notification success");
+            }
+          });
+
+      await documentListStore.getdocumentFilenameAndUserIdFromAxios(Notification.documentId);
+      await getNewNotification();
+      await router.push("/kw2/approval/detail/manager/" + Notification.documentId);
+
+    }
+
   notificationCount.value = 0;
-  await documentListStore.getdocumentFilenameAndUserIdFromAxios(documentId);
-  await getNewNotification();
-  await router.push("/kw2/approval/detail/user/" + documentId);
+}
+
+let approvepath = ref("");
+
+function changeApprovePage() {
+  if (userRole === "ADMIN") {
+    approvepath.value = "/kw2/approval/admin/dashboard";
+  } else if (userRole === "MANAGER") {
+    approvepath.value = "/kw2/approval/list/manager-accept";
+  } else if (userRole === "USER") {
+    approvepath.value = "/kw2/approval/list";
+  }
 }
 
 function clickToAllDoc() {
-  router.push("/list");
+  router.push("/kw2/approval");
 }
 
 // ---------------------------------------------------------------------------------
@@ -197,10 +250,10 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   initFlowbite();
-  console.log("Index page is ready");
   await getUserInfo();
-  // connect();
+  connect();
   await getNewNotification();
+  changeApprovePage();
 });
 
 onUpdated(() => {
@@ -208,11 +261,11 @@ onUpdated(() => {
 });
 
 // watch(() => route.value, getNewNotification(), {immediate: true});
+
 watchEffect(() => {
   route.value;
   getNewNotification();
 });
-
 
 </script>
 
@@ -223,13 +276,15 @@ watchEffect(() => {
       <div class="flex items-center justify-between">
         <a class="text-xl font-bold text-gray-100 md:text-2xl hover:text-indigo-400 cursor-pointer" href="/kw2/">
           <img alt="image description"
-               class="h-32 md:h-24 max-w-xs object-contain object-left contrast-125 brightness-150" src="../../../assets/DD1.png"/>
+               class="h-32 md:h-24 max-w-xs object-contain object-left contrast-125 brightness-150"
+               src="../../../assets/DD1.png"/>
         </a>
         <div class="flex md:hidden" @click="toggleNav">
           <button class="text-gray-100 hover:text-gray-400 focus:outline-none focus:text-gray-400" type="button">
             <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
-              <path d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
-                    fill-rule="evenodd">
+              <path
+                  d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
+                  fill-rule="evenodd">
               </path>
             </svg>
           </button>
@@ -240,8 +295,8 @@ watchEffect(() => {
         <h2 class="text-gray-100 text-base md:text-sm">
           <span
               class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400 uppercase">E-Approval</span>
-          <a class="text-transparent bg-clip-text font-bold bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 hover:underline"
-             href="#">ระบบอนุมัติเอกสารออนไลน์</a>
+          <a class="whitespace-nowrap text-transparent bg-clip-text font-bold bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 hover:underline"
+             href="#"> ระบบอนุมัติเอกสารออนไลน์</a>
         </h2>
       </div>
 
@@ -267,7 +322,8 @@ watchEffect(() => {
         <li class="text-gray-100 hover:text-indigo-400 cursor-pointer" data-tooltip-trigger="click">
 
           <a v-if="!$route.path.startsWith('/view/')">
-            <button id="dropdownNotificationButton" class="relative inline-flex items-center text-sm font-medium text-center text-white hover:text-gray-500 focus:outline-none dark:hover:text-white dark:text-gray-400"
+            <button id="dropdownNotificationButton"
+                    class="relative inline-flex items-center text-sm font-medium text-center text-white hover:text-gray-500 focus:outline-none dark:hover:text-white dark:text-gray-400"
                     data-dropdown-toggle="dropdownNotification"
                     type="button">
               <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 14 20"
@@ -293,7 +349,7 @@ watchEffect(() => {
               การแจ้งเตือน
             </div>
 
-            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
 
               <a v-if="!notificationMessage || notificationMessage.length === 0">
                 <div class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -305,7 +361,9 @@ watchEffect(() => {
 
               <a v-for="noti in notificationMessage" v-else
                  class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <a @click="clickNotification(noti.documentId)">
+                <a @click="clickNotification(noti)">
+
+                  <div v-if="noti.isRead === 0" class="text-red-700 font-extrabold">* NEW *</div>
                   <!-- <div class="flex-shrink-0">
                   <img class="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-5.jpg" alt="Robert image">
                   <div
@@ -317,14 +375,77 @@ watchEffect(() => {
                     </svg>
                   </div>
                 </div> -->
-                  <div class="w-full ps-3">
-                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
-                        class="font-semibold text-gray-900 dark:text-white">{{ noti.sourceUsername }}</span>
-                      ได้ส่งเอกสารถึงท่าน
-                      : <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span></div>
-                    <!-- <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div> -->
+                  <!-- Type 1 (e-doc) All: คุณได้รับเอกสารแล้ว  -->
+                  <div v-if="noti.notificationTypeID === 1" class="w-full ps-3">
+                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                      <div v-if="noti.notificationTypeID === 1">
+                        <span class="font-semibold text-gray-900 dark:text-white">{{ noti.sourceUsername }}</span>
+                        ได้ส่งเอกสารถึงท่าน :
+                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                      </div>
+                    </div>
                     <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
 
+                  </div>
+
+                  <!-- Type 2 (e-approvals) Uses: + Admin อนุมัติคำร้องท่านแล้ว  -->
+                  <div v-if="noti.notificationTypeID === 2" class="w-full ps-3">
+                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                      <span class="font-semibold text-gray-900 dark:text-white">แอดมิน</span>
+                      👌 ได้อนุมัติคำร้องของท่านแล้ว :
+                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    </div>
+                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                  </div>
+
+                  <!-- Type 3 (e-approvals) Uses: - Admin ปฎิเสธคำร้องท่านแล้ว -->
+                  <div v-if="noti.notificationTypeID === 3" class="w-full ps-3">
+                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                      <span class="font-semibold text-gray-900 dark:text-white">แอดมิน</span>
+                      ❌ ได้ปฎิเสธคำร้องของท่านแล้ว :
+                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    </div>
+                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                  </div>
+
+                  <!-- Type 4 (e-approvals) User/Admin: + Manager อนุมัติคำร้องท่านแล้ว  -->
+                  <div v-if="noti.notificationTypeID === 4" class="w-full ps-3">
+                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                      <span class="font-semibold text-gray-900 dark:text-white">Manager</span>
+                      👌 ได้อนุมัติคำร้องของท่านแล้ว {{ noti.message }} คน :
+                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    </div>
+                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                  </div>
+
+                  <!-- Type 5 (e-approvals) User/Admin: - Manager ปฎิเสธคำร้องท่านแล้ว -->
+                  <div v-if="noti.notificationTypeID === 5" class="w-full ps-3">
+                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                      <span class="font-semibold text-gray-900 dark:text-white">Manager</span>
+                      ❌ ได้ปฎิเสธคำร้องของท่านแล้ว :
+                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    </div>
+                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                  </div>
+
+                  <!-- Type 6 (e-approvals) User/Admin: + คำร้องได้รับการอนุมัติแล้วจากผู้จัดการทั้งหมด  -->
+                  <div v-if="noti.notificationTypeID === 6" class="w-full ps-3">
+                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                      <span class="font-semibold text-gray-900 dark:text-white">คำร้องของท่าน</span>
+                      ✅ ได้รับการอนุมัติจากผู้จัดการทั้งหมดแล้ว :
+                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    </div>
+                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                  </div>
+
+                  <!-- Type 7 (e-approvals) Manager: คำร้องใหม่ส่งถึงท่าน  -->
+                  <div v-if="noti.notificationTypeID === 7" class="w-full ps-3">
+                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                      <span class="font-semibold text-gray-900 dark:text-white">{{ noti.sourceUsername }}</span>
+                      ✍️ ได้ส่งคำร้องใหม่ให้ท่านตรวจสอบ :
+                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    </div>
+                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
                   </div>
 
                 </a>
@@ -334,8 +455,8 @@ watchEffect(() => {
 
             <!-- ---------------------------------------------------------------------------------------------------------------- -->
 
-            <a class="block py-2 text-sm font-medium text-center text-gray-900 rounded-b-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
-               @click="clickToAllDoc()">
+            <router-link class="block py-2 text-sm font-medium text-center text-gray-900 rounded-b-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+                :to="approvepath">
               <div class="inline-flex items-center ">
                 <svg aria-hidden="true" class="w-4 h-4 me-2 text-gray-500 dark:text-gray-400"
                      fill="currentColor" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg">
@@ -344,7 +465,7 @@ watchEffect(() => {
                 </svg>
                 ดูเอกสารใหม่ทั้งหมด
               </div>
-            </a>
+            </router-link>
           </div>
         </li>
 
@@ -352,7 +473,8 @@ watchEffect(() => {
 
         <!--    data-dropdown-toggle="dropdownAvatarName"    -->
         <li>
-          <button id="dropdownAvatarNameButton" class="flex items-center text-sm md:text-base font-medium text-gray-900 rounded-full hover:text-blue-600 md:me-0"
+          <button id="dropdownAvatarNameButton"
+                  class="flex items-center text-sm md:text-base font-medium text-gray-900 rounded-full hover:text-blue-600 md:me-0"
                   data-dropdown-toggle="dropdownAvatarName">
             <span class="sr-only">Open user menu</span>
             <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full">
@@ -388,29 +510,30 @@ watchEffect(() => {
 
             <ul aria-labelledby="dropdownAvatarNameButton" class="py-2 text-sm text-gray-700 dark:text-gray-200">
               <li>
-                <a class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" href="#"
-                   @click="router.push('/kw2/document/user')">
+                <router-link class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                             to="/kw2/user">
                   ดูโปรไฟล์
-                </a>
+                </router-link>
               </li>
             </ul>
 
             <ul aria-labelledby="dropdownAvatarNameButton"
                 class="py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-400 bg-blue-200">
               <li>
-                <a class="block px-4 py-2 hover:bg-blue-400 " href="#"
-                   @click="router.push('/user')">
+                <router-link class="block px-4 py-2 hover:bg-blue-400" to="/kw2/menu">
                   กลับสู่เมนูหลัก
-                </a>
+                </router-link>
               </li>
             </ul>
 
             <div class="py-2">
-              <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" href="#"
+              <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                 href="#"
                  @click="logout()">
                 ออกจากระบบ
               </a>
             </div>
+
           </div>
         </li>
 

@@ -20,7 +20,11 @@ public class WebConfig implements WebMvcConfigurer {
 
 //    @Override
 //    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**");
+//        registry.addMapping("/**")
+//                .allowedOrigins("https://capstone23.sit.kmutt.ac.th", "http://capstone23.sit.kmutt.ac.th")
+//                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+//                .allowedHeaders("*")
+//                .allowCredentials(true);
 //    }
 
 }

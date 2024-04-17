@@ -39,7 +39,7 @@ const getAllUsers = async () => {
       });
 
   listOfUsers.value = response.data;
-  console.log(listOfUsers.value);
+  // console.log(listOfUsers.value);
 };
 
 let newdocid = ref(0);
@@ -102,7 +102,7 @@ const newDocdata = ref({
   },
 });
 
-console.log(newDocdata.value.usersUserid.id);
+// console.log(newDocdata.value.usersUserid.id);
 
 let file = ref(null);
 
@@ -169,7 +169,7 @@ const CreateDocApi = async () => {
   const formData = new FormData();
   formData.append("file", file.value);
   formData.append("data", JSON.stringify(newDocdata.value));
-  console.log(newDocdata.value);
+  // console.log(newDocdata.value);
   try {
     const response = await axios.post(
         // "http://cp23kw2.sit.kmutt.ac.th:10003/api/doc/",

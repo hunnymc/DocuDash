@@ -14,11 +14,17 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 public class UserdocumentDto implements Serializable {
+
     Integer id;
+
     @Size(max = 45)
     String accessLevel;
+
+    Integer isRead;
+
     @NotNull
     UserdocumentDto.DocumentDto documentsDocumentid1;
+
     @NotNull
     UserdocumentDto.UserDto usersUserid;
 

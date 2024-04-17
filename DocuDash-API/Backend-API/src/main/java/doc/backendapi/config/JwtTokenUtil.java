@@ -83,7 +83,6 @@ public class JwtTokenUtil implements Serializable {
         return expiration.before(new Date());
     }
 
-
     //validate token
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);

@@ -23,4 +23,17 @@ public interface VerifyadmindocRepository extends JpaRepository<Verifyadmindoc, 
     int updateIsPassByDocumentID(Integer isPass, Document documentID);
 
     Optional<Verifyadmindoc> findByDocumentID_Id(Integer id);
+
+    @Transactional
+    @Modifying
+    @Query("update Verifyadmindoc v set v.isRead = ?1 where v.documentID = ?2")
+    int updateIsReadByDocumentID(Integer isRead, Document documentID);
+
+    @Query("SELECT COUNT(vad) FROM Verifyadmindoc vad WHERE vad.isRead = 0")
+    int countAdminAll();
+
+    @Transactional
+    @Modifying
+    @Query("update Verifyadmindoc v set v.comment = ?1 where v.documentID = ?2")
+    int updateCommentByDocumentID(String comment, Document documentID);
 }

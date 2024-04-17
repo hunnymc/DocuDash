@@ -2,6 +2,7 @@
 import NavbarAvl from "../../../components/approves/approve-utility/NavbarAvl.vue";
 import SidebarAvl from "../../../components/approves/approve-utility/SidebarAvl.vue";
 import RequestAdminApproval from "../../../components/approves/approve-create/CreateApproval.vue";
+import Footer from "../../../components/footer.vue";
 </script>
 
 <template>

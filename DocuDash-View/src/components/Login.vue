@@ -3,8 +3,10 @@ import {ref} from "vue";
 import {useRouter} from "vue-router";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useRefreshFunctionStore } from "../stores/RefeshFunctionStore.js";
 
 const router = useRouter();
+const refreshFunctionStore = useRefreshFunctionStore();
 
 let mainURL = import.meta.env.VITE_API_URL;
 
@@ -34,7 +36,6 @@ async function login() {
 
   await axios.post(
       mainURL + '/api/auth/login'
-      // 'http://cp23kw2.sit.kmutt.ac.th:35000/api/auth/login'
       , {
         userEmail: userEmail.value,
         password: password.value,
@@ -43,13 +44,17 @@ async function login() {
       .then((response) => {
         if (response.status === 200) {
 
+          // Set the token availability to true
+          refreshFunctionStore.setIsTokenAvailable(true);
+          refreshFunctionStore.setIsLogin(true);
+
           // Store the JWT token
           Cookies.set('accessToken', response.data.accessToken);
           Cookies.set('refreshToken', response.data.refreshToken);
           Cookies.set('role', response.data.role);
           Cookies.set('email', userEmail.value);
 
-          alert('Login successful');
+          alert('เข้าสู่ระบบสำเร็จ');
 
           // Redirect to the home page
           router.push('/kw2/menu');
@@ -61,20 +66,33 @@ async function login() {
       })
 
       .catch((error) => {
-        if (error.response.status === 401) {
-          alert('Invalid email address or password. Please try again.');
-        }
-
-        if (error.response.status === 500) {
-          alert('Server error');
-        }
-
-        if (error.response.status === 404) {
-          alert('Not found');
-        }
-
-        if (error.response.status === 400) {
-          alert("Invalid email address or password. Please try again.");
+        switch (error.response.status) {
+          case 401:
+            if (error.response.data.message === 'Password NOT Matched') {
+              alert('รหัสผ่านไม่ถูกต้อง');
+            } else {
+              alert('ที่อยู่อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง');
+            }
+            break;
+          case 500:
+            alert('ที่อยู่อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง');
+            break;
+          case 403:
+            alert('⚠️ ระบบกำลังปรับปรุง กรุณาลองใหม่อีกครั้ง');
+            break;
+          case 404:
+            alert('ไม่พบผู้ใช้งานในระบบ');
+            break;
+          case 400:
+            if (error.response.data.errors.userEmail) {
+              alert('กรุณากรอกอีเมลให้ถูกต้อง');
+            } else {
+              alert('ที่อยู่อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง');
+            }
+            break;
+          default:
+            alert('⚠️ ระบบกำลังปรับปรุง กรุณาลองใหม่อีกครั้ง');
+            break;
         }
       });
 }

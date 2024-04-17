@@ -2,8 +2,8 @@ package doc.backendapi.service;
 
 import doc.backendapi.DTO.CreateUserDto;
 import doc.backendapi.DTO.UserInfoDto;
-import doc.backendapi.DTO.user.AllUserDto;
 import doc.backendapi.entities.User;
+import doc.backendapi.hadlers.CustomHttpException;
 import doc.backendapi.repositories.UserRepository;
 import doc.backendapi.utils.ListMapper;
 import org.modelmapper.ModelMapper;
@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +39,12 @@ public class UserService implements UserDetailsService {
         return listMapper.mapList(users, UserInfoDto.class, modelMapper);
     }
 
-
     public UserInfoDto getUserByEmail(String email) {
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
         }
         User user = repository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new CustomHttpException(HttpStatus.NOT_FOUND, "User not found"));
         return modelMapper.map(user, UserInfoDto.class);
     }
 
@@ -55,7 +53,7 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Id cannot be null");
         }
         User user = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new CustomHttpException(HttpStatus.NOT_FOUND, "User not found"));
         return modelMapper.map(user, UserInfoDto.class);
     }
 
@@ -69,7 +67,7 @@ public class UserService implements UserDetailsService {
 //            editUser.setRole(user.getRole());
 //            repository.saveAndFlush(editUser);
 //            return new ResponseEntity<>(existUser, HttpStatus.OK);
-//        }else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+//        }else throw new CustomHttpException(HttpStatus.NOT_FOUND, "User not found");
 //    }
 
     public User save(CreateUserDto newUser) {
@@ -78,26 +76,26 @@ public class UserService implements UserDetailsService {
 //        }
 
         if (!newUser.getRole().equals("ADMIN") && !newUser.getRole().equals("USER") && !newUser.getRole().equals("MANAGER")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "please enter the true role.");
+            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "please enter the true role.");
         }
 
         if (newUser.getUsername().isEmpty() || newUser.getEmail().isEmpty() || newUser.getPassword().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please fill in all fields.");
+            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Please fill in all fields.");
         }
 //        if (newUser.getUsername().length() < 3 || newUser.getUsername().length() > 20) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username must be between 3 and 20 characters.");
+//            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Username must be between 3 and 20 characters.");
 //        }
 //        if (newUser.getPassword().length() < 8 || newUser.getPassword().length() > 20) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be between 8 and 20 characters.");
+//            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Password must be between 8 and 20 characters.");
 //        }
 //        if (newUser.getEmail().length() < 5 || newUser.getEmail().length() > 50) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email must be between 5 and 50 characters.");
+//            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Email must be between 5 and 50 characters.");
 //        }
         if (repository.existsByEmail(newUser.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists.");
+            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Email already exists.");
         }
         if (repository.existsByUsername(newUser.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists.");
+            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Username already exists.");
         }
         newUser.setUsername(newUser.getUsername().trim());
         newUser.setEmail(newUser.getEmail().trim());
@@ -127,10 +125,10 @@ public class UserService implements UserDetailsService {
 
 //    public boolean auth(AuthLoginDto dto) {
 //        User user = repository.findByUserEmail(dto.getUserEmail()).orElseThrow(() ->
-//                new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exit"));
+//                new CustomHttpException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exit"));
 //
 //        if (!comparePassword(user.getPassword(), dto.getPassword())) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password NOT Matched");
+//            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Password NOT Matched");
 //        }
 //        return true;
 //    }

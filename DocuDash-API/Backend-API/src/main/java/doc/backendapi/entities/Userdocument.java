@@ -37,4 +37,7 @@ public class Userdocument {
     @Column(name = "isShow")
     private Integer isShow;
 
+    @Column(name = "isRead")
+    private Integer isRead;
+
 }

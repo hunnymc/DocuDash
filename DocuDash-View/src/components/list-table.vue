@@ -23,9 +23,6 @@ watch(() => store.callFunctionInComponentB, (value) => {
     store.setCallFunctionInComponentB(false);
   }
 });
-const navigateToEdit = (doc) => {
-  router.push({ path: "/kw2/edit", query: { document: JSON.stringify(doc) } });
-};
 
 const getAllDoc = async () => {
   const response = await axios
@@ -87,65 +84,25 @@ const getAllDoc = async () => {
     });
 };
 
-const deleteDoc = async (id) => {
-  if (window.confirm("ต้องการจะลบไฟล์ใช่หรือไม่?")) {
-    const response = await axios
-      .delete(mainURL + "/api/doc/" + id,
-        {
-          headers: {
-            Authorization: "Bearer " + Cookies.get("accessToken"),
-          },
-        }
-      )
-
-      .catch(function (AxiosError) {
-        if (AxiosError.response) {
-          switch (AxiosError.response.status) {
-            case 400:
-              alert("คำขอไม่ถูกต้อง");
-              break;
-            case 401:
-              alert("ไม่ได้รับอนุญาต");
-              break;
-            case 403:
-              alert("ถูกปฏิเสธ");
-              break;
-            case 404:
-              alert("ไม่พบข้อมูล");
-              break;
-            case 500:
-              alert("เซิร์ฟเวอร์เกิดข้อผิดพลาด");
-              break;
-            default:
-              alert("เกิดข้อผิดพลาด");
-          }
-        } else if (AxiosError.request) {
-          alert("ไม่ได้รับการตอบสนองจากเซิร์ฟเวอร์");
-        } else {
-          alert("เกิดข้อผิดพลาด: " + AxiosError.message);
-        }
-      });
-
-    await getAllDoc();
-
-  }
-};
-
 const changeTimestampToDate = (timestamp) => {
   return moment(timestamp * 1000).format("DD-MM-YYYY HH:mm");
 };
 
 const clickToViewDoc = async (id, obj) => {
+  console.log("clickToViewDoc", id, obj);
 
-  console.log("obj", obj);
+  await axios.post(
+      mainURL + '/api/doc/read/' + obj.usersUserid.id + '/' + id
+      , {userId: Cookies.get("userId")}
+      , {headers: {"Authorization": "Bearer " + Cookies.get("accessToken"),}})
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("Read notification success");
+        }
+      });
+
   await useDocumentListStore().getdocumentFilenameAndUserIdFromAxios(id);
-  console.log("obj.usersUserid.id : ", obj.usersUserid.id);
-  console.log("obj.documentsDocumentid1.filePath : ", obj.documentsDocumentid1.filePath);
-
-  console.log("LIST : " + useDocumentListStore().getDocumentUserId);
-  console.log("LIST : " + useDocumentListStore().getDocumentFilename);
-
-  router.push({
+  await router.push({
     name: "ViewDoc",
     params: {
       id: id,
@@ -228,10 +185,25 @@ const listdata = ref([
 </script>
 
 <template>
-  <div class="shadow-md sm:rounded-lg table-container">
+    <div class="w-full relative overflow-x-auto shadow-md ">
+
+    <section class="flex items-center">
+      <div class="w-full mx-auto ">
+        <div class="relative overflow-hidden bg-green-800 ">
+          <div
+              class=" flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
+            <div>
+              <h5 class="mr-3 font-semibold text-white text-3xl">รายการเอกสารทั้งหมด</h5>
+              <p class="text-gray-100 ">รวมรายการเอกสารในระบบของท่าน</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <table class="w-full text-sm text-left rtl:text-right text-white">
       <thead class="text-xs text-white uppercase bg-green-800">
         <tr>
+          <th scope="col" class="px-1"></th>
           <th scope="col" class="p-4">
             <div class="flex items-center">
               <label class="">รายการ</label>
@@ -281,6 +253,11 @@ const listdata = ref([
 
       <tbody v-if="listdata.length > 0" v-for="(thisdoc, index) in listdata">
         <tr class="bg-white text-gray-900 border-b border-gray-700 hover:bg-gray-600 hover:text-white">
+          <td>
+            <div v-if="thisdoc.isRead === 0" class="text-red-700 text-center">
+              🔴
+            </div>
+          </td>
           <td class="w-4 p-4">
             {{ index + 1 }}
           </td>
@@ -376,6 +353,7 @@ const listdata = ref([
       </tbody>
     </table>
   </div>
+  <!-- </div> -->
 </template>
 
 <style>

@@ -1,13 +1,10 @@
 package doc.backendapi.notification;
 
-import doc.backendapi.entities.Document;
 import doc.backendapi.entities.Notification;
-import doc.backendapi.entities.User;
+import doc.backendapi.entities.Userdocument;
 import doc.backendapi.notification.dto.ReceiveNotification;
 import doc.backendapi.notification.dto.ResponseMessage;
-import doc.backendapi.repositories.DocumentRepository;
-import doc.backendapi.repositories.NotificationRepository;
-import doc.backendapi.repositories.UserRepository;
+import doc.backendapi.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -31,7 +29,13 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     @Autowired
+    private final NotificationTypeRepository notificationTypeRepository;
+
+    @Autowired
     private final UserRepository userRepository;
+
+    @Autowired
+    private final UserdocumentRepository userdocumentRepository;
 
     @Autowired
     private final DocumentRepository documentRepository;
@@ -53,7 +57,7 @@ public class NotificationService {
         messagingTemplate.convertAndSendToUser(userId, "/topic/private-notifications", notification);
     }
 
-    public void createNotification(int userId, int documentId, String message, String sourceUsername) {
+    public Notification createNotification(int userId, int documentId, String message, String sourceUsername, int notificationTypeId ) {
 
         // Save the notification to the database
         Notification notification = new Notification();
@@ -63,6 +67,7 @@ public class NotificationService {
         notification.setDateSent(Instant.now());
         notification.setDocTitle(documentRepository.findById(documentId).orElseThrow(() -> new RuntimeException("Document not found")).getTitle());
         notification.setSourceUsername(sourceUsername);
+        notification.setNotificationTypeID(notificationTypeRepository.findById(notificationTypeId).orElseThrow(() -> new RuntimeException("Notification type not found")));
         notification.setReadStatus("UNREAD");
 
         // Save the notification to the database
@@ -90,21 +95,46 @@ public class NotificationService {
 
         // Send the notification to the user
         sendNewDocNotification(newNotification.getUsersUserid().toString(), latestFiveNotifications);
+
+        return notification;
     }
 
     public List<ReceiveNotification> getNotificationsByUserId(int userId) {
 
         // Get the first 5 notifications from the reversed list
         List<Notification> n = notificationRepository.findByUsers_UserID(userId);
+
         List<ReceiveNotification> notifications = n.stream()
                 .map((element) -> modelMapper.map(element, ReceiveNotification.class))
                 .collect(Collectors.toList());
+
+        // change the read status in dto from "READ" or "UNREAD" to 1 or 0
+        notifications.forEach(notification -> {
+            if (notification.getReadStatus().equals("READ")) {
+                notification.setIsRead(1);
+            } else {
+                notification.setIsRead(0);
+            }
+        });
 
         // Reverse the list to get the latest notifications at the beginning
         Collections.reverse(notifications);
         return notifications.stream()
                 .limit(5)
                 .collect(Collectors.toList());
+    }
+
+    public void markNotificationAsRead(int notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new RuntimeException("Notification not found"));
+        notification.setReadStatus("READ");
+        notificationRepository.save(notification);
+
+        // if the notification is type 1 (new document), mark the userDocument table with userid and documentid as read
+        if (notification.getNotificationTypeID().getId() == 1) {
+            userdocumentRepository.updateIsReadByDocumentsDocumentid1AndUsersUserid(1,
+                    documentRepository.findById(notification.getDocumentId()).orElseThrow(() -> new RuntimeException("Document not found")),
+                    userRepository.findById(notification.getUsersUserid()).orElseThrow(() -> new RuntimeException("User not found")));
+        }
     }
 
 }

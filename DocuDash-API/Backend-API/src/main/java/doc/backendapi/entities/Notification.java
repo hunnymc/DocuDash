@@ -54,4 +54,8 @@ public class Notification {
     @Column(name = "DocTitle")
     private String docTitle;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "NotificationTypeID")
+    private NotificationType notificationTypeID;
+
 }

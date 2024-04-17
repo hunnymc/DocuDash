@@ -1,6 +1,7 @@
 package doc.backendapi.controller;
 
 import doc.backendapi.FileUpload.FileService;
+import doc.backendapi.hadlers.CustomHttpException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -8,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,7 +32,7 @@ public class FileController {
         try {
             mimeType = Files.probeContentType(Paths.get(file.getURI()));
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error occurred while determining file type.");
+            throw new CustomHttpException(HttpStatus.UNPROCESSABLE_ENTITY, "Error occurred while determining file type.");
         }
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(mimeType)).body(file);
     }

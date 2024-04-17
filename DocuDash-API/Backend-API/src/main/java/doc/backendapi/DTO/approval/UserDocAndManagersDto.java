@@ -1,5 +1,6 @@
 package doc.backendapi.DTO.approval;
 
+import doc.backendapi.DTO.approval.rejectInfo.rejectInfoDto;
 import lombok.*;
 
 import java.io.Serializable;
@@ -15,7 +16,9 @@ public class UserDocAndManagersDto implements Serializable {
     int totalManagers;
     int totalManagersWhoVerified;
     int approve_type_Id;
+    int isOwnerRead;
     int sentToUser;
+    private rejectInfoDto rejectInfo;
     private List<VerifydocDto> managersWhoVerified;
     private UserVerifydocDto documentInfo;
 

@@ -1,6 +1,7 @@
 <script setup>
 import NavbarAvl from "../../../components/approves/approve-utility/NavbarAvl.vue";
 import SidebarAvl from "../../../components/approves/approve-utility/SidebarAvl.vue";
+import Footer from "../../../components/footer.vue";
 import ManagerApprove from "../../../components/approves/approve-manager-list/ManagerApprove.vue";
 </script>
 

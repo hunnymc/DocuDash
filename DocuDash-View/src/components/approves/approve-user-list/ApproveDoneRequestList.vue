@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref} from 'vue'
+import {onBeforeMount, onMounted, ref} from 'vue'
 import axios from "axios";
 import Cookies from "js-cookie";
 import {useDocumentListStore} from "../../../stores/listOfDocumentStore.js";
@@ -14,108 +14,110 @@ let mainURL = import.meta.env.VITE_API_URL;
 let router = useRouter();
 
 // const approveList = ref([])
-const approveList = ref([{
-  "status_type_id": 4,
-  "totalManagers": 1,
-  "totalManagersWhoVerified": 1,
-  "approve_type_Id": 2,
-  "sentToUser": 0,
-  "managersWhoVerified": [{
-    "id": 96,
-    "isPass": 1,
-    "comment": null,
-    "documentID": null,
-    "managerID": {
-      "id": 3,
-      "username": "กันยา",
-      "password": null,
-      "fullName": "กันยา นาปี",
-      "role": "MANAGER",
-      "email": "user3@example.com",
-      "phone": "0299999999",
-      "branch": "ฝ่ายผลิต"
-    }
-  }],
-  "documentInfo": {
-    "id": 477,
-    "title": "test type 2",
-    "filePath": "INT222 Implement HTTPS - Part III SSL certificate preparation (1).pdf",
-    "dateAdd": 1711735753,
-    "dateUpdate": 1711735753,
-    "category": "เอกสารภายใน",
-    "secrecyLevel": "ลับ",
-    "urgency": "ปกติ",
-    "fromSource": "นภา ฟ้าสวย",
-    "branchSource": "งานเอกสาร",
-    "emailSource": "user1@example.com",
-    "phoneSource": "0812345678",
-    "status": 4,
-    "description": "test",
-    "usersUserid": {
-      "id": 1,
-      "username": "นภา",
-      "fullName": "นภา ฟ้าสวย",
-      "role": "ADMIN",
-      "email": "user1@example.com",
-      "phone": "0981111111",
-      "branch": "งานเอกสาร"
-    }
-  }
-}, {
-  "status_type_id": 4,
-  "totalManagers": 1,
-  "totalManagersWhoVerified": 1,
-  "approve_type_Id": 1,
-  "sentToUser": 1,
-  "managersWhoVerified": [{
-    "id": 95,
-    "isPass": 1,
-    "comment": null,
-    "documentID": null,
-    "managerID": {
-      "id": 3,
-      "username": "กันยา",
-      "password": null,
-      "fullName": "กันยา นาปี",
-      "role": "MANAGER",
-      "email": "user3@example.com",
-      "phone": "0299999999",
-      "branch": "ฝ่ายผลิต"
-    }
-  }],
-  "documentInfo": {
-    "id": 476,
-    "title": "test type 1",
-    "filePath": "Wk1_Orientation_Thai.pdf",
-    "dateAdd": 1711735720,
-    "dateUpdate": 1711735720,
-    "category": "เอกสารภายใน",
-    "secrecyLevel": "ลับ",
-    "urgency": "ปกติ",
-    "fromSource": "นภา ฟ้าสวย",
-    "branchSource": "งานเอกสาร",
-    "emailSource": "user1@example.com",
-    "phoneSource": "0812345678",
-    "status": 4,
-    "description": "test",
-    "usersUserid": {
-      "id": 1,
-      "username": "นภา",
-      "fullName": "นภา ฟ้าสวย",
-      "role": "ADMIN",
-      "email": "user1@example.com",
-      "phone": "0981111111",
-      "branch": "งานเอกสาร"
-    }
-  }
-}])
+const approveList = ref([
+    // {
+  // "status_type_id": "status_type_id",
+  // "totalManagers": "totalManagers",
+  // "totalManagersWhoVerified": "totalManagersWhoVerified",
+  // "approve_type_Id": "approve_type_Id",
+  // "sentToUser": "sentToUser",
+  // "managersWhoVerified": [{
+  //   "id": "id",
+  //   "isPass": "isPass",
+  //   "comment": "comment",
+  //   "documentID": "documentID",
+  //   "managerID": {
+  //     "id": "id",
+  //     "username": "username",
+  //     "password": "password",
+  //     "fullName": "fullName",
+  //     "role": "role",
+  //     "email": "email",
+  //     "phone": "phone",
+  //     "branch": "branch"
+  //   }
+  // }],
+  // "documentInfo": {
+  //   "id": "id",
+  //   "title": "title",
+  //   "filePath": "filePath",
+  //   "dateAdd": "dateAdd",
+  //   "dateUpdate": "dateUpdate",
+  //   "category": "category",
+  //   "secrecyLevel": "secrecyLevel",
+  //   "urgency": "urgency",
+  //   "fromSource": "fromSource",
+  //   "branchSource": "branchSource",
+  //   "emailSource": "emailSource",
+  //   "phoneSource": "phoneSource",
+  //   "status": "status",
+  //   "description": "description",
+  //   "usersUserid": {
+  //     "id": "id",
+  //     "username": "username",
+  //     "fullName": "fullName",
+  //     "role": "role",
+  //     "email": "email",
+  //     "phone": "phone",
+  //     "branch": "branch"
+  //   }
+  // }
+// }, {
+//   "status_type_id": 4,
+//   "totalManagers": 1,
+//   "totalManagersWhoVerified": 1,
+//   "approve_type_Id": 1,
+//   "sentToUser": 1,
+//   "managersWhoVerified": [{
+//     "id": 95,
+//     "isPass": 1,
+//     "comment": null,
+//     "documentID": null,
+//     "managerID": {
+//       "id": 3,
+//       "username": "กันยา",
+//       "password": null,
+//       "fullName": "กันยา นาปี",
+//       "role": "MANAGER",
+//       "email": "user3@example.com",
+//       "phone": "0299999999",
+//       "branch": "ฝ่ายผลิต"
+//     }
+//   }],
+//   "documentInfo": {
+//     "id": 476,
+//     "title": "test type 1",
+//     "filePath": "Wk1_Orientation_Thai.pdf",
+//     "dateAdd": 1711735720,
+//     "dateUpdate": 1711735720,
+//     "category": "เอกสารภายใน",
+//     "secrecyLevel": "ลับ",
+//     "urgency": "ปกติ",
+//     "fromSource": "นภา ฟ้าสวย",
+//     "branchSource": "งานเอกสาร",
+//     "emailSource": "user1@example.com",
+//     "phoneSource": "0812345678",
+//     "status": 4,
+//     "description": "test",
+//     "usersUserid": {
+//       "id": 1,
+//       "username": "นภา",
+//       "fullName": "นภา ฟ้าสวย",
+//       "role": "ADMIN",
+//       "email": "user1@example.com",
+//       "phone": "0981111111",
+//       "branch": "งานเอกสาร"
+//     }
+//   }
+// }
+])
 
 let user_id = Cookies.get('userId')
 let user_role = Cookies.get('role')
 let access_token = Cookies.get('accessToken')
 
-const getApproveList = () => {
-  axios.get(mainURL + '/api/approve/info/' + user_id, {
+const getApproveList = async () => {
+  await axios.get(mainURL + '/api/approve/info/' + user_id, {
     headers: {
       "Authorization": 'Bearer ' + access_token
     }
@@ -135,6 +137,7 @@ const StatusName = {
   3: "รออนุมัติ",
   4: "อนุมัติแล้ว",
   5: "ไม่ผ่านการอนุมัติ",
+  6: "ไม่ผ่านการอนุมัติ",
 }
 
 const StatusColor = {
@@ -142,35 +145,51 @@ const StatusColor = {
   3: "bg-yellow-300",
   4: "bg-green-500",
   5: "bg-red-500",
+  6: "bg-red-500",
 }
 
 const sentDocToUserButton = async (documentID) => {
-  confirm("คุณต้องการส่งเอกสารนี้ให้ผู้ใช้งานหรือไม่?");
-  axios.post(mainURL + '/api/approve/sent-doc?documentID=' + documentID,
+ if ( confirm("คุณต้องการส่งเอกสารนี้ให้ผู้ใช้งานหรือไม่?")) {
+   axios.post(mainURL + '/api/approve/sent-doc?documentID=' + documentID,
        { documentID: documentID  },
-      { headers: { "Authorization": 'Bearer ' + access_token }
-  })
-      .then(function (response) {
-        alert('ส่งเอกสารเรียบร้อยแล้ว');
-        getApproveList();
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
+       { headers: { "Authorization": 'Bearer ' + access_token }
+       })
+       .then(function (response) {
+         alert('ส่งเอกสารเรียบร้อยแล้ว');
+         getApproveList();
+       })
+       .catch(function (error) {
+         alert('เกิดข้อผิดพลาดในการส่งเอกสาร กรุณาลองใหม่อีกครั้ง' +
+             'หรือติดต่อแอดมินเพื่อแก้ไขปัญหา' +
+             'ข้อความผิดพลาด: ' + error)
+       })
+ }
 };
 
 const clickToViewDoc = async (id) => {
+
+  await axios.post(mainURL + '/api/approve/read/user/' + id, {
+    user_id: user_id
+  }, {
+    headers: {
+      "Authorization": 'Bearer ' + access_token
+    }
+  })
 
   await useDocumentListStore().getdocumentFilenameAndUserIdFromAxios(id);
   await router.push(`/kw2/approval/detail/user/${id}`)
 
 };
 
-
-onMounted(async () => {
+onBeforeMount(async () => {
   await getApproveList();
   approveList.value.sort((a, b) => new Date(b.documentInfo.dateUpdate) - new Date(a.documentInfo.dateUpdate))
 })
+
+// onMounted(async () => {
+//   await getApproveList();
+//   approveList.value.sort((a, b) => new Date(b.documentInfo.dateUpdate) - new Date(a.documentInfo.dateUpdate))
+// })
 
 </script>
 
@@ -195,6 +214,9 @@ onMounted(async () => {
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
       <tr>
+        <th class="py-3" scope="col">
+          <!-- จุดแดง  -->
+        </th>
         <th class="px-6 py-3" scope="col">
           ชื่อเรื่อง
         </th>
@@ -219,7 +241,10 @@ onMounted(async () => {
       <tr
           v-for="item in approveList"
           class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-        <th class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">
+        <td class="pl-4 items-center justify-center">
+          <div v-if="item.isOwnerRead === 0" class="w-2 h-2 bg-red-500 border border-white rounded-full"></div>
+        </td>
+        <th class="flex items-center py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">
           <div class="ps-3">
             <div class="text-base font-semibold">{{ item.documentInfo.title }}</div>
             <div class="font-normal text-gray-500">{{ item.documentInfo.description }}</div>

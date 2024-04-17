@@ -35,4 +35,8 @@ public class ReceiveNotification {
 
     Integer documentId;
 
+    Integer notificationTypeID;
+
+    Integer isRead;
+
 }

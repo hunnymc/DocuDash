@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import {defineStore} from 'pinia'
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -9,10 +9,7 @@ export const useDocumentListStore = defineStore('documentList', {
         documentFilename: null,
         document_userId: null,
         callFunctionInComponentB: false,
-        editDocument: {},
-        mainUrl: "https://capstone23.sit.kmutt.ac.th/kw2",
-        // mainUrl: 'http://cp23kw2.sit.kmutt.ac.th:10003',
-        // mainUrl: 'http://localhost:5002'
+        editDocument: {}
     }),
     persist: true,
     getters: {
@@ -52,9 +49,8 @@ export const useDocumentListStore = defineStore('documentList', {
             this.editDocument = document;
         },
         async getdocumentFilenameAndUserIdFromAxios(documentId) {
-            // let mainUrl = "https://capstone23.sit.kmutt.ac.th/kw2";
             let mainUrl = import.meta.env.VITE_API_URL;
-            await axios.get(mainUrl + `/api/doc/${documentId}`,{
+            await axios.get(mainUrl + `/api/doc/${documentId}`, {
                 headers: {
                     "Authorization": "Bearer " + Cookies.get("accessToken"),
                 },
@@ -64,10 +60,6 @@ export const useDocumentListStore = defineStore('documentList', {
                     this.document_userId = response.data.usersUserid.id
                     sessionStorage.setItem('documentFilename', this.documentFilename)
                     sessionStorage.setItem('document_userId', this.document_userId)
-                    // console.log("store response.data:", response.data)
-                    // console.log('store respoone userId id:', response.data.usersUserid.id)
-                    // console.log('store documentFilename:', this.documentFilename)
-                    // console.log('store document_userId:', this.document_userId)
                 })
                 .catch(error => {
                     console.log(error)

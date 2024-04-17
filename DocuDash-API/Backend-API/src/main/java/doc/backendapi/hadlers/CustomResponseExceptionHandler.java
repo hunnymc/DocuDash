@@ -1,52 +1,116 @@
 package doc.backendapi.hadlers;
 
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
-import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class CustomResponseExceptionHandler extends ResponseEntityExceptionHandler {
+public class CustomResponseExceptionHandler {
+
+    @ExceptionHandler(CustomHttpException.class)
+    public ResponseEntity<Object> handleCustomHttpException(CustomHttpException ex, WebRequest request) {
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", new Date());
+        body.put("status", ex.getStatus().value());
+        body.put("class", "CustomHttpException");
+
+        // ------- set error by status code -------
+        if (ex.getStatus().is4xxClientError()) {
+            body.put("error", "Client Error");
+        } else if (ex.getStatus().is5xxServerError()) {
+            body.put("error", "Server Error");
+        } else {
+            body.put("error", "Unknown Error");
+        }
+        // ----------------------------------------
+
+        body.put("message", ex.getMessage());
+
+        // ------- get path from request description --------
+        String description = request.getDescription(false);
+        int index = description.indexOf("=");
+        if (index > -1) {
+            String path = description.substring(index + 1);
+            body.put("path", path);
+        }
+        // -------------------------------------------------
+
+        return new ResponseEntity<>(body, ex.getStatus());
+    }
+
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
+//
+//        Map<String, Object> body = new LinkedHashMap<>();
+//        body.put("timestamp", new Date());
+//        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+//        body.put("class", "Exception");
+//        body.put("error", "Server Error");
+//        body.put("message", ex.getMessage());
+//
+//        // ------- get path from request description --------
+//        String description = request.getDescription(false);
+//        int index = description.indexOf("=");
+//        if (index > -1) {
+//            String path = description.substring(index + 1);
+//            body.put("path", path);
+//        }
+//        // -------------------------------------------------
+//
+//        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", new Date());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("class", "IllegalArgumentException");
+        body.put("error", "Client Error");
+        body.put("message", ex.getMessage());
+
+        // ------- get path from request description --------
+        String description = request.getDescription(false);
+        int index = description.indexOf("=");
+        if (index > -1) {
+            String path = description.substring(index + 1);
+            body.put("path", path);
+        }
+        // -------------------------------------------------
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
-    public void constraintViolationException(HttpServletResponse httpServletResponse) throws IOException {
-        httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value());
-        httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value());
-    }
-    //    error handle for @valid -> sprint boot starter validation -> in entities
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatus status,
-            WebRequest request) {
-//      error default
-        Map<String, Object> details = new LinkedHashMap<>();
-        details.put("timestamp",new Date());
-        details.put("status",status.value());
+    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("timestamp", new Date());
+            body.put("status", HttpStatus.BAD_REQUEST.value());
+            body.put("class", "ConstraintViolationException");
+            body.put("error", "Client Error");
+            body.put("message", ex.getMessage());
 
-//        error handle -> get all fields
-        Map<String , String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String Name = ((FieldError) error).getField();
-            String errorMes = error.getDefaultMessage();
-            errors.put(Name , errorMes);
-        });
+            // ------- get path from request description --------
+            String description = request.getDescription(false);
+            int index = description.indexOf("=");
+            if (index > -1) {
+                String path = description.substring(index + 1);
+                body.put("path", path);
+            }
+            // -------------------------------------------------
 
-        details.put("errors" , errors);
-        return new ResponseEntity<>(details,headers,status);
+            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+
 
 }

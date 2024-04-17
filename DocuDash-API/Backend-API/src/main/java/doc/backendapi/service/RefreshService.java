@@ -38,9 +38,8 @@ public class RefreshService {
     }
 
     private Boolean checkExpired(String request){
-        if(!jwtTokenUtill.isTokenExpired(request)){
-            return true;
-        }
-        return false;
+        return !jwtTokenUtill.isTokenExpired(request);
     }
+
+
 }

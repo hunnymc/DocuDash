@@ -26,15 +26,14 @@ const getApproveList = () => {
       "Authorization": 'Bearer ' + access_token
     }
   })
-      .then(function (response) {
-        approveList.value = response.data
-        // filter only status 3
-        approveList.value = approveList.value.filter((item) => item.status_type_id === 3)
-
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
+  .then(function (response) {
+    approveList.value = response.data
+    // filter only status 3
+    approveList.value = approveList.value.filter((item) => item.status_type_id === 3)
+  })
+  .catch(function (error) {
+    console.log(error);
+  })
 }
 
 const StatusName = {
@@ -42,6 +41,7 @@ const StatusName = {
   3: "รออนุมัติ",
   4: "อนุมัติแล้ว",
   5: "ไม่ผ่านการอนุมัติ",
+  6: "ไม่ผ่านการอนุมัติ",
 }
 
 const StatusColor = {
@@ -49,10 +49,18 @@ const StatusColor = {
   3: "bg-yellow-300",
   4: "bg-green-500",
   5: "bg-red-500",
+  6: "bg-red-500",
 }
 
 const clickToViewDoc = async (id) => {
 
+  await axios.post(
+    mainURL + '/api/approve/read/manager/' + user_id + '/' + id
+    , {userId: Cookies.get("userId")}
+    , {headers: {"Authorization": "Bearer " + Cookies.get("accessToken"),}})
+    .catch(function (error) {
+      console.log(error);
+    });
   await useDocumentListStore().getdocumentFilenameAndUserIdFromAxios(id);
   await router.push(`/kw2/approval/detail/manager/${id}`)
 
@@ -111,7 +119,10 @@ onMounted(async () => {
 
       <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
       <tr>
-        <th class="px-6 py-3" scope="col">
+        <th class="py-3" scope="col">
+          <!-- จุดแดง  -->
+        </th>
+        <th class="px-3 py-3" scope="col">
           ชื่อเรื่อง
         </th>
         <th class="px-6 py-3" scope="col">
@@ -138,7 +149,11 @@ onMounted(async () => {
           v-for="item in approveList"
           class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
 
-        <th class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">
+        <td class="pl-4 items-center justify-center">
+          <div v-if="item.isManagerRead === 0" class="w-2 h-2 bg-red-500 border border-white rounded-full"></div>
+        </td>
+
+        <th class="flex items-center py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">
           <div class="ps-3">
             <div class="text-base font-semibold">{{ item.documentInfo.title }}</div>
             <div class="font-normal text-gray-500">{{ item.documentInfo.description }}</div>

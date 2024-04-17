@@ -19,4 +19,9 @@ public class NotificationController {
         return notificationService.getNotificationsByUserId(userId);
     }
 
+    @PostMapping("/read/{notificationId}")
+    public void markNotificationAsRead(@PathVariable Integer notificationId) {
+        notificationService.markNotificationAsRead(notificationId);
+    }
+
 }
