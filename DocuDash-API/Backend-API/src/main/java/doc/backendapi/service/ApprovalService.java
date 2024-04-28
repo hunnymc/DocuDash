@@ -195,6 +195,10 @@ public class ApprovalService {
     // ---------------  Add New relation between document and manager ----------------
 
     public CustomHttpException addManager(List<CreateVerifyManagerDto> userDocAndManagersDtos) {
+
+        // alert sidebar to fetch new document
+        notificationService.sendNewDocNotificationToAdmin();
+
         for (CreateVerifyManagerDto userDocAndManagersDto : userDocAndManagersDtos) {
             User manager = userRepository.findById(userDocAndManagersDto.getManagerID()).orElseThrow(()
                     -> new CustomHttpException(HttpStatus.NOT_FOUND, "Manager not found"));
@@ -216,12 +220,18 @@ public class ApprovalService {
                 verifydoc.setIsRead(1);
                 verifydocRepository.save(verifydoc);
 
+                // alert sidebar to fetch new document
+                notificationService.sendNewDocNotificationToAdmin();
+
                 if (verifyadmindocRepository.findByDocumentID_Id(document.getId()).isEmpty()) {
                     Verifyadmindoc verifyadmindoc = new Verifyadmindoc();
                     verifyadmindoc.setDocumentID(document);
                     verifyadmindoc.setIsPass(-1);
                     verifyadmindoc.setIsRead(0);
                     verifyadmindocRepository.save(verifyadmindoc);
+
+                    // alert sidebar to fetch new document
+                    notificationService.sendNewDocNotificationToAdmin();
                 }
 
                 if (documentStatusRepository.getStatusByDocumentId(document.getId()) == null) {
@@ -241,7 +251,10 @@ public class ApprovalService {
 
                 }
 
-                // in case the document has been added by the admin
+                // alert sidebar to fetch new document
+                notificationService.sendNewDocNotificationToAdmin();
+
+            // in case the document has been added by the admin
             } else {
                 Verifydoc verifydoc = new Verifydoc();
                 verifydoc.setDocumentID(document);
@@ -256,6 +269,9 @@ public class ApprovalService {
                     verifyadmindoc.setIsPass(1);
                     verifyadmindoc.setIsRead(1);
                     verifyadmindocRepository.save(verifyadmindoc);
+
+                    // alert sidebar to fetch new document
+                    notificationService.sendNewDocNotificationToAdmin();
                 }
 
                 if (documentStatusRepository.getStatusByDocumentId(document.getId()) == null) {
@@ -282,7 +298,14 @@ public class ApprovalService {
 
                 }
             }
+
+            // alert sidebar to fetch new document
+            notificationService.sendNewDocNotificationToAdmin();
+
         }
+
+        // alert sidebar to fetch new document
+        notificationService.sendNewDocNotificationToAdmin();
 
         return new CustomHttpException(HttpStatus.OK, "The operation was successful and the manager has been added.");
 
@@ -347,7 +370,7 @@ public class ApprovalService {
             return new rejectInfoDto("Admin", verifyadmindoc.getComment());
 
         // if the document status is 6 (rejected by manager)
-        } else if (documentstatus != null && documentstatus.getStatusID().getId() == 6) {
+        } else if (documentstatus != null && ((documentstatus.getStatusID().getId() == 6) || (documentstatus.getStatusID().getId() == 7))){
             // find the manager who rejected the document
             Verifydoc verifydoc = (Verifydoc) verifydocRepository.findByDocumentID_IdAndIsPass(documentId, 0)
                     .orElseThrow(() -> new RuntimeException("Verifydoc not found"));
@@ -494,7 +517,6 @@ public class ApprovalService {
             documentStatusRepository.save(documentstatus);
 
 
-
             // set isRead back to 0
             documentstatus.setIsOwnerRead(0);
 
@@ -502,6 +524,23 @@ public class ApprovalService {
                     "Request has been rejected by Manager", document.getUsersUserid().getFullName(), 5);
 
             throw new CustomHttpException(HttpStatus.OK, "The operation was successful and the document has been rejected.");
+
+        // เอกสารถูกตีกลับ
+        } else if (managerApproveDocDto.getIs_pass() == 2) {
+            verifydoc.setIsPass(0);
+            verifydoc.setComment(managerApproveDocDto.getComment() == null ? "" : managerApproveDocDto.getComment());
+            verifydocRepository.save(verifydoc);
+            documentstatus.setStatusID(verifystatustypeRepository.findById(7).orElseThrow(() -> new RuntimeException("Status not found")));
+            documentStatusRepository.save(documentstatus);
+
+            // set isRead back to 0
+            documentstatus.setIsOwnerRead(0);
+
+            notificationService.createNotification(document.getUsersUserid().getId(), document.getId(),
+                    "Request has been rejected by Manager", document.getUsersUserid().getFullName(), 9);
+
+            throw new CustomHttpException(HttpStatus.OK, "The operation was successful and the document has been rejected.");
+
         } else {
             throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Invalid value for is_pass");
         }
@@ -638,11 +677,14 @@ public class ApprovalService {
         waveGraphInfoDto.setNewRequestsLastWeek(newRequestsLastWeek);
 
 
-        // Calculate the percentage increase from the last week
-        double percentageIncreaseFromLastWeek = ((double)
-                waveGraphInfoDto.getNewRequestsThisWeek() - (double) waveGraphInfoDto.getNewRequestsLastWeek()) / (double) waveGraphInfoDto.getNewRequestsLastWeek() * 100;
+        double percentageIncreaseFromLastWeek = 0.0;
 
-        // round the percentage to the nearest whole number
+        if (waveGraphInfoDto.getNewRequestsLastWeek() > 0) {
+            percentageIncreaseFromLastWeek = ((double) waveGraphInfoDto.getNewRequestsThisWeek() - (double) waveGraphInfoDto.getNewRequestsLastWeek()) / (double) waveGraphInfoDto.getNewRequestsLastWeek() * 100;
+        } else if (waveGraphInfoDto.getNewRequestsThisWeek() > 0) {
+            percentageIncreaseFromLastWeek = 100.0;
+        }
+
         waveGraphInfoDto.setPercentageIncreaseFromLastWeek((int) Math.round(percentageIncreaseFromLastWeek));
 
         return waveGraphInfoDto;

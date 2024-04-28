@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import axios from "axios";
 import moment from "moment";
 import Cookies from "js-cookie";
@@ -15,6 +15,7 @@ let mainURL= import.meta.env.VITE_API_URL;
 // let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
 
 const approveList = ref([])
+const store = useDocumentListStore();
 
 let user_id = Cookies.get('userId')
 let user_role = Cookies.get('role')
@@ -54,38 +55,70 @@ async function clickToViewDoc(id) {
   await router.push(`/kw2/approval/detail/admin/${id}`);
 }
 
+// ----------- sort function ----------------------
+
+const buttonSortByDate = (order) => {
+  if (order === 1) {
+    approveList.value.sort((a, b) => a.documentInfo.dateAdd - b.documentInfo.dateAdd)
+  } else if (order === 2) {
+    approveList.value.sort((a, b) => b.documentInfo.dateAdd - a.documentInfo.dateAdd)
+  }
+}
+
+// group by status and sort by date newest
+const groupByStatus = () => {
+  let group = approveList.value.reduce((r, a) => {
+    r[a.status_type_id] = [...r[a.status_type_id] || [], a];
+    return r;
+  }, {});
+
+  let result = []
+  for (let key in group) {
+    result.push(group[key])
+  }
+
+  result = result.map(item => {
+    return item.sort((a, b) => b.documentInfo.dateAdd - a.documentInfo.dateAdd)
+  })
+
+  approveList.value = result.flat()
+}
+
+// ------------------------------------------------
+
+
 // ------------------- Wave chart -------------------------
 const waveGraph = ref(
-  {
-    "newRequestsThisWeek": 16,
-    "newRequestsLastWeek": 6,
-    "percentageIncreaseFromLastWeek": 167,
-    "day1": 1711931658028,
-    "day2": 1711845258028,
-    "day3": 1711758858028,
-    "day4": 1711672458028,
-    "day5": 1711586058028,
-    "day6": 1711499658028,
-    "day7": 1711413258028,
-    "countOfDay1": 5,
-    "countOfDay2": 1,
-    "countOfDay3": 3,
-    "countOfDay4": 1,
-    "countOfDay5": 1,
-    "countOfDay6": 3,
-    "countOfDay7": 2
-  }
+    {
+      "newRequestsThisWeek": 16,
+      "newRequestsLastWeek": 6,
+      "percentageIncreaseFromLastWeek": 167,
+      "day1": 1711931658028,
+      "day2": 1711845258028,
+      "day3": 1711758858028,
+      "day4": 1711672458028,
+      "day5": 1711586058028,
+      "day6": 1711499658028,
+      "day7": 1711413258028,
+      "countOfDay1": 5,
+      "countOfDay2": 1,
+      "countOfDay3": 3,
+      "countOfDay4": 1,
+      "countOfDay5": 1,
+      "countOfDay6": 3,
+      "countOfDay7": 2
+    }
 );
 
 // get data from api
 const getWaveInfo = async () => {
   await axios.get(mainURL + '/api/approve/graph/wave')
-    .then(function (response) {
-      waveGraph.value = response.data;
-    })
-    .catch(function (error) {
-      console.log(error);
-    })
+      .then(function (response) {
+        waveGraph.value = response.data;
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
 };
 
 const series = [
@@ -140,7 +173,7 @@ const getPieInfo = async () => {
         pieGraph.value = response.data;
       })
       .catch(function (error) {
-        console.log(error);
+        console.log(error.response.data.message);
       })
 };
 
@@ -150,6 +183,15 @@ const series_pie = [
   pieGraph.value.totalStatus4,
   pieGraph.value.totalStatus5
 ]
+
+watch(() => store.callFunctionToFetchDashboard, async (value) => {
+  if (value) {
+    getApproveList();
+    await getWaveInfo();
+    await getPieInfo();
+    store.setCallFunctionToFetchDashboard(false);
+  }
+});
 
 onMounted(async () => {
   getApproveList();
@@ -173,7 +215,7 @@ onMounted(async () => {
 
     <div
         class="w-full relative overflow-x-auto border-2 border-solid rounded-lg border-gray-300 dark:border-gray-600 h-dvh mb-4 p-2">
-      
+
       <!-- ตารางกลาง -->
       <div class="w-full relative overflow-x-auto shadow-md sm:rounded-lg">
 
@@ -198,10 +240,10 @@ onMounted(async () => {
                  class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
               <ul aria-labelledby="dropdownActionButton" class="py-1 text-sm text-gray-700 dark:text-gray-200">
                 <li>
-                  <a class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" href="#">เวลาที่ยื่น</a>
+                  <a @click="buttonSortByDate(2)" class="cursor-pointer block px-4 py-2 hover:bg-gray-100">เวลาที่ยื่นจาก ใหม่ - เก่า</a>
                 </li>
                 <li>
-                  <a class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" href="#">ประเภทคำร้อง</a>
+                  <a @click="buttonSortByDate(1)" class="cursor-pointer block px-4 py-2 hover:bg-gray-100">เวลาที่ยื่นจาก เก่า - ใหม่</a>
                 </li>
               </ul>
             </div>
@@ -213,7 +255,7 @@ onMounted(async () => {
             <th>
               <!--  จุดแดง  -->
             </th>
-            <th class="px-6 py-3" scope="col">
+            <th class="px-4 py-3" scope="col">
               ชื่อเรื่อง
             </th>
             <th class="px-6 py-3" scope="col">
@@ -228,23 +270,22 @@ onMounted(async () => {
             <th class="px-6 py-3" scope="col">
               ประเภทคำร้อง
             </th>
-
             <th class="px-6 py-3" scope="col">
               ตรวจสอบรายละเอียด
             </th>
           </tr>
           </thead>
 
-
           <tbody v-if="approveList.length > 0">
           <tr v-for="item in approveList"
-              class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+              class="bg-white border-b  hover:bg-gray-50 ">
             <td>
-              <div v-if="item.isRead === 0">
-                🔴
+              <!--     v-if="item.isRead === 0"         -->
+              <div v-if="item.isRead === 0"  class="pl-4" >
+                <div class="w-2 h-2  bg-red-500 border border-white rounded-full"></div>
               </div>
             </td>
-            <th class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">
+            <th class="flex items-center px-1 py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">
               <div class="ps-3">
                 <div class="font-normal text-gray-500">ID: {{ item.documentInfo.id }}</div>
                 <div class="text-base font-semibold">{{ item.documentInfo.title }}</div>
@@ -258,7 +299,7 @@ onMounted(async () => {
               {{ item.documentInfo.usersUserid.branch }}
             </td>
             <td class="px-6 py-4">
-              {{ moment(item.documentInfo.createdAt).format('DD/MM/YYYY') }}
+              {{ moment(item.documentInfo.dateAdd * 1000).format('DD/MM/YYYY') }}
             </td>
 
             <td v-if="item.approve_type_Id === 1" class="px-6 py-4">

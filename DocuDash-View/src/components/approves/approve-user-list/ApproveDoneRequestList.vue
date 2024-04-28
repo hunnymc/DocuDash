@@ -133,19 +133,21 @@ const getApproveList = async () => {
 }
 
 const StatusName = {
-  2: "รอการตรวจสอบจากผู้ดูแล",
-  3: "รออนุมัติ",
-  4: "อนุมัติแล้ว",
-  5: "ไม่ผ่านการอนุมัติ",
-  6: "ไม่ผ่านการอนุมัติ",
+    2: "รอการตรวจสอบจากผู้ดูแล",
+    3: "รออนุมัติ",
+    4: "อนุมัติแล้ว",
+    5: "ถูกตีกลับจาก ADMIN",
+    6: "ไม่ผ่านการอนุมัติจากผู้จัดการ",
+    7: "ถูกตีกลับจากผู้จัดการ",
 }
 
 const StatusColor = {
-  2: "bg-blue-500",
-  3: "bg-yellow-300",
-  4: "bg-green-500",
-  5: "bg-red-500",
-  6: "bg-red-500",
+    2: "bg-blue-500",
+    3: "bg-yellow-300",
+    4: "bg-green-500",
+    5: "bg-red-500",
+    6: "bg-red-500",
+    7: "bg-violet-500",
 }
 
 const sentDocToUserButton = async (documentID) => {
@@ -246,7 +248,8 @@ onBeforeMount(async () => {
         </td>
         <th class="flex items-center py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">
           <div class="ps-3">
-            <div class="text-base font-semibold">{{ item.documentInfo.title }}</div>
+            <div @click="clickToViewDoc(item.documentInfo.id)"
+                 class="text-base hover:underline hover:text-blue-600 cursor-pointer font-semibold">{{ item.documentInfo.title }}</div>
             <div class="font-normal text-gray-500">{{ item.documentInfo.description }}</div>
           </div>
         </th>

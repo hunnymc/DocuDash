@@ -407,10 +407,12 @@ watch(() => route.params.id, async () => {
           <div>
             <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
               for="category">ผู้จัดการที่รับเรื่อง</label>
-            <div
-              class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
+            <div class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 rounded-lg ">
               <!-- <h3 class="text-sm font-bold text-gray-900 dark:text-white ">กำลังตรวจสอบคำขออนุมัติ</h3> -->
-              <h3 class="text-sm font-bold text-gray-900 dark:text-white ">รอการตรวจสอบจากผู้ดูแล</h3>
+              <h3 class="text-sm font-bold text-gray-900">
+                {{ doc.managersWhoVerified.map(manager => manager.managerID.fullName).join(", ") }}
+              </h3>
+
 
             </div>
           </div>
@@ -449,7 +451,7 @@ watch(() => route.params.id, async () => {
                 <p class="text-sm">อยู่ระหว่างดำเนินการ</p>
               </li>
               <!-- ผู้ดูแลให้ผ่าน -->
-              <li v-if="doc.status_type_id != 5" class="mb-10 ms-8">
+              <li v-if="doc.status_type_id !== 5 && doc.status_type_id !== 2" class="mb-10 ms-8">
                 <span
                   class="absolute flex items-center justify-center w-8 h-8 bg-green-200 rounded-full -start-4 ring-4 ring-white ">
                   <svg aria-hidden="true" class="w-3.5 h-3.5 text-green-500 " fill="none" viewBox="0 0 16 12"

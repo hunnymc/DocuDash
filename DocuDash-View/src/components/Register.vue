@@ -8,10 +8,6 @@ const router = useRouter();
 
 let mainUrl = import.meta.env.VITE_API_URL;
 
-// let mainUrl = 'http://localhost:5002';
-// let mainUrl = 'http://cp23kw2.sit.kmutt.ac.th:10003';
-// let mainUrl = "https://capstone23.sit.kmutt.ac.th/kw2";
-
 const newUser = ref({
     // "email": "johndoe10@example.com",
     // "username": "johndoe10",
@@ -61,12 +57,12 @@ const createUser = async () => {
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             placeholder="กรอกชื่อ - นามสกุล" required autocomplete="username">
                     </div>
+                    
                     <div class="sm:col-span-2">
                         <label for="name" class="block mb-2 text-sm font-medium text-gray-900 ">รหัสผ่าน (Password)</label>
                         <input v-model="newUser.password" type="password"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            placeholder="กรอกรหัสผ่าน" required autocomplete="current-password"
->
+                            placeholder="กรอกรหัสผ่าน" required autocomplete="current-password">
                     </div>
 
 
@@ -75,6 +71,13 @@ const createUser = async () => {
                         <input v-model="newUser.email" type="email"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             placeholder="example@mail.com" required >
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 ">เบอร์โทร</label>
+                        <input v-model="newUser.phone" type="tel"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            placeholder="0123456789" required >
                     </div>
 
 

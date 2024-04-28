@@ -9,5 +9,4 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     protected boolean sameOriginDisabled() {
         return true;
     }
-
 }

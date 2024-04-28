@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useDocumentListStore } from "../stores/listOfDocumentStore.js";
 import { useRefreshFunctionStore } from "../stores/RefeshFunctionStore.js";
 import { useGraphStore } from "../stores/GraphStore.js";
+import { useLoginUserStore } from "../stores/LoginUserStore.js";
 
 // ------------------ Import Views ------------------
 import AllDocList from "../views/AllDocListView.vue";
@@ -30,9 +31,10 @@ import ApproveDoneRequestList from "../views/approve/approve-user-list/ApproveDo
 import ApprovePendingList from "../views/approve/approve-user-list/ApprovePendingList.vue";
 import ApproveRejectList from "../views/approve/approve-user-list/ApproveRejectList.vue";
 import ListNonApproveView from "../views/eDoc/ListNonApproveView.vue";
-import axios from "axios";
 import InternalDocListView from "../views/eDoc/InternalDocListView.vue";
 import ExternalDocListView from "../views/eDoc/ExternalDocListView.vue";
+import UserDetailView from "../views/user/UserDetailView.vue";
+import UserListView from "../views/user/UserListView.vue";
 
 const user_role = Cookies.get("role");
 const token = Cookies.get("accessToken");
@@ -40,18 +42,87 @@ const token = Cookies.get("accessToken");
 const routes = [
 
 
-    // Main Menu
+    // --------------------------- Main Menu ---------------------------
+
     { path: "/", redirect: "/kw2/menu" },
 
     { path: "/kw2/", redirect: "/kw2/menu" },
 
     { path: "/kw2/menu", name: "MainMenu", component: MainMenu },
 
+    // --------------------------- Authentication ---------------------------
 
-    // Document
+    { path: "/kw2/login", name: "Login", component: Login },
+
+    // { path: "/kw2/user/reset-password", name: "Logout", component: Login },
+
+    // --------------------------- User Management ---------------------------
+
+    {
+        path: "/kw2/user",
+        name: "UserInfo",
+        component: UserInfo,
+        beforeEnter: (to, from, next) => {
+            if (from.path.startsWith("/kw2/document")) {
+                useLoginUserStore().setPreviousPath(1);
+                next();
+            } else if (from.path.startsWith("/kw2/approval")) {
+                useLoginUserStore().setPreviousPath(2);
+                next();
+            } else {
+                useLoginUserStore().setPreviousPath(0);
+                next();
+            }
+        },
+    },
+
+    {
+        path: "/kw2/user-management",
+        name: "UserListView",
+        component: UserListView,
+        beforeEnter: (to, from, next) => {
+            if (user_role === "ADMIN") {
+                next();
+            } else {
+                next({ name: "NotFound" });
+            }
+        },
+    },
+
+    {
+        path: "/kw2/user-management/detail/:id",
+        name: "UserDetailView",
+        component: UserDetailView,
+        beforeEnter: (to, from, next) => {
+            if (user_role === "ADMIN") {
+                useLoginUserStore().getUserInfo(to.params.id).then(r => {
+                    next();
+                });
+            } else {
+                next({ name: "NotFound" });
+            }
+        },
+    },
+
+    {
+        path: "/kw2/user-management/register",
+        name: "Register",
+        component: Register,
+        beforeEnter: (to, from, next) => {
+            if (Cookies.get("role") === "ADMIN") {
+                next();
+            } else {
+                next({ name: "NotFound" });
+            }
+        },
+    },
+
+    // --------------------------- Document ---------------------------
+
     { path: "/kw2/document", redirect: "/kw2/document/list" },
 
     { path: "/kw2/document/list", name: "AllDocList", component: AllDocList },
+
     {
         path: "/kw2/document/list/all",
         name: "AdminDocList",
@@ -71,11 +142,7 @@ const routes = [
 
     { path: "/kw2/document/add", name: "CreateDoc", component: CreateDoc },
 
-    {
-        path: "/kw2/user",
-        name: "UserInfo",
-        component: UserInfo,
-    },
+
     {
         path: "/kw2/document/view/:id",
         name: "ViewDoc",
@@ -88,8 +155,6 @@ const routes = [
         },
     },
 
-    { path: "/kw2/login", name: "Login", component: Login },
-
     {
         path: "/kw2/document/edit/:id",
         namr: "EditDoc",
@@ -99,19 +164,6 @@ const routes = [
                 next({ name: "NotFound" });
             } else {
                 next();
-            }
-        },
-    },
-
-    {
-        path: "/kw2/register",
-        name: "Register",
-        component: Register,
-        beforeEnter: (to, from, next) => {
-            if (Cookies.get("role") === "ADMIN") {
-                next();
-            } else {
-                next({ name: "NotFound" });
             }
         },
     },
@@ -134,7 +186,7 @@ const routes = [
     { path: "/kw2/document/setting", name: "Setting", component: Setting },
 
 
-    // Approval
+    // --------------------------- Approval ---------------------------
     {
         path: "/kw2/approval",
         beforeEnter: (to, from, next) => {
@@ -299,7 +351,7 @@ const routes = [
     },
 
 
-    // Not Found
+    // --------------------------- Not Found ---------------------------
     {
         path: "/:pathMatch(.*)*",
         name: "NotFound",

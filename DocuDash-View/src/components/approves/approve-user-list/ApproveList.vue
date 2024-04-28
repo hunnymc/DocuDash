@@ -21,6 +21,37 @@ let user_id = Cookies.get('userId')
 let user_role = Cookies.get('role')
 let access_token = Cookies.get('accessToken')
 
+// ----------- sort function ----------------------
+
+const buttonSortByDate = (order) => {
+  if (order === 1) {
+    approveList.value.sort((a, b) => a.documentInfo.dateAdd - b.documentInfo.dateAdd)
+  } else if (order === 2) {
+    approveList.value.sort((a, b) => b.documentInfo.dateAdd - a.documentInfo.dateAdd)
+  }
+}
+
+// group by status and sort by date newest
+const groupByStatus = () => {
+  let group = approveList.value.reduce((r, a) => {
+    r[a.status_type_id] = [...r[a.status_type_id] || [], a];
+    return r;
+  }, {});
+
+  let result = []
+  for (let key in group) {
+    result.push(group[key])
+  }
+
+  result = result.map(item => {
+    return item.sort((a, b) => b.documentInfo.dateAdd - a.documentInfo.dateAdd)
+  })
+
+  approveList.value = result.flat()
+}
+
+// ------------------------------------------------
+
 const getApproveList = () => {
   axios.get(mainURL + '/api/approve/info/' + user_id, {
     headers: {
@@ -41,8 +72,9 @@ const StatusName = {
   2: "รอการตรวจสอบจากผู้ดูแล",
   3: "รออนุมัติ",
   4: "อนุมัติแล้ว",
-  5: "ไม่ผ่านการอนุมัติ",
-  6: "ไม่ผ่านการอนุมัติ",
+  5: "ถูกตีกลับจาก ADMIN",
+  6: "ไม่ผ่านการอนุมัติจากผู้จัดการ",
+  7: "ถูกตีกลับจากผู้จัดการ",
 }
 
 const StatusColor = {
@@ -51,6 +83,7 @@ const StatusColor = {
   4: "bg-green-500",
   5: "bg-red-500",
   6: "bg-red-500",
+  7: "bg-violet-500",
 }
 
 const clickToViewDoc = async (id) => {
@@ -93,6 +126,42 @@ onMounted(() => {
         </div>
       </div>
     </section>
+
+    <!-- หัวตาราง -->
+    <div
+        class="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-4 bg-white dark:bg-gray-900">
+      <div>
+        <button id="dropdownActionButton"
+                class="ml-5 inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                data-dropdown-toggle="dropdownAction"
+                type="button">
+          <span class="sr-only">Action button</span>
+          เรียงลำดับ
+          <svg aria-hidden="true" class="w-2.5 h-2.5 ms-2.5" fill="none" viewBox="0 0 10 6"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="m1 1 4 4 4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2"/>
+          </svg>
+        </button>
+        <!-- Dropdown menu -->
+        <div id="dropdownAction"
+             class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+          <ul aria-labelledby="dropdownActionButton" class="py-1 text-sm text-gray-700 dark:text-gray-200">
+            <li>
+              <a  @click="buttonSortByDate(2)" class="cursor-pointer block px-4 py-2 hover:bg-gray-100">เวลาที่ยื่นจาก ใหม่ - เก่า</a>
+            </li>
+            <li>
+              <a @click="buttonSortByDate(1)" class="cursor-pointer block px-4 py-2 hover:bg-gray-100">เวลาที่ยื่นจาก เก่า - ใหม่</a>
+            </li>
+            <li>
+              <a @click="groupByStatus()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100">ประเภทคำร้อง</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
       <tr>

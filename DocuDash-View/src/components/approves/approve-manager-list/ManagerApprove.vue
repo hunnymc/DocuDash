@@ -1,21 +1,16 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import axios from "axios";
 import Cookies from "js-cookie";
 import moment from "moment";
-import { useDocumentListStore } from "../../../stores/listOfDocumentStore.js";
-import { useRouter } from "vue-router";
+import {useDocumentListStore} from "../../../stores/listOfDocumentStore.js";
+import {useRouter} from "vue-router";
 
 let router = useRouter();
 
 let mainURL = import.meta.env.VITE_API_URL;
 
-// let mainURL = "http://localhost:5002";
-// let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
-
 const approveList = ref([])
-// const approveList = ref(approveListJson)
 
 let user_id = Cookies.get('userId')
 let access_token = Cookies.get('accessToken')
@@ -26,14 +21,14 @@ const getApproveList = () => {
       "Authorization": 'Bearer ' + access_token
     }
   })
-  .then(function (response) {
-    approveList.value = response.data
-    // filter only status 3
-    approveList.value = approveList.value.filter((item) => item.status_type_id === 3)
-  })
-  .catch(function (error) {
-    console.log(error);
-  })
+      .then(function (response) {
+        approveList.value = response.data
+        // filter only status 3
+        approveList.value = approveList.value.filter((item) => item.status_type_id === 3)
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
 }
 
 const StatusName = {
@@ -55,12 +50,12 @@ const StatusColor = {
 const clickToViewDoc = async (id) => {
 
   await axios.post(
-    mainURL + '/api/approve/read/manager/' + user_id + '/' + id
-    , {userId: Cookies.get("userId")}
-    , {headers: {"Authorization": "Bearer " + Cookies.get("accessToken"),}})
-    .catch(function (error) {
-      console.log(error);
-    });
+      mainURL + '/api/approve/read/manager/' + user_id + '/' + id
+      , {userId: Cookies.get("userId")}
+      , {headers: {"Authorization": "Bearer " + Cookies.get("accessToken"),}})
+      .catch(function (error) {
+        console.log(error);
+      });
   await useDocumentListStore().getdocumentFilenameAndUserIdFromAxios(id);
   await router.push(`/kw2/approval/detail/manager/${id}`)
 
@@ -69,6 +64,37 @@ const clickToViewDoc = async (id) => {
 function changeUNIXtoDate(unix) {
   return moment.unix(unix).format('DD/MM/YYYY');
 }
+
+// ----------- sort function ----------------------
+
+const buttonSortByDate = (order) => {
+  if (order === 1) {
+    approveList.value.sort((a, b) => a.documentInfo.dateAdd - b.documentInfo.dateAdd)
+  } else if (order === 2) {
+    approveList.value.sort((a, b) => b.documentInfo.dateAdd - a.documentInfo.dateAdd)
+  }
+}
+
+// group by status and sort by date newest
+const groupByStatus = () => {
+  let group = approveList.value.reduce((r, a) => {
+    r[a.status_type_id] = [...r[a.status_type_id] || [], a];
+    return r;
+  }, {});
+
+  let result = []
+  for (let key in group) {
+    result.push(group[key])
+  }
+
+  result = result.map(item => {
+    return item.sort((a, b) => b.documentInfo.dateAdd - a.documentInfo.dateAdd)
+  })
+
+  approveList.value = result.flat()
+}
+
+// ------------------------------------------------
 
 onMounted(async () => {
   getApproveList();
@@ -82,13 +108,14 @@ onMounted(async () => {
     <!-- หัวตาราง -->
 
     <div
-        class="bg-slate-300 flex items-center justify-between  md:flex-row flex-wrap space-y-4 md:space-y-0 py-4 bg-white dark:bg-gray-900">
+        class="bg-slate-300 flex items-center justify-between  md:flex-row flex-wrap space-y-4 md:space-y-0 py-1  bg-white dark:bg-gray-900">
       <div>
         <div class="m-3 mb-6">
           <h5 class="mr-3 font-semibold dark:text-white text-3xl">รายการเอกสารที่ขออนุมัติ</h5>
           <p class="text-gray-500 ">รวมรายการเอกสารและโครงการที่ท่านต้องอนุมัติทั้งหมด</p>
         </div>
-        <button id="dropdownActionButton" class="ml-2 inline-flex items-center text-gray-700 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+        <button id="dropdownActionButton"
+                class="ml-4 inline-flex items-center text-gray-700 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
                 data-dropdown-toggle="dropdownAction"
                 type="button">
           <span class="sr-only">Action button</span>
@@ -104,10 +131,10 @@ onMounted(async () => {
              class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
           <ul aria-labelledby="dropdownActionButton" class="py-1 text-sm text-gray-700 dark:text-gray-200">
             <li>
-              <a class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" href="#">เวลาที่ยื่น</a>
+              <a  @click="buttonSortByDate(2)" class="cursor-pointer block px-4 py-2 hover:bg-gray-100">เวลาที่ยื่นจาก ใหม่ - เก่า</a>
             </li>
             <li>
-              <a class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" href="#">ประเภทคำร้อง</a>
+              <a @click="buttonSortByDate(1)" class="cursor-pointer block px-4 py-2 hover:bg-gray-100">เวลาที่ยื่นจาก เก่า - ใหม่</a>
             </li>
           </ul>
         </div>
@@ -186,7 +213,10 @@ onMounted(async () => {
 
 
         <td class="px-6 py-4">
-          <button @click="clickToViewDoc(item.documentInfo.id)" class="font-medium text-sm  text-white px-6 py-1 bg-sky-600 rounded-lg hover:bg-sky-800  hover:underline" type="button">ตรวจสอบ</button>
+          <button @click="clickToViewDoc(item.documentInfo.id)"
+                  class="font-medium text-sm  text-white px-6 py-1 bg-sky-600 rounded-lg hover:bg-sky-800  hover:underline"
+                  type="button">ตรวจสอบ
+          </button>
         </td>
 
       </tr>
@@ -204,65 +234,65 @@ onMounted(async () => {
         </td>
       </tr>
 
-<!--      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">-->
+      <!--      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">-->
 
-<!--        <th class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">-->
+      <!--        <th class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white" scope="row">-->
 
-<!--          <div class="ps-3">-->
-<!--            <div class="text-base font-semibold">ขอทำไข่เจียวปู</div>-->
-<!--            <div class="font-normal text-gray-500">ไข่เจียวขึ้นราคาจึงขอทำไข่เจียวปู</div>-->
-<!--          </div>-->
-<!--        </th>-->
-<!--        <td class="px-6 py-4">-->
-<!--          อัครเดช สุขสวัสดิ์-->
-<!--        </td>-->
-<!--        <td class="px-6 py-4">-->
-<!--          &lt;!&ndash; เวลา &ndash;&gt;-->
-<!--        </td>-->
-<!--        <td class="px-6 py-4">-->
-<!--          &lt;!&ndash; เวลา &ndash;&gt;-->
-<!--        </td>-->
-<!--        <td class="px-6 py-4">-->
-<!--          <div class="flex items-center">-->
-<!--            <span class="text-gray-900 rounded bg-indigo-200 px-2 py-0.5">คำร้องแจ้งให้ทราบ</span>-->
-<!--          </div>-->
-<!--        </td>-->
-<!--        <td class="px-6 py-4">-->
-<!--          &lt;!&ndash; Modal toggle &ndash;&gt;-->
-<!--          <a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="#" type="button">ตรวจสอบ</a>-->
-<!--        </td>-->
-<!--      </tr>-->
-<!--      -->
-<!--      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">-->
+      <!--          <div class="ps-3">-->
+      <!--            <div class="text-base font-semibold">ขอทำไข่เจียวปู</div>-->
+      <!--            <div class="font-normal text-gray-500">ไข่เจียวขึ้นราคาจึงขอทำไข่เจียวปู</div>-->
+      <!--          </div>-->
+      <!--        </th>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          อัครเดช สุขสวัสดิ์-->
+      <!--        </td>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          &lt;!&ndash; เวลา &ndash;&gt;-->
+      <!--        </td>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          &lt;!&ndash; เวลา &ndash;&gt;-->
+      <!--        </td>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          <div class="flex items-center">-->
+      <!--            <span class="text-gray-900 rounded bg-indigo-200 px-2 py-0.5">คำร้องแจ้งให้ทราบ</span>-->
+      <!--          </div>-->
+      <!--        </td>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          &lt;!&ndash; Modal toggle &ndash;&gt;-->
+      <!--          <a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="#" type="button">ตรวจสอบ</a>-->
+      <!--        </td>-->
+      <!--      </tr>-->
+      <!--      -->
+      <!--      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">-->
 
-<!--        <th class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">-->
+      <!--        <th class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">-->
 
-<!--          <div class="ps-3">-->
-<!--            <div class="text-base font-semibold">หีไก่</div>-->
-<!--            <div class="font-normal text-gray-500">ฟหกฟหกฟหกฟหกฟก</div>-->
-<!--          </div>-->
-<!--        </th>-->
-<!--        <td class="px-6 py-4">-->
-<!--          อัครเดช สุขสวัสดิ์-->
-<!--        </td>-->
-<!--        <td class="px-6 py-4">-->
-<!--          &lt;!&ndash; เวลา &ndash;&gt;-->
-<!--        </td>-->
-<!--        <td class="px-6 py-4">-->
-<!--          &lt;!&ndash; เวลา &ndash;&gt;-->
-<!--        </td>-->
+      <!--          <div class="ps-3">-->
+      <!--            <div class="text-base font-semibold">หีไก่</div>-->
+      <!--            <div class="font-normal text-gray-500">ฟหกฟหกฟหกฟหกฟก</div>-->
+      <!--          </div>-->
+      <!--        </th>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          อัครเดช สุขสวัสดิ์-->
+      <!--        </td>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          &lt;!&ndash; เวลา &ndash;&gt;-->
+      <!--        </td>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          &lt;!&ndash; เวลา &ndash;&gt;-->
+      <!--        </td>-->
 
-<!--        <td class="px-6 py-4">-->
-<!--          <div class="flex items-center">-->
-<!--            <span class="text-gray-900 rounded bg-orange-200 px-2 py-0.5">คำร้องขออนุมัติเอกสาร</span>-->
-<!--          </div>-->
-<!--        </td>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          <div class="flex items-center">-->
+      <!--            <span class="text-gray-900 rounded bg-orange-200 px-2 py-0.5">คำร้องขออนุมัติเอกสาร</span>-->
+      <!--          </div>-->
+      <!--        </td>-->
 
-<!--        <td class="px-6 py-4">-->
-<!--          &lt;!&ndash; Modal toggle &ndash;&gt;-->
-<!--          <a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="#" type="button">ตรวจสอบ</a>-->
-<!--        </td>-->
-<!--      </tr>-->
+      <!--        <td class="px-6 py-4">-->
+      <!--          &lt;!&ndash; Modal toggle &ndash;&gt;-->
+      <!--          <a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="#" type="button">ตรวจสอบ</a>-->
+      <!--        </td>-->
+      <!--      </tr>-->
 
 
       </tbody>

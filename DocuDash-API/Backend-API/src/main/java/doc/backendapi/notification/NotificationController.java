@@ -24,4 +24,6 @@ public class NotificationController {
         notificationService.markNotificationAsRead(notificationId);
     }
 
+
+
 }

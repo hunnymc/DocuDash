@@ -57,6 +57,12 @@ public class NotificationService {
         messagingTemplate.convertAndSendToUser(userId, "/topic/private-notifications", notification);
     }
 
+    // alert admin side bar for new document
+    public void sendNewDocNotificationToAdmin() {
+        ResponseMessage message = new ResponseMessage("New Request for Approval Notification for Admin");
+        messagingTemplate.convertAndSend("/topic/admin-notifications", message);
+    }
+
     public Notification createNotification(int userId, int documentId, String message, String sourceUsername, int notificationTypeId ) {
 
         // Save the notification to the database

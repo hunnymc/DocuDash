@@ -17,6 +17,29 @@ let mainURL = import.meta.env.VITE_API_URL;
 
 let file = ref(null);
 
+//---------------  button sort by dateAdd in des or asc order ---------------
+
+const sortDateAdd = (order) => {
+
+  // old to new
+  if (order === 1) {
+    listdata.value.sort((a, b) => {
+      let dateA = new Date(a.documentsDocumentid1.dateAdd.split(" ")[0].split("-").reverse().join("-") + "T" + a.documentsDocumentid1.dateAdd.split(" ")[1]);
+      let dateB = new Date(b.documentsDocumentid1.dateAdd.split(" ")[0].split("-").reverse().join("-") + "T" + b.documentsDocumentid1.dateAdd.split(" ")[1]);
+      return dateA - dateB;
+    });
+
+    // new to old
+  } else if (order === 2) {
+    listdata.value.sort((a, b) => {
+      let dateA = new Date(a.documentsDocumentid1.dateAdd.split(" ")[0].split("-").reverse().join("-") + "T" + a.documentsDocumentid1.dateAdd.split(" ")[1]);
+      let dateB = new Date(b.documentsDocumentid1.dateAdd.split(" ")[0].split("-").reverse().join("-") + "T" + b.documentsDocumentid1.dateAdd.split(" ")[1]);
+      return dateB - dateA;
+    });
+  }
+};
+
+
 watch(() => store.callFunctionInComponentB, (value) => {
   if (value) {
     getAllDoc();
@@ -162,6 +185,39 @@ const listdata = ref([
         </div>
       </div>
     </section>
+
+
+    <!-- หัวตาราง -->
+    <div
+        class="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-1 bg-green-800 ">
+      <div>
+        <button id="dropdownActionButton"
+                class="ml-4 inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                data-dropdown-toggle="dropdownAction"
+                type="button">
+          <span class="sr-only">Action button</span>
+          เรียงลำดับ
+          <svg aria-hidden="true" class="w-2.5 h-2.5 ms-2.5" fill="none" viewBox="0 0 10 6"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="m1 1 4 4 4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2"/>
+          </svg>
+        </button>
+        <!-- Dropdown menu -->
+        <div id="dropdownAction"
+             class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 ">
+          <ul aria-labelledby="dropdownActionButton" class="py-1 text-sm text-gray-700 ">
+            <li>
+              <a @click="sortDateAdd(2)" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">เวลาที่ได้รับ ใหม่ - เก่า </a>
+            </li>
+            <li>
+              <a @click="sortDateAdd(1)" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">เวลาที่ได้รับ เก่า - ใหม่</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
     <table class="w-full text-sm text-left rtl:text-right text-white">
       <thead class="text-xs text-white uppercase bg-green-800">
       <tr>
@@ -179,13 +235,13 @@ const listdata = ref([
       </thead>
 
       <tbody v-if="listdata.length > 0" v-for="(thisdoc, index) in listdata">
-      <tr class="bg-white text-gray-900 border-b border-gray-700 hover:bg-gray-600 hover:text-white">
+      <tr class="bg-white text-gray-600 border-b 0 hover:bg-gray-50 ">
         <td class="w-4 p-4">
           {{ index + 1 }}
         </td>
         <th scope="row" class="px-6 py-4 font-medium">
           <a v-on:click="clickToViewDoc(thisdoc.documentsDocumentid1.id, thisdoc)"
-             class="cursor-pointer hover:text-blue-200">{{
+             class="cursor-pointer hover:text-blue-700 text-gray-900  font-semibold">{{
               thisdoc.documentsDocumentid1.title
             }}
           </a>

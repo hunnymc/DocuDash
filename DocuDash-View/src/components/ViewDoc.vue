@@ -175,18 +175,16 @@ watch(() => route.params.id, async () => {
           <div class="w-full">
             <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">รายละเอียด</label>
             <div
-                class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
+              class="block w-5/6 p-2.5 py-10 text-wrap bg-gray-50 border border-gray-300 text-sm text-gray-500">
               <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{ doc.description }}</h3>
-
             </div>
           </div>
           <div>
             <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
-                   for="category">แผนก</label>
+            for="category">แผนก</label>
             <div
                 class="block w-5/6 p-2.5 bg-gray-50 border border-gray-300 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg ">
               <h3 class="text-sm font-bold text-gray-900 dark:text-white ">{{ doc.branchSource }}</h3>
-
             </div>
           </div>
           <div class="w-full">

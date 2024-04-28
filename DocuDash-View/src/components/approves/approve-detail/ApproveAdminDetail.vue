@@ -128,8 +128,7 @@ function ClicktoApprove(isPass) {
       axios.post(mainURL + "/api/approve/admin/check-approve",
         {
           "document_id": doc_id.value,
-          "is_pass": isPass,
-          "comment": comment
+          "is_pass": isPass
         },
         {
           headers: {
@@ -533,12 +532,12 @@ watch(() => route.params.id, async () => {
         <fwb-modal v-if="isShowModal" @close="closeModal" persistent not-escapable size="3xl">
           <template #header>
             <div class="flex items-center text-lg font-bold">
-              ไม่อนุมัติคำขอ - Not Approved
+              ไม่อนุมัติคำขอและส่งกลับเพื่อแก้ไข - Not Approved
             </div>
           </template>
           <template #body>
             <p class="text-base leading-relaxed text-gray-500 ">
-              โปรดระบุเหตุผลที่ไม่อนุมัติคำขอ เลือกเหตุผลที่เหมาะสมจากตัวเลือกด้านล่าง
+              โปรดระบุเหตุผลที่ไม่อนุมัติคำขอและตีกลับให้ผู้ยื่นแก้ไข เลือกเหตุผลที่เหมาะสมจากตัวเลือกด้านล่าง
             </p>
             <br>
 

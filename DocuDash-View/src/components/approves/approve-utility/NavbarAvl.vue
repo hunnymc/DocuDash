@@ -17,39 +17,17 @@ let userRole = Cookies.get("role");
 let mainURL = import.meta.env.VITE_API_URL;
 let wsURL = import.meta.env.VITE_WS_URL;
 
-// let mainURL = "http://localhost:5002";
-// let mainURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-// let mainURL = "https://capstone23.sit.kmutt.ac.th/kw2";
-
-// let wsURL = "https://capstone23.sit.kmutt.ac.th/kw2-socket";
-// let wsURL = "http://cp23kw2.sit.kmutt.ac.th:10003";
-// let wsURL = "http://localhost:5002";
-// let wsURL = "https://capstone23.sit.kmutt.ac.th/kw2";
-
 function callFunctionInComponentB() {
   documentListStore.setCallFunctionInComponentB(true);
+}
+
+function callFunctionToFetchDashboard() {
+  documentListStore.setCallFunctionToFetchDashboard(true);
 }
 
 let showMenu = ref(false);
 
 let notificationMessage = ref(null);
-
-// {
-//   "id": 2,
-//   "message": "Document shared with you",
-//   "dateSent": "2024-02-17T15:40:52.684324400Z",
-//   "readStatus": "UNREAD",
-//   "sourceUsername": "นภา ฟ้าสวย",
-//   "docTitle": "test2"
-// },
-// {
-//   "id": 1,
-//   "message": "Document shared with you",
-//   "dateSent": "2024-02-17T15:40:52.684324400Z",
-//   "readStatus": "UNREAD",
-//   "sourceUsername": "นภา ฟ้าสวย",
-//   "docTitle": "test1"
-// }
 
 const toggleNav = () => (showMenu.value = !showMenu.value);
 
@@ -67,7 +45,6 @@ const user = ref({
 const getUserInfo = async () => {
   await axios.post(
       mainURL + '/api/auth/user-info'
-      // 'http://cp23kw2.sit.kmutt.ac.th:35000/api/auth/user-info'
       , {email: Cookies.get("email")}
       , {headers: {"Authorization": "Bearer " + Cookies.get("accessToken"),}})
       .then((response) => {
@@ -78,6 +55,8 @@ const getUserInfo = async () => {
         }
       });
 };
+
+let isReadAll = ref(true);
 
 const getNewNotification = async () => {
   await axios.get(
@@ -91,6 +70,14 @@ const getNewNotification = async () => {
           for (let i = 0; i < notificationMessage.value.length; i++) {
             let dateInMilliseconds = notificationMessage.value[i].dateSent * 1000;
             notificationMessage.value[i].dateSent = new Date(dateInMilliseconds).toString();
+          }
+
+          // check if there is any unread notification
+          for (let i = 0; i < notificationMessage.value.length; i++) {
+            if (notificationMessage.value[i].isRead === 0) {
+              isReadAll.value = false;
+              break;
+            }
           }
         }
       });
@@ -165,6 +152,10 @@ function connect() {
       callFunctionInComponentB();
       notificationCount.value = notificationCount.value + 1;
     });
+
+    stompClient.subscribe('/topic/admin-notifications', function () {
+      callFunctionToFetchDashboard();
+    });
   });
 }
 
@@ -186,7 +177,7 @@ async function clickNotification(Notification) {
     await router.push("/kw2/document/view/" + Notification.documentId);
   }
 
-  if (Notification.notificationTypeID >= 2 && Notification.notificationTypeID <= 6) {
+  if (Notification.notificationTypeID >= 2 && Notification.notificationTypeID <= 6 || Notification.notificationTypeID === 9) {
       await documentListStore.getdocumentFilenameAndUserIdFromAxios(Notification.documentId);
       await getNewNotification();
       await router.push("/kw2/approval/detail/user/" + Notification.documentId);
@@ -224,10 +215,6 @@ function changeApprovePage() {
   } else if (userRole === "USER") {
     approvepath.value = "/kw2/approval/list";
   }
-}
-
-function clickToAllDoc() {
-  router.push("/kw2/approval");
 }
 
 // ---------------------------------------------------------------------------------
@@ -306,7 +293,6 @@ watchEffect(() => {
 
         <!-- **** หน้าแรก **** -->
 
-
         <!-- <li>
           <a href="/list" class="text-gray-100 hover:text-indigo-400 cursor-pointer">
             จำนวนแจ้งเตือน: {{ notificationCount }}
@@ -333,7 +319,7 @@ watchEffect(() => {
               </svg>
 
               <!-- จุดแดง -->
-              <div v-if="notificationCount > 0"
+              <div v-show="!isReadAll"
                    class="absolute block w-3 h-3 bg-red-500 border-2 border-white rounded-full -top-0.5 start-2.5 dark:border-gray-900">
               </div>
 
@@ -375,78 +361,195 @@ watchEffect(() => {
                     </svg>
                   </div>
                 </div> -->
+
                   <!-- Type 1 (e-doc) All: คุณได้รับเอกสารแล้ว  -->
-                  <div v-if="noti.notificationTypeID === 1" class="w-full ps-3">
-                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                      <div v-if="noti.notificationTypeID === 1">
-                        <span class="font-semibold text-gray-900 dark:text-white">{{ noti.sourceUsername }}</span>
-                        ได้ส่งเอกสารถึงท่าน :
-                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                  <div v-if="noti.notificationTypeID === 1" class="w-full ps-3 ">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <img class="rounded-full w-11 h-11" src="../../../assets/8.png">
+                        <!-- <div
+                          class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
+                          <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 14">
+                            <path
+                              d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
+                          </svg>
+                        </div> -->
+                      </div>
+
+                      <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400 ml-4">
+                        <div v-if="noti.notificationTypeID === 1">
+                          <span class="font-semibold text-gray-900 dark:text-white">{{ noti.sourceUsername }}</span>
+                          ได้ส่งเอกสารถึงท่าน :
+                          <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                        </div>
                       </div>
                     </div>
-                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
-
+                    <div class="mt-1 ml-1 text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
                   </div>
 
                   <!-- Type 2 (e-approvals) Uses: + Admin อนุมัติคำร้องท่านแล้ว  -->
                   <div v-if="noti.notificationTypeID === 2" class="w-full ps-3">
-                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                      <span class="font-semibold text-gray-900 dark:text-white">แอดมิน</span>
-                      👌 ได้อนุมัติคำร้องของท่านแล้ว :
-                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <img class="rounded-full w-11 h-11" src="../../../assets/13.png">
+                        <!-- <div
+                          class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
+                          <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 14">
+                            <path
+                              d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
+                          </svg>
+                        </div> -->
+                      </div>
+                      <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400 ml-4">
+                        <span class="font-semibold text-gray-900 dark:text-white">แอดมิน</span>
+                        👌 ได้อนุมัติคำร้องของท่านแล้ว :
+                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                      </div>
                     </div>
-                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                    <div class="mt-1 ml-1 text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
                   </div>
 
                   <!-- Type 3 (e-approvals) Uses: - Admin ปฎิเสธคำร้องท่านแล้ว -->
                   <div v-if="noti.notificationTypeID === 3" class="w-full ps-3">
-                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                      <span class="font-semibold text-gray-900 dark:text-white">แอดมิน</span>
-                      ❌ ได้ปฎิเสธคำร้องของท่านแล้ว :
-                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <img class="rounded-full w-11 h-11" src="../../../assets/12.png">
+                        <!-- <div
+                          class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
+                          <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 14">
+                            <path
+                              d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
+                          </svg>
+                        </div> -->
+                      </div>
+                      <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400 ml-4">
+                        <span class="font-semibold text-gray-900 dark:text-white">แอดมิน</span>
+                        ❌ ได้ปฎิเสธคำร้องของท่านแล้ว :
+                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                      </div>
                     </div>
-                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                    <div class="mt-1 ml-1 text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
                   </div>
 
                   <!-- Type 4 (e-approvals) User/Admin: + Manager อนุมัติคำร้องท่านแล้ว  -->
                   <div v-if="noti.notificationTypeID === 4" class="w-full ps-3">
-                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                      <span class="font-semibold text-gray-900 dark:text-white">Manager</span>
-                      👌 ได้อนุมัติคำร้องของท่านแล้ว {{ noti.message }} คน :
-                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <img class="rounded-full w-11 h-11" src="../../../assets/14.png">
+                        <!-- <div
+                          class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
+                          <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 14">
+                            <path
+                              d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
+                          </svg>
+                        </div> -->
+                      </div>
+                      <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400 ml-4">
+                        <span class="font-semibold text-gray-900 dark:text-white">ผู้จัดการ</span>
+                        👌 ได้อนุมัติคำร้องของท่านแล้ว <span class="font-bold text-blue-700"> {{ noti.message }} คน : </span>
+                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                      </div>
                     </div>
-                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                    <div class="mt-1 ml-1 text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
                   </div>
 
                   <!-- Type 5 (e-approvals) User/Admin: - Manager ปฎิเสธคำร้องท่านแล้ว -->
                   <div v-if="noti.notificationTypeID === 5" class="w-full ps-3">
-                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                      <span class="font-semibold text-gray-900 dark:text-white">Manager</span>
-                      ❌ ได้ปฎิเสธคำร้องของท่านแล้ว :
-                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <img class="rounded-full w-11 h-11" src="../../../assets/12.png">
+                        <!-- <div
+                          class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
+                          <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 14">
+                            <path
+                              d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
+                          </svg>
+                        </div> -->
+                      </div>
+                      <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400 ml-4">
+                        <span class="font-semibold text-gray-900 dark:text-white">ผู้จัดการ</span>
+                        ❌ ได้ปฎิเสธคำร้องของท่านแล้ว :
+                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                      </div>
                     </div>
-                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                    <div class="mt-1 ml-1 text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
                   </div>
 
                   <!-- Type 6 (e-approvals) User/Admin: + คำร้องได้รับการอนุมัติแล้วจากผู้จัดการทั้งหมด  -->
                   <div v-if="noti.notificationTypeID === 6" class="w-full ps-3">
-                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                      <span class="font-semibold text-gray-900 dark:text-white">คำร้องของท่าน</span>
-                      ✅ ได้รับการอนุมัติจากผู้จัดการทั้งหมดแล้ว :
-                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <img class="rounded-full w-11 h-11" src="../../../assets/9.png">
+                        <!-- <div
+                          class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
+                          <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 14">
+                            <path
+                              d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
+                          </svg>
+                        </div> -->
+                      </div>
+
+                      <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400 ml-4">
+                        <span class="font-semibold text-gray-900 dark:text-white ">คำร้องของท่าน</span>
+                        ✅ ได้รับการอนุมัติจากผู้จัดการทั้งหมดแล้ว :
+                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                      </div>
                     </div>
-                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                    <div class="mt-1 ml-1 text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
                   </div>
 
                   <!-- Type 7 (e-approvals) Manager: คำร้องใหม่ส่งถึงท่าน  -->
                   <div v-if="noti.notificationTypeID === 7" class="w-full ps-3">
-                    <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                      <span class="font-semibold text-gray-900 dark:text-white">{{ noti.sourceUsername }}</span>
-                      ✍️ ได้ส่งคำร้องใหม่ให้ท่านตรวจสอบ :
-                      <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <img class="rounded-full w-11 h-11" src="../../../assets/11.png">
+                        <!-- <div
+                          class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
+                          <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 14">
+                            <path
+                              d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
+                          </svg>
+                        </div> -->
+                      </div>
+                      <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400 ml-4">
+                        <span class="font-semibold text-gray-900 dark:text-white">{{ noti.sourceUsername }}</span>
+                        ✍️ ได้ส่งคำร้องใหม่ให้ท่านตรวจสอบ :
+                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                      </div>
                     </div>
-                    <div class="text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                    <div class="mt-1 ml-1 text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
                   </div>
+
+                  <!-- Type 9 (e-approvals) User/Admin: - Manager ตีกลับคำร้องท่านแล้ว -->
+                  <div v-if="noti.notificationTypeID === 9" class="w-full ps-3">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <img class="rounded-full w-11 h-11" src="../../../assets/10.png">
+                        <!-- <div
+                          class="absolute flex items-center justify-center w-5 h-5 ms-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-800">
+                          <svg class="w-2 h-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 14">
+                            <path
+                              d="M11 0H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm8.585 1.189a.994.994 0 0 0-.9-.138l-2.965.983a1 1 0 0 0-.685.949v8a1 1 0 0 0 .675.946l2.965 1.02a1.013 1.013 0 0 0 1.032-.242A1 1 0 0 0 20 12V2a1 1 0 0 0-.415-.811Z" />
+                          </svg>
+                        </div> -->
+                      </div>
+                      <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400 ml-4">
+                        <span class="font-semibold text-gray-900 dark:text-white">ผู้จัดการ</span>
+                        ↩️ ได้ตีกลับคำร้องของท่าน กรุณาแก้ไขและส่งอีกครั้ง :
+                        <span class="font-semibold text-gray-900">{{ noti.docTitle }}</span>
+                      </div>
+                    </div>
+                    <div class="mt-1 ml-1 text-xs text-blue-600 dark:text-blue-500">{{ timeSince(noti.dateSent) }}</div>
+                  </div>
+
 
                 </a>
               </a>

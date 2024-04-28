@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -32,6 +33,8 @@ public class UserService implements UserDetailsService {
     private ListMapper listMapper;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserRepository userRepository;
 
     // get all users
     public List<UserInfoDto> getAllUsers() {
@@ -97,6 +100,7 @@ public class UserService implements UserDetailsService {
         if (repository.existsByUsername(newUser.getUsername())) {
             throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Username already exists.");
         }
+
         newUser.setUsername(newUser.getUsername().trim());
         newUser.setEmail(newUser.getEmail().trim());
         System.out.println("raw password: " + newUser.getPassword());
@@ -147,6 +151,75 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<User> user = repository.findByEmail(email);
         return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), new ArrayList<>());
+    }
+
+    public CustomHttpException editUser(Integer userId, UserInfoDto user) {
+
+        // validate data in user for all cases
+        // Can edit only Full Name, Email, Phone
+        // In this case can 1 field per request
+
+        if (user == null) {
+            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "User cannot be null");
+        }
+        if (!Objects.isNull(user.getUsername()) || !Objects.isNull(user.getBranch()) || !Objects.isNull(user.getRole())) {
+            throw new CustomHttpException(HttpStatus.BAD_REQUEST, "You can only edit Full Name, Email, Phone");
+        }
+        if (user.getFullName() != null) {
+            if (user.getFullName().isEmpty()) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Full Name cannot be empty");
+            }
+            if (user.getFullName().length() < 3 || user.getFullName().length() > 255) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Full Name must be between 3 and 255 characters");
+            }
+            if (user.getFullName().matches(".*\\d.*")) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Full Name cannot contain numbers");
+            }
+
+            // update user only field Full Name
+            repository.updateFullNameById(user.getFullName(), userId);
+            return new CustomHttpException(HttpStatus.OK, "User with ID: " + userId + " has been updated Full Name successfully");
+
+        }
+
+        if (user.getEmail() != null) {
+            if (user.getEmail().isEmpty()) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Email cannot be empty");
+            }
+            if (user.getEmail().length() < 5 || user.getEmail().length() > 255) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Email must be between 5 and 255 characters");
+            }
+            if (repository.existsByEmail(user.getEmail())) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Email already exists");
+            }
+            if (!user.getEmail().matches("^(.+)@(.+)$")) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Email format is invalid");
+            }
+
+            // update user only field Email
+            repository.updateEmailById(user.getEmail(), userId);
+            return new CustomHttpException(HttpStatus.OK, "User with ID: " + userId + " has been updated Email successfully");
+
+        }
+
+        if (user.getPhone() != null) {
+            if (user.getPhone().isEmpty()) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Phone cannot be empty");
+            }
+            if (user.getPhone().length() < 10 || user.getPhone().length() > 15) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Phone must be between 10 and 15 characters");
+            }
+            if (!user.getPhone().matches("^(\\+\\d{1,3}[- ]?)?\\d{10}$")) {
+                throw new CustomHttpException(HttpStatus.BAD_REQUEST, "Phone format is invalid");
+            }
+
+            // update user only field Phone
+            repository.updatePhoneById(user.getPhone(), userId);
+            return new CustomHttpException(HttpStatus.OK, "User with ID: " + userId + " has been updated Phone successfully");
+        }
+
+        return new CustomHttpException(HttpStatus.BAD_REQUEST, "Invalid request");
+
     }
 
 //    private User mapUser(User original, UpdateUserDto update) {

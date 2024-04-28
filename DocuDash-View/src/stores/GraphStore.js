@@ -43,7 +43,7 @@ export const useGraphStore = defineStore('graph', {
                         response.data.totalStatus4,
                         response.data.totalStatus5
                     ];
-                    console.log("(Store) pie chart: ", this.series_pie);
+                    // console.log("(Store) pie chart: ", this.series_pie);
                 })
                 .catch((error) => {
                     console.log(error);
@@ -73,7 +73,7 @@ export const useGraphStore = defineStore('graph', {
                         response.data.countOfDay7
                     ];
 
-                    console.log("(Store) wave graph: ", this.waveGraph);
+                    // console.log("(Store) wave graph: ", this.waveGraph);
 
                     this.chartOptions_wave = {
                         chart: {
@@ -102,7 +102,7 @@ export const useGraphStore = defineStore('graph', {
                             ]
                         },
                     };
-                    console.log("(Store) wave chart options: ", this.chartOptions_wave);
+                    // console.log("(Store) wave chart options: ", this.chartOptions_wave);
 
                     this.series_wave = [
                         {
@@ -119,7 +119,7 @@ export const useGraphStore = defineStore('graph', {
                         }
                     ]
 
-                    console.log("(Store) wave chart: ", this.series_wave);
+                    // console.log("(Store) wave chart: ", this.series_wave);
                 })
                 .catch((error) => {
                     console.log(error);

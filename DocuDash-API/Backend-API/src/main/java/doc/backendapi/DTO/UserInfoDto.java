@@ -12,6 +12,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class UserInfoDto implements Serializable {
     Integer id;
     @Size(max = 255)

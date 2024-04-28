@@ -37,7 +37,7 @@ const getWaveInfo = async () => {
       waveGraph.value = response.data;
     })
     .catch(function (error) {
-      console.log(error);
+      alert(error.response.data.message)
     })
 };
 

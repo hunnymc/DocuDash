@@ -16,6 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ManagerApproveDocDto implements Serializable {
+
     @NotNull(message = "Document ID must not be null")
     @NotBlank(message = "Document ID must not be blank")
     Integer document_id; // document id

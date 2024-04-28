@@ -113,6 +113,7 @@ const getDocById = async () => {
 };
 
 const isShowModal = ref(false)
+const isShowModal2 = ref(false)
 
 function closeModal() {
   isShowModal.value = false
@@ -122,9 +123,21 @@ function showModal() {
   isShowModal.value = true
 }
 
+function closeModal2() {
+  isShowModal2.value = false
+}
+
+function showModal2() {
+  isShowModal2.value = true
+}
+
+let approveResault = ref(-1);
+
 function ClicktoApprove(isPass) {
 
   let message = "";
+  approveResault.value = isPass
+
   if (isPass === 1) {
     message = "คุณต้องการอนุมัติคำขอนี้ใช่หรือไม่?";
     if (confirm(message)) {
@@ -144,12 +157,13 @@ function ClicktoApprove(isPass) {
             router.push("/kw2/approval/list/manager-accept");
           })
           .catch((error) => {
-            alert("เกิดข้อผิดพลาดบางอย่าง");
+            alert(error.response.data.message);
           });
-
     }
-  } else {
+  } else if (isPass === 0){
     showModal();
+  } else if (isPass === 2) {
+    showModal2();
   }
 }
 
@@ -160,7 +174,7 @@ const RejectUserRequest = () => {
   axios.post(mainURL + "/api/approve/mg/check-approve",
       {
         "document_id": doc_id.value,
-        "is_pass": 0,
+        "is_pass": approveResault.value,
         "manager_id": user_id,
         "comment": comment.value,
       },
@@ -523,6 +537,18 @@ watch(() => route.params.id, async () => {
                     </svg>
                   </div>
                 </li>
+
+                <li>
+                  <div
+                      class="inline-flex items-center justify-between w-full p-5 text-white bg-amber-600 border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-100 hover:bg-amber-700 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                      @click="ClicktoApprove(2)">
+                    <div class="block">
+                      <div class="w-full text-lg font-semibold">ตีกลับ</div>
+                      <div class="w-full">ตีกลับคำร้องที่ยื่นเข้ามาเพื่อให้ดำเนินการแก้ไขรายละเอียดคำขออนุมัติใหม่</div>
+                    </div>
+                    <svg class="w-13 h-12 ms-3 rtl:rotate-180" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9.00002 15.3802H13.92C15.62 15.3802 17 14.0002 17 12.3002C17 10.6002 15.62 9.22021 13.92 9.22021H7.15002" stroke="#ffffff" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8.57 10.7701L7 9.19012L8.57 7.62012" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                  </div>
+                </li>
               </ul>
             </div>
 
@@ -612,12 +638,49 @@ watch(() => route.params.id, async () => {
         <fwb-button @click="closeModal" color="alternative">
           ยกเลิกการดำเนินการ
         </fwb-button>
-        <fwb-button @click="RejectUserRequest()" color="red">
+        <fwb-button  @click="RejectUserRequest()" color="red">
           ไม่ผ่านการอนุมัติ
         </fwb-button>
       </div>
     </template>
   </fwb-modal>
+
+<!-- modal for edit -->
+<fwb-modal v-if="isShowModal2" @close="closeModal2" persistent not-escapable size="3xl">
+    <template #header>
+      <div class="flex items-center text-lg font-bold">
+        ไม่อนุมัติคำขอ - Not Approved RETURN FROM MANAGER
+      </div>
+    </template>
+    <template #body>
+      <p class="text-base leading-relaxed text-gray-500 ">
+        โปรดระบุเหตุผลที่ไม่อนุมัติคำขอ เพื่อแจ้งให้เจ้าของคำร้องทราบ
+      </p>
+      <br>
+
+      <div class="sm:col-span-2">
+        <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">คำอธิบาย</label>
+        <textarea id="description" rows="5"
+                  v-model="comment"
+                  class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500  "
+                  placeholder="กรอกเหตุผลของท่าน..."></textarea>
+      </div>
+
+
+    </template>
+    <template #footer>
+      <div class="flex justify-between">
+        <fwb-button @click="closeModal2" color="alternative">
+          ยกเลิกการดำเนินการ
+        </fwb-button>
+        <fwb-button  @click="RejectUserRequest()" color="red">
+          ไม่ผ่านการอนุมัติ
+        </fwb-button>
+      </div>
+    </template>
+  </fwb-modal>
+
+
 </template>
 
 <style lang="scss" scoped></style>

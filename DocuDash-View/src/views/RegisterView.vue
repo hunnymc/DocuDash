@@ -1,7 +1,7 @@
 <script setup>
 import { ref , onMounted, inject } from "vue";
 import Navbar from "../components/Navbar.vue";
-import Sidebar from "../components/Sidebar.vue";
+import UserSidebar from "../components/user/UserSidebar.vue";
 import ListTable from "../components/list-table.vue";
 import Register from "../components/Register.vue";
 import Footer from "../components/footer.vue";
@@ -11,7 +11,7 @@ import Footer from "../components/footer.vue";
 <template>
   <Navbar />
   <div class="flex">
-    <Sidebar />
+    <UserSidebar />
     <Register />
   </div>
   <Footer />

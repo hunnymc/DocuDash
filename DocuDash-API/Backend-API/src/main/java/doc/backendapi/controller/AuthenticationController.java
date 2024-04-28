@@ -32,12 +32,6 @@ public class AuthenticationController {
     @Autowired
     RefreshService refreshService;
 
-    @Autowired
-    private WSService wsService;
-
-    @Autowired
-    private JwtTokenUtil jwtUtil;
-
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<JwtResponse> matching(@Valid @RequestBody AuthLoginDto match) throws Exception {

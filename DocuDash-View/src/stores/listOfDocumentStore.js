@@ -9,6 +9,7 @@ export const useDocumentListStore = defineStore('documentList', {
         documentFilename: null,
         document_userId: null,
         callFunctionInComponentB: false,
+        callFunctionToFetchDashboard: false,
         editDocument: {}
     }),
     persist: true,
@@ -38,6 +39,9 @@ export const useDocumentListStore = defineStore('documentList', {
         },
         setCallFunctionInComponentB(value) {
             this.callFunctionInComponentB = value;
+        },
+        setCallFunctionToFetchDashboard(value) {
+            this.callFunctionToFetchDashboard = value;
         },
         setDocumentUserId(userId) {
             this.document_userId = userId

@@ -17,6 +17,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes("/ws");
     }
 
+    // wss://capstone23.sit.kmutt.ac.th/kw2-socket/api/kw2-websocket/428/emwciqly/websocket?userId=1
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry.addEndpoint("api/kw2-websocket")
