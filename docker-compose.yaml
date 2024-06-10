@@ -1,0 +1,58 @@
+version: '3.1'
+
+networks:
+    docudash-network:
+
+services:
+    docudash-db:
+        image: mysql
+        container_name: docudash-db
+        ports:
+            - "10002:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: edoc1234
+            LANG: en_US.UTF-8
+            MYSQL_COLLATION: utf8_general_ci
+            MYSQL_CHARACTER_SET: utf8
+        restart: unless-stopped
+        networks:
+            - docudash-network
+        volumes:
+            - ./mysql:/docker-entrypoint-initdb.d
+
+    docudash-backend:
+        image: backendimg
+        container_name: docudash-backend
+        build:
+            context: ./DocuDash-API/Backend-API
+        environment:
+            - spring.datasource.url=jdbc:mysql://docudash-db:3306/documentdb?useUnicode=true&characterEncoding=UTF-8
+            - spring.datasource.password=edoc1234
+            - server.port=8080
+        depends_on:
+            - docudash-db
+        networks:
+            - docudash-network
+        volumes:
+            - ./DocuDash-API/file-store:/file-store
+        links:
+            - docudash-db:mysql
+        ports:
+            - "10003:8080"
+            - "10003:10003"
+        restart: unless-stopped
+
+    docudash-view:
+        image: frontendimg
+        container_name: docudash-view
+        networks:
+            - docudash-network
+        build:
+            context: ./DocuDash-View
+            dockerfile: Dockerfile
+        depends_on:
+            - docudash-db
+            - docudash-backend
+        ports:
+            - "5000:80"
+        restart: unless-stopped

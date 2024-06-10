@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="c6b5ed9b-4c12-4375-9c51-91b830d14e2c" name="edoc" url="http://cp23kw2.sit.kmutt.ac.th">
+        <fileTransfer rootFolder="/home/sysadmin" accessType="SFTP" host="cp23kw2.sit.kmutt.ac.th" port="22" sshConfigId="dec979fa-f4d4-4e80-a00f-9f1ea31e230a" sshConfig="sysadmin@cp23kw2.sit.kmutt.ac.th:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

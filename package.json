@@ -1,0 +1,7 @@
+{
+  "name": "DocuDash",
+  "version": "1.0.0",
+  "dependencies": {
+    "vite": "^5.0.6"
+  }
+}
